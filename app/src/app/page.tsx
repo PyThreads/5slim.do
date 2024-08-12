@@ -1,3 +1,4 @@
+"use client"
 
 import Content from "../../components/layouts/Content";
 

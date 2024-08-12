@@ -1,10 +1,6 @@
-import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import ThemeProv from "./themeProvider.jsx"
 import "./globals.css";
 import "react-toastify/dist/ReactToastify.css";
-import { ToastContainer } from "react-toastify";
-import Script from "next/script.js";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -33,25 +29,8 @@ export default function RootLayout({
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords} />
-        
-        {/* <Script strategy='afterInteractive' src={`https://www.googletagmanager.com/gtag/js?id=${process?.env?.NEXT_PUBLIC_GA_UID || 'G-2M0NR02RGC'}`} />
-
-        <Script id="google-analytics" strategy="afterInteractive">
-          {
-            `
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process?.env?.NEXT_PUBLIC_GA_UID || 'G-2M0NR02RGC'}');
-            `
-          }
-        </Script> */}
       </head>
-      
-      <ThemeProv>
-        <ToastContainer/>
         <body className={inter.className}>{children}</body>
-      </ThemeProv>
     </html>
   );
 }

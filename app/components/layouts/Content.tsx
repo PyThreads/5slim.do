@@ -1,6 +1,7 @@
-import { Box, Button, Container, Grid, TextField, Typography } from "@mui/material";
+import { Container, Grid, Typography } from "@mui/material";
 import { Poppins } from "next/font/google";
 import Image from "next/image";
+import NotifySubscribed from "./Notify";
 
 
 const poppins = Poppins({
@@ -8,7 +9,6 @@ const poppins = Poppins({
     display: 'swap',
     weight: "500"
 })
-
 
 const poppins1 = Poppins({
     subsets: ['latin'],
@@ -31,6 +31,7 @@ export default function Content() {
                 />
 
                 <Typography
+                    variant="h1"
                     sx={{
                         color: "#BEBEBE",
                         fontStyle: "italic",
@@ -45,67 +46,24 @@ export default function Content() {
 
                 <Grid container spacing={2}>
 
-                    <Grid item xs={12} sm={12} md={5} lg={5}>
+                    <Grid item xs={12} sm={12} md={5} lg={5} mt={2}>
 
                         <Typography
+                            variant="h2"
                             sx={{
                                 color: "#001987",
-                                fontSize: { xs: 30, sm: 45, md: 50, lg: 65 },
+                                fontSize: { xs: 33, sm: 45, md: 50, lg: 55 },
                                 fontFamily: poppins1.style.fontFamily,
                                 textTransform: "capitalize",
+                                lineHeight: { sm: "65px", lg: "75px" }
                             }}
 
                         >
                             Recibe una Notificación de nuestro Lanzamiento
                         </Typography>
 
-                        <Box sx={{ position: "relative", height: 60 }}>
+                        <NotifySubscribed />
 
-                            <TextField placeholder="Ingresa tu Email"
-                                sx={{height: "100%"}}
-                                fullWidth
-                                InputProps={
-                                    {
-                                        style: {
-                                            paddingLeft:10,
-                                            borderRadius: 60,
-                                            border: "solid 1px #BEBEBE",
-                                            outline:"none",
-                                            height: "100%"
-                                        }
-                                    }
-                                }
-                            />
-
-                            <Button
-                                sx={{
-                                    position: "absolute",
-                                    right: 0,
-                                    height: "100%",
-                                    backgroundColor: "#001987",
-                                    borderRadius: 60,
-                                    textTransform: "inherit",
-                                    color: "white",
-                                    fontWeight: "500",
-                                    ":hover":{
-                                        backgroundColor:"#001987"
-                                    },
-                                    width:{ xs: 30, sm: 45, md: 50, lg: 200 }
-                                }}
-                                startIcon={
-                                    <Image
-                                        alt={"5slim.do. logo"}
-                                        style={{ objectFit: "contain" }}
-                                        width={25}
-                                        height={25}
-                                        src={"/flash-lines.png"}
-                                    />
-                                }
-                            >
-                                Notificarme
-                            </Button>
-
-                        </Box>
 
                     </Grid>
 
@@ -116,9 +74,9 @@ export default function Content() {
                     >
                         <Image
                             alt={"5slim.do. logo"}
-                            style={{ objectFit: "contain", marginTop: "-75px" }}
-                            width={450}
-                            height={450}
+                            style={{ objectFit: "cover", marginTop: "-120px" }}
+                            width={500}
+                            height={620}
                             src={"/flat-dia-cliente-illustration-1.png"}
                             className="bouncing-shadow"
                         />
@@ -126,6 +84,8 @@ export default function Content() {
 
 
                 </Grid>
+
+
 
             </Container>
         </Container >

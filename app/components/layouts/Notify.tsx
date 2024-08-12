@@ -38,11 +38,11 @@ export default function NotifySubscribed() {
 
         try {
 
-            await axiosInstance.post("/suscribeLaunch", formData);
+            await axiosInstance.post("users/public/suscribeLaunch", formData);
             handleOpen();
 
         } catch (error) {
-
+            console.log(error)
         } finally {
 
         }

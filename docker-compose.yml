@@ -1,7 +1,7 @@
 version: '3'
 services:
 
-  lbc-autoparts-app:
+  5slim-app:
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -12,16 +12,16 @@ services:
 
 
 
-#   lbc-autoparts-api:
-#     build:
-#       context: .
-#       dockerfile: ./DockerfileApi
-#     restart: always
-#     ports:
-#       - "8002:8000" # Mapear el puerto 5000 del contenedor al puerto 5000 del host
-#     volumes:
-#       - ./logs:/app/logs
+  5slim-api:
+    build:
+      context: .
+      dockerfile: ./DockerfileApi
+    restart: always
+    ports:
+      - "8002:8000" # Mapear el puerto 5000 del contenedor al puerto 5000 del host
+    volumes:
+      - ./logs:/app/logs
 
 
-# volumes:
-#   logs:
+volumes:
+  logs:

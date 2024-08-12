@@ -88,6 +88,14 @@ const validation = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
+const suscribeLaunch = () => {
+    return [
+        body('email').isString().withMessage("El correo de usuario es obligatorio."),
+        validation
+    ]
+}
+
+
 
 export {
     registerUser,
@@ -95,5 +103,6 @@ export {
     forgotPasswordValidation,
     submitPassword, addAddressValidation,
     changePasswordValidation,
-    updatePersonalInfoValidation
+    updatePersonalInfoValidation,
+    suscribeLaunch
 }

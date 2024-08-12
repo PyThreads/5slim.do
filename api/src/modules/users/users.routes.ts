@@ -7,7 +7,8 @@ import {
     submitPassword,
     addAddressValidation,
     changePasswordValidation,
-    updatePersonalInfoValidation
+    updatePersonalInfoValidation,
+    suscribeLaunch
 } from "./users.validationSchema"
 import { Db } from "mongodb"
 import BaseService from "../../base/baseService"
@@ -31,7 +32,8 @@ class UserRouter {
         publicRouter.post("/register", registerUser(), this.usersController.register.bind(this.usersController))
         publicRouter.post("/submitPassword", submitPassword(), this.usersController.submitPassword.bind(this.usersController))
         publicRouter.post("/forgotPassword", forgotPasswordValidation(), this.usersController.sendEmailCode.bind(this.usersController))
-
+        publicRouter.post("/suscribeLaunch", suscribeLaunch(), this.usersController.suscribeLaunch.bind(this.usersController))
+        
 
         router.get("/address", this.usersController.getAddress.bind(this.usersController))
         router.put("/address", addAddressValidation(), this.usersController.addAddress.bind(this.usersController))

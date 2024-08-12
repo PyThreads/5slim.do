@@ -12,6 +12,28 @@ class Users {
         this.usersService = new UsersService({ mongoDatabase });
     }
 
+    async suscribeLaunch (req: Request, res: Response) {
+        try {
+
+            const response = await this.usersService.suscribeLaunch({body: req.body });
+
+            res.status(200).json({
+                success: true,
+                data: response,
+                message: "Se han actualizado correctamente sus datos."
+            })
+
+        } catch (error: any) {
+
+            res.status(401).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al actualizar sus datos."
+            })
+
+        }
+    }
+
     async personalInformation (req: Request, res: Response) {
         try {
 

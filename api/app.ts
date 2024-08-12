@@ -2,7 +2,6 @@ import express from "express"
 import cors from "cors"
 import { database, environmentConfig } from "./src/config";
 import RouterApp from "./src/routes";
-import { migrate } from "./src/migrateDB";
 
 // Crea una aplicación Express
 const app = express();
@@ -25,4 +24,3 @@ app.listen(environmentConfig.SERVICE_PORT, async () => {
 }); 
 
 //INICIA MIGRACIONES EN CASO DE CORRER EL COMANDO NPM RUN MIGRATE-ARTICLES
-migrate();

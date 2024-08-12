@@ -6,12 +6,24 @@ import { Db } from "mongodb";
 class UsersService extends BaseService {
 
     private addressServiceBase: BaseService
+    public suscribedLaunchService: BaseService
 
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: "USERS" });
         this.addressServiceBase = new BaseService({ mongoDatabase, tableName: "ADDRESS" })
+        this.suscribedLaunchService = new BaseService({ mongoDatabase, tableName: "SUSCRIBED" })
     }
 
+
+    async suscribeLaunch({body }: {  body: {email:string} }): Promise<void> {
+
+        try {
+            await this.suscribedLaunchService.insertOne({body})
+
+        } catch (error: any) {
+            this.handleError(error)
+        }
+    }
 
     async changePassword({ user, body }: { user: IUser, body: IChangePasswordBody }): Promise<void> {
 

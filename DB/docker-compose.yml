@@ -15,3 +15,7 @@ services:
 
 volumes:
   mongoDB_data:  # Definición de volumen para MongoDB data
+
+
+networks:
+  fiveslim-network:

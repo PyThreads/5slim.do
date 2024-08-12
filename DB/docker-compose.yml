@@ -10,6 +10,8 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: root
       MONGO_INITDB_ROOT_PASSWORD: root
+    networks:
+      - fiveslim-network
 
 volumes:
   mongoDB_data:  # Definición de volumen para MongoDB data

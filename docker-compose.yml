@@ -8,6 +8,8 @@ services:
     restart: always
     ports:
       - "8001:3000" # Mapear el puerto 5000 del contenedor al puerto 5000 del host
+    networks:
+      - fiveslim-network
 
 
 
@@ -21,6 +23,8 @@ services:
       - "8002:8000" # Mapear el puerto 5000 del contenedor al puerto 5000 del host
     volumes:
       - ./logs:/app/logs
+    networks:
+      - fiveslim-network
 
 
 volumes:

@@ -34,7 +34,7 @@ export default function RootLayout({
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords} />
         
-        <Script strategy='afterInteractive' src={`https://www.googletagmanager.com/gtag/js?id=${process?.env?.NEXT_PUBLIC_GA_UID || 'G-2M0NR02RGC'}`} />
+        {/* <Script strategy='afterInteractive' src={`https://www.googletagmanager.com/gtag/js?id=${process?.env?.NEXT_PUBLIC_GA_UID || 'G-2M0NR02RGC'}`} />
 
         <Script id="google-analytics" strategy="afterInteractive">
           {
@@ -45,7 +45,7 @@ export default function RootLayout({
               gtag('config', '${process?.env?.NEXT_PUBLIC_GA_UID || 'G-2M0NR02RGC'}');
             `
           }
-        </Script>
+        </Script> */}
       </head>
       
       <ThemeProv>

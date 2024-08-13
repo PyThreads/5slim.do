@@ -23,7 +23,7 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <link rel="icon" type="image/png" href="/favicon.ico"></link>
+      <link rel="icon" type="image/png" href="/flash-lines copy.ico"></link>
 
       <head>
         <title>{metadata.title}</title>

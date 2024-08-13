@@ -23,7 +23,7 @@ class EnvironmentConfig {
         this.DB_NAME = process.env.DB_NAME || '5SLIM-DO';
         this.DB_USER = process.env.DB_USER || 'root';
         this.DB_PASSWORD = process.env.DB_PASSWORD || 'root';
-        this.DB_HOST = process.env.DB_HOST || 'localhost';
+        this.DB_HOST = process.env.DB_HOST || '172.31.32.139';
         this.DB_PORT = Number(process.env.DB_PORT) || 27017;
 
         this.SMTP_USER = process.env.SMTP_USER || "tienda-no-reply";

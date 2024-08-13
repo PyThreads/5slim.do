@@ -26,17 +26,11 @@ class EnvironmentConfig {
 
         this.SERVICE_PORT = Number(process.env.SERVICE_PORT || 8000);
 
-        this.DB_NAME = process.env.DB_NAME || 'LBC_AUTOPARTS_WEB';
+        this.DB_NAME = process.env.DB_NAME || '5SLIM-DO';
         this.DB_USER = process.env.DB_USER || 'root';
         this.DB_PASSWORD = process.env.DB_PASSWORD || 'root';
         this.DB_HOST = process.env.DB_HOST || 'localhost';
         this.DB_PORT = Number(process.env.DB_PORT) || 27017;
-
-        this.DB_EXTERNAL_NAME = process.env.DB_EXTERNAL_NAME || 'Expherto_0003';
-        this.DB_EXTERNAL_USER = process.env.DB_EXTERNAL_USER || 'lbcweb';
-        this.DB_EXTERNAL_PASSWORD = process.env.DB_EXTERNAL_PASSWORD || 'lbcweb2024./.';
-        this.DB_EXTERNAL_HOST = process.env.DB_EXTERNAL_HOST || 'SRVDC01-02';
-        this.DB_EXTERNAL_ARTICLES_VIEW = process.env.DB_EXTERNAL_ARTICLES_VIEW || 'vistaArticulos';
 
         this.SMTP_USER = process.env.SMTP_USER || "tienda-no-reply";
         this.SMTP_SEND_AS = process.env.SMTP_SEND_AS || "tienda-no-reply@lbcautoparts.net";

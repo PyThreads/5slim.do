@@ -25,6 +25,8 @@ services:
       - ./logs:/app/logs
     networks:
       - fiveslim-network
+    environment:
+      - DB_HOST:172.31.32.139
 
 
 volumes:

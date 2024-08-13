@@ -35,25 +35,6 @@ class Database {
         return this.initDB();
     }
 
-    async getExternalDb() {
-
-        const config = {
-            user: environmentConfig.DB_EXTERNAL_USER,
-            password: environmentConfig.DB_EXTERNAL_PASSWORD,
-            server: environmentConfig.DB_EXTERNAL_HOST,
-            database: environmentConfig.DB_EXTERNAL_NAME,
-            options: {
-                encrypt: false,
-                trustServerCertificate: false,
-                reconnect: true,
-                hostNameInCertificate: false  // Establecer esta opción
-            }
-        };
-
-        const pool: ConnectionPool = new ConnectionPool(config);
-        return pool;
-
-    }
 }
 
 export default new Database();

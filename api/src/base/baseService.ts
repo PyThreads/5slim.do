@@ -10,7 +10,6 @@ import { NextFunction, Response, Request } from "express";
 
 
 class BaseService {
-    public databaseExternal: Promise<ConnectionPool> | undefined;
     public readonly tableName: string
     public readonly collection: Collection | any;
     public readonly mongoDatabase: Db;
@@ -24,7 +23,6 @@ class BaseService {
         this.environmentConfig = environmentConfig
         this.mongoDatabase = mongoDatabase;
         this.collection = mongoDatabase.collection(this.tableName)
-        this.databaseExternal = database.getExternalDb();
         this.tempCodeTable = "TEMP_CODES";
     }
 

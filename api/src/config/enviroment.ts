@@ -10,12 +10,6 @@ class EnvironmentConfig {
     public readonly DB_HOST: string;
     public readonly DB_PORT: number;
 
-    public readonly DB_EXTERNAL_NAME: string;
-    public readonly DB_EXTERNAL_USER: string;
-    public readonly DB_EXTERNAL_PASSWORD: string;
-    public readonly DB_EXTERNAL_HOST: string;
-    public readonly DB_EXTERNAL_ARTICLES_VIEW: string;
-
     public readonly SMTP_USER: string;
     public readonly SMTP_SEND_AS: string;
     public readonly SMTP_PASSWORD: string;

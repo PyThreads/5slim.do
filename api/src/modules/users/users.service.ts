@@ -6,24 +6,12 @@ import { Db } from "mongodb";
 class UsersService extends BaseService {
 
     private addressServiceBase: BaseService
-    public suscribedLaunchService: BaseService
-
+    public readonly collection: Document | any
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: "USERS" });
         this.addressServiceBase = new BaseService({ mongoDatabase, tableName: "ADDRESS" })
-        this.suscribedLaunchService = new BaseService({ mongoDatabase, tableName: "SUSCRIBED" })
     }
 
-
-    async suscribeLaunch({body }: {  body: {email:string} }): Promise<void> {
-
-        try {
-            await this.suscribedLaunchService.insertOne({body})
-
-        } catch (error: any) {
-            this.handleError(error)
-        }
-    }
 
     async changePassword({ user, body }: { user: IUser, body: IChangePasswordBody }): Promise<void> {
 
@@ -33,7 +21,7 @@ class UsersService extends BaseService {
             await this.collection.updateOne({ _id: user._id }, { $set: { password: newPassword } });
 
         } catch (error: any) {
-            this.handleError(error)
+            throw error
         }
     }
 
@@ -44,7 +32,7 @@ class UsersService extends BaseService {
             const { value }: { value: IUser | undefined } = await this.collection.findOneAndUpdate({ _id: userId }, { $set: body }, { returnDocument: 'after' })
             return value;
         } catch (error: any) {
-            this.handleError(error)
+            throw error
         }
     }
 
@@ -58,7 +46,7 @@ class UsersService extends BaseService {
         }
     }
 
-    async addAddress({ userId, body }: { userId: number, body: IUserAddress }): Promise<IUserAddress> {
+    async addAddress({ userId, body,user }: { userId: number, body: IUserAddress,user: IUser }): Promise<IUserAddress> {
 
         try {
 
@@ -70,7 +58,7 @@ class UsersService extends BaseService {
                 result = await this.addressServiceBase.collection.updateOne({ _id: body._id }, { $set: body });
                 result = body;
             } else {
-                result = await this.addressServiceBase.insertOne({ body });
+                result = await this.addressServiceBase.insertOne({ body,user });
             }
 
             return body as any as IUserAddress
@@ -97,7 +85,6 @@ class UsersService extends BaseService {
             }
 
             delete user.password
-            user.fullName = user.name + " " + user.lastName
             user.token = this.generateToken(user);
 
             return user
@@ -122,9 +109,11 @@ class UsersService extends BaseService {
                 throw new Error("Existe una cuenta con el correo: " + userToRegister.email);
             }
 
+            userToRegister.fullName = `${userToRegister.name.trim()} ${(userToRegister.lastName ? userToRegister.lastName : '').trim()}`.trim()
+
             userToRegister.password = await this.hashPasword(userToRegister.password!);
 
-            await this.insertOne({ body: userToRegister });
+            await this.insertOne({ body: userToRegister,user: userToRegister });
             return userToRegister
 
         } catch (error) {

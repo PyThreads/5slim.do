@@ -1,4 +1,4 @@
-import { body, validationResult } from "express-validator"
+import { body, validationResult,param } from "express-validator"
 import { Request, Response, NextFunction } from 'express';
 
 
@@ -39,7 +39,7 @@ const registerUser = () => {
 
     return [
         body('name').isString().notEmpty().withMessage("El nombre es obligatorio."),
-        body('lastName').isString().notEmpty().withMessage("El apellido es obligatorio."),
+        body('lastName').optional().isString().withMessage("El apellido es obligatorio."),
         body('email').isEmail().withMessage("El correo es obligatorio."),
         body('phone').isString().withMessage("El teléfono es obligatorio."),
         body('password').isString().withMessage("La clave es obligatoria."), // La contraseña es opcional en este esquema
@@ -59,6 +59,13 @@ const validateLogin = () => {
 const forgotPasswordValidation = () => {
     return [
         body('email').isString().withMessage("El correo del usuario es obligatorio."),
+        validation
+    ]
+}
+
+const loadDataExternalClientValidation = () => {
+    return [
+        param('rnc').isString().withMessage("El rnc obligatorio."),
         validation
     ]
 }
@@ -88,14 +95,6 @@ const validation = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
-const suscribeLaunch = () => {
-    return [
-        body('email').isString().withMessage("El correo de usuario es obligatorio."),
-        validation
-    ]
-}
-
-
 
 export {
     registerUser,
@@ -104,5 +103,5 @@ export {
     submitPassword, addAddressValidation,
     changePasswordValidation,
     updatePersonalInfoValidation,
-    suscribeLaunch
+    loadDataExternalClientValidation
 }

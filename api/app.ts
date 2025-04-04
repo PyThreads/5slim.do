@@ -23,4 +23,3 @@ app.listen(environmentConfig.SERVICE_PORT, async () => {
   
 }); 
 
-//INICIA MIGRACIONES EN CASO DE CORRER EL COMANDO NPM RUN MIGRATE-ARTICLES

@@ -12,33 +12,11 @@ class Users {
         this.usersService = new UsersService({ mongoDatabase });
     }
 
-    async suscribeLaunch (req: Request, res: Response) {
-        try {
-
-            const response = await this.usersService.suscribeLaunch({body: req.body });
-
-            res.status(200).json({
-                success: true,
-                data: response,
-                message: "Se han actualizado correctamente sus datos."
-            })
-
-        } catch (error: any) {
-
-            res.status(401).json({
-                success: false,
-                data: null,
-                message: error?.message || "Ha ocurrido un error al actualizar sus datos."
-            })
-
-        }
-    }
-
-    async personalInformation (req: Request, res: Response) {
+    async personalInformation(req: Request, res: Response) {
         try {
 
             const user = res.locals.user;
-            const response = await this.usersService.personalInformation({ userId: user._id,body: req.body });
+            const response = await this.usersService.personalInformation({ userId: user._id, body: req.body });
 
             res.status(200).json({
                 success: true,
@@ -57,12 +35,12 @@ class Users {
         }
     }
 
-    async changePassword (req: Request, res: Response) {
+    async changePassword(req: Request, res: Response) {
         try {
 
             const user = res.locals.user
 
-            await this.usersService.changePassword({ user,body: req.body });
+            await this.usersService.changePassword({ user, body: req.body });
 
             res.status(200).json({
                 success: true,
@@ -83,8 +61,11 @@ class Users {
 
     async me(req: Request, res: Response) {
         try {
-            
-            const user = await this.usersService.collection.findOne({_id: res.locals.user._id})
+
+            const user = await this.usersService.collection.findOne({ _id: res.locals.user._id })
+
+            delete user.password
+            user.token = this.usersService.generateToken(user);
 
             res.status(200).json({
                 success: true,
@@ -129,7 +110,7 @@ class Users {
         try {
 
             const body = req.body;
-            const result = await this.usersService.addAddress({ body, userId: res.locals.user._id });
+            const result = await this.usersService.addAddress({ body, userId: res.locals.user._id,user: res.locals.user });
 
             res.status(200).json({
                 success: true,
@@ -197,6 +178,7 @@ class Users {
         }
 
     }
+
 
     async submitPassword(req: Request, res: Response) {
 

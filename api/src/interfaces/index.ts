@@ -4,30 +4,6 @@ export interface ICartTotals {
     subTotal: number;
 }
 
-export interface IUserOrder {
-    _id: number;
-    name: string;
-    lastName: string;
-    email:string;
-    phone: string;
-    address: IUserAddress
-}
-
-export interface IOrder{
-    _id: number;
-    totals: ICartTotals;
-    user:IUserOrder;
-    articles: ICartArticle[];
-    createdDate: string
-    status:"Cancelada" | "Creada"
-    paymentStatus: "Pendiente" | "Pagada"
-}
-
-export interface ICartTotals {
-    total: number;
-    tax: number;
-    subTotal: number;
-}
 
 export interface IChangePasswordBody {
     password: string;
@@ -35,64 +11,38 @@ export interface IChangePasswordBody {
     newPassword1: string;
 }
 
-export interface IArticle {
-    Merc_Codigo?: string | null
-    Merc_Referencia?: string | null
-    Merc_Codigo_Barra?: string | null
-    Merc_Nombre?: string | null
-    Merc_Ubicacion_01?: string | null
-    Merc_Ubicacion_02?: string | null
-    Merc_Ubicacion_03?: string | null
-    Alias?: string | null
-    Marca?: string | null
-    Modelo?: string | null
-    Merc_Ano?: string | null
-    Merc_Existencia_Grl?: number | null
-    Merc_Existencia_A01?: number | null
-    Merc_Existencia_A02?: number | null
-    Merc_Existencia_A03?: number | null
-    Precio?: number | null
-    PrecioItbis?: number | null
-    Precio2?: number | null
-    PrecioItbis2?: number | null
-}
-
-export interface IReturnPaginateArticles {
-    totalPages: number
-    totalArticles: number
-    list: IArticle[] | []
-}
 
 export interface IPaginateArticles {
     page: number
     limit: number
     description?: string
     category?: string
-    year?: string
-    model?: string
-    brand?: string
-}
-
-export interface IYears {
-    year: number | null | string
-}
-
-
-export interface IBrandAndModel {
-    description: string | null
 }
 
 
 export interface IUser {
     _id: number;
-    name: string
+    name: string;
     lastName: string
-    fullName?: string
-    email: string
-    phone: string
+    fullName: string
+    email: string,
     userSeller?: string | null
     password?: string | null
     token? : string
+    phone?: string | undefined
+    mobilePhone?: string
+}
+
+export interface IUserAddress {
+    _id: number
+    userId?: number
+    name: string;
+    lastName: string;
+    address1: string;
+    city: string;
+    county: string;
+    childCounty: string;
+    phone: string;
 }
 
 export interface ISubmitPassword {
@@ -105,33 +55,6 @@ export interface ItypeTempCode {
     identifier: any;
     type: "recoverPassword";
     code?: string;
+    used?: boolean
 }
 
-export interface IUserAddress {
-    _id: number
-    userId?: number
-    name: string;
-    lastName: string;
-    address1: string;
-    city: string;
-    county: string;
-    childCounty:string;
-    phone: string;
-}
-
-export interface ICartArticle {
-    _id?: number;
-    Merc_Codigo: number
-    userId: number
-    Merc_Referencia?: string
-    Merc_Codigo_Barra: string
-    Merc_Nombre: string
-    Marca: string
-    Modelo: string
-    Merc_Ano: string
-    Precio: number
-    PrecioItbis: number
-    Precio2: number
-    PrecioItbis2: number
-    Cant: number
-}

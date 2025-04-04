@@ -1,35 +1,36 @@
-/app/logs
-/app/*.log
-/app/npm-debug.log*
+/logs
+/*.log
+/npm-debug.log*
 
-/app/pids
-/app/*.pid
-/app/*.seed
+/pids
+/*.pid
+/*.seed
 
-/app/lib-cov
+/lib-cov
 
-/app/coverage
+/coverage
 
-/app/.nyc_output
+/.nyc_output
 
-/app/.grunt
+/.grunt
 
-/app/.lock-wscript
+/.lock-wscript
 
-/app/build/Release
+/build/Release
 
-/app/node_modules
-/app/jspm_packages
+/node_modules
+/jspm_packages
 
-/app/.npm
+/.npm
 
-/app/.node_repl_history
-/app/.next
+/.node_repl_history
+/.next
 
 app/.next
 .next/cache/
-/app/dist
+/dist
 /api/dist
 
 /DB/sql_data
 /DB/mongoDB_data
+node_modules

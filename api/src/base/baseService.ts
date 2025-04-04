@@ -1,21 +1,20 @@
-import { Db, Collection, MongoServerError } from "mongodb";
-import { EnvironmentConfig, database, environmentConfig } from "../config";
+import { Db, Collection } from "mongodb";
+import { EnvironmentConfig, environmentConfig } from "../config";
 import { ConnectionPool } from "mssql";
-import path from "path";
-import fs from "fs";
 import nodemailer from 'nodemailer';
-import { IUser, ItypeTempCode } from "../interfaces";
+import { IUser,ItypeTempCode } from "../interfaces";
 import jwt from 'jsonwebtoken';
 import { NextFunction, Response, Request } from "express";
 
 
 class BaseService {
+    public databaseExternal: Promise<ConnectionPool> | undefined;
     public readonly tableName: string
     public readonly collection: Collection | any;
-    public readonly mongoDatabase: Db;
-    private readonly environmentConfig: EnvironmentConfig
+    public readonly mongoDatabase: Db | any;
+    public readonly environmentConfig: EnvironmentConfig;
     public readonly tempCodeTable: string;
-    public readonly JWT_SECRET_KEY
+    public readonly JWT_SECRET_KEY;
 
     constructor({ mongoDatabase, tableName }: { mongoDatabase: Db, tableName: string }) {
         this.JWT_SECRET_KEY = "JOSEPH-JOESTAR22@L."
@@ -26,22 +25,16 @@ class BaseService {
         this.tempCodeTable = "TEMP_CODES";
     }
 
-    handleError(error: any) {
+    formatMoney(amount: number): string {
+        const formatter = new Intl.NumberFormat('es-DO', {
+            style: 'currency',
+            currency: 'DOP'
+        });
 
-        if(error instanceof MongoServerError){
-            throw new Error("Ha ocurrido un error al procesar su solicitud.")
-        } else if (error instanceof TypeError || error instanceof ReferenceError) {
-            // Manejar errores de propiedades no existentes o errores de tipo
-            throw new Error("Hace falta una propiedad para completar su solicitud.");
-
-        } else if(error instanceof Error) {
-            // Manejar errores personalizados
-            throw new Error(error.message);
-        }
+        return formatter.format(amount);
     }
 
-
-    verifyToken(req: Request, res: Response, next: NextFunction) {
+    async verifyToken(req: Request, res: Response, next: NextFunction) {
         try {
             const token = req.headers.authorization?.split(' ')[1];
 
@@ -50,7 +43,29 @@ class BaseService {
             }
 
             const user = jwt.verify(token, this.JWT_SECRET_KEY) as IUser;
-            res.locals.user = user; // Asigna el usuario decodificado a req.user
+            const userOnDb = await this.mongoDatabase.collection("USERS").findOne({ _id: user._id });
+            res.locals.user = userOnDb; // Asigna el usuario decodificado a req.user
+            next();
+        } catch (error: any) {
+            res.status(401).json({
+                success: false,
+                data: null,
+                message: error?.message || "El usuario no se ha autenticado de forma correcta."
+            });
+        }
+    }
+
+    async verifyTokenAdmin(req: Request, res: Response, next: NextFunction) {
+        try {
+            const token = req.headers.authorization?.split(' ')[1];
+
+            if (!token) {
+                throw new Error("El usuario no se ha autenticado de forma correcta.");
+            }
+
+            const user = jwt.verify(token, this.JWT_SECRET_KEY) as IUser;
+            const userOnDb = await this.mongoDatabase.collection("ADMIN").findOne({ _id: user._id });
+            res.locals.admin = userOnDb; // Asigna el usuario decodificado a req.user
             next();
         } catch (error: any) {
             res.status(401).json({
@@ -73,16 +88,19 @@ class BaseService {
     }
 
 
-    async insertOne({ body }: { body: any }): Promise<void> {
+    async insertOne({ body,user }: { body: any,user: IUser }): Promise<any> {
 
         try {
             let object = { ...body };
             object._id = await this.getSequence();
             object.createdDate = new Date();
+            object.createdBy = {
+                _id: user._id,
+                fullName: user.fullName
+            }
             await this.collection.insertOne(object)
             return object
         } catch (error) {
-            this.logError(error);
         }
     }
 
@@ -116,32 +134,10 @@ class BaseService {
                 return newSequence.sequence_value;
             }
         } catch (error) {
-            this.logError(error);
             throw error; // Propaga el error para que sea manejado fuera de la función
         }
     }
 
-    logError(error: any): void {
-        const logsFolder = './logs';
-        const errorLogFile = path.join(logsFolder, 'error.log');
-        const currentDate = new Date().toISOString();
-
-        // Crear el directorio de logs si no existe
-        if (!fs.existsSync(logsFolder)) {
-            fs.mkdirSync(logsFolder);
-        }
-
-        // Formatear el mensaje de error
-        const errorMessage = `${'-'.repeat(50)}\n${currentDate}\n${error.stack}\n`;
-
-        // Escribir el mensaje de error en el archivo de logs
-        if (fs.existsSync(errorLogFile)) {
-            const existingContent = fs.readFileSync(errorLogFile, 'utf8');
-            fs.writeFileSync(errorLogFile, errorMessage + existingContent);
-        } else {
-            fs.writeFileSync(errorLogFile, errorMessage);
-        }
-    }
 
     sendEmail({ to, html, subject }: { to: string[], html: string, subject: string }) {
         try {
@@ -170,7 +166,7 @@ class BaseService {
             return
 
         } catch (error) {
-            this.logError(error);
+            throw error
         }
     }
 
@@ -201,7 +197,6 @@ class BaseService {
             return code;
 
         } catch (error) {
-            this.logError(error)
             throw error
         }
     }
@@ -218,7 +213,6 @@ class BaseService {
             return match ? true : false
 
         } catch (error) {
-            this.logError(error)
             throw error
         }
     }

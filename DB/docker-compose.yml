@@ -4,7 +4,7 @@ services:
     image: mongo:7
     container_name: FIVESLIM-MONGODB
     ports:
-      - "27017:27017"
+      - "27019:27017"
     volumes:
       - ./mongoDB_data:/data/db  # Cambiado para usar la definición de volumen como referencia
     environment:

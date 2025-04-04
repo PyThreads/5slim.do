@@ -1,4 +1,3 @@
-import { ConnectionPool } from 'mssql';
 import { environmentConfig } from '.';
 import { MongoClient, Db } from 'mongodb';
 

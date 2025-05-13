@@ -5,22 +5,11 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": "Just client",
-            "request": "launch",
             "type": "chrome",
-            "url": "http://localhost:3000",
-            "webRoot": "${workspaceFolder}/app"
-        },
-        {
-            "name": "Next.js: debug full stack",
-            "type": "node-terminal",
             "request": "launch",
-            "command": "cd app && nvm use 21 && npm run dev",
-            "serverReadyAction": {
-                "pattern": "- Local:.+(https?://.+)",
-                "uriFormat": "%s",
-                "action": "debugWithChrome"
-            }
+            "name": "Next.js Client",
+            "url": "http://localhost:3000",
+            "webRoot": "${workspaceFolder}"
         },
         {
             "name": "Backend: debug full stack",

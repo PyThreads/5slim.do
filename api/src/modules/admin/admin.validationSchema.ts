@@ -10,6 +10,13 @@ const validateLogin = () => {
     ]
 }
 
+const validateSendCode = () => {
+    return [
+        body('username').isString().withMessage("El nombre de usuario es obligatorio."),
+        validation
+    ]
+}
+
 const validateOrdersDetails = () => {
     return [
         param('orderId').isInt().toInt().withMessage("El nombre de usuario es obligatorio."),
@@ -17,13 +24,6 @@ const validateOrdersDetails = () => {
     ]
 }
 
-const validateAddPaymentLink = () => {
-    return [
-        param('orderId').isInt().toInt().withMessage("El nombre de usuario es obligatorio."),
-        body('paymentLink').isString().withMessage("Debe enviar el link de pago"),
-        validation
-    ]
-}
 
 const validation = (req: Request, res: Response, next: NextFunction) => {
     const errors: any[] = validationResult(req).array();
@@ -45,5 +45,5 @@ const validation = (req: Request, res: Response, next: NextFunction) => {
 export const adminRoutesValidations =  {
     validateLogin,
     validateOrdersDetails,
-    validateAddPaymentLink
+    validateSendCode
 }

@@ -20,6 +20,7 @@ class AdminRouter {
 
         //PUBLIC ROUTES
         publicRouter.post("/login", adminRoutesValidations.validateLogin(), this.adminController.login.bind(this.adminController))
+        publicRouter.post("/sendEmailCode", adminRoutesValidations.validateSendCode(), this.adminController.sendEmailCode.bind(this.adminController))
 
 
         router.get("/me", this.adminController.me.bind(this.adminController));

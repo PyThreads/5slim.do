@@ -1,4 +1,4 @@
-import { IChangePasswordBody, ISubmitPassword, IUser, IUserAddress } from "../../interfaces";
+import { EnumTypeTempCode, IChangePasswordBody, ISubmitPassword, IUser, IUserAddress } from "../../interfaces";
 import bcrypt from "bcrypt"
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
@@ -12,62 +12,6 @@ class UsersService extends BaseService {
         this.addressServiceBase = new BaseService({ mongoDatabase, tableName: "ADDRESS" })
     }
 
-
-    async changePassword({ user, body }: { user: IUser, body: IChangePasswordBody }): Promise<void> {
-
-        try {
-            await this.login({ username: user.email, password: body.password })
-            const newPassword = await this.hashPasword(body.newPassword);
-            await this.collection.updateOne({ _id: user._id }, { $set: { password: newPassword } });
-
-        } catch (error: any) {
-            throw error
-        }
-    }
-
-    async personalInformation({ userId, body }: { userId: number, body: Partial<IUser> }): Promise<IUser | undefined> {
-
-        try {
-            body.fullName = body.name + " " + body.lastName
-            const { value }: { value: IUser | undefined } = await this.collection.findOneAndUpdate({ _id: userId }, { $set: body }, { returnDocument: 'after' })
-            return value;
-        } catch (error: any) {
-            throw error
-        }
-    }
-
-    async getAddress({ userId }: { userId: number }): Promise<IUserAddress | null> {
-
-        try {
-            const address = await this.addressServiceBase.collection.findOne({ userId: userId })
-            return address as IUserAddress | null
-        } catch (error: any) {
-            throw new Error(error?.message || "Ha ocurrido un error buscando la dirección del usuario.");
-        }
-    }
-
-    async addAddress({ userId, body,user }: { userId: number, body: IUserAddress,user: IUser }): Promise<IUserAddress> {
-
-        try {
-
-            body.userId = userId;
-
-            let result;
-
-            if (body._id) {
-                result = await this.addressServiceBase.collection.updateOne({ _id: body._id }, { $set: body });
-                result = body;
-            } else {
-                result = await this.addressServiceBase.insertOne({ body,user });
-            }
-
-            return body as any as IUserAddress
-
-        } catch (error: any) {
-            throw new Error(error?.message || "Ha ocurrido un error al guardar tu dirección tu usuario.");
-        }
-    }
-
     async login({ username, password }: { username: string, password: string }) {
 
         try {
@@ -78,13 +22,19 @@ class UsersService extends BaseService {
                 throw new Error("No existe un usuario con el correo: " + username);
             }
 
-            const passwordMatch = await this.verifyPassword({ password, hash: user.password! });
+            const passwordMatch = await this.validateTempCode(
+                {
+                    type: EnumTypeTempCode.START_SESSION,
+                    code: password,
+                    identifier: username,
+                    used: false
+                }
+            );
 
             if (!passwordMatch) {
-                throw new Error("La clave no coincide por favor verifique e intente de nuevo.");
+                throw new Error("El código no coincide por favor verifique e intente de nuevo.");
             }
 
-            delete user.password
             user.token = this.generateToken(user);
 
             return user
@@ -109,9 +59,7 @@ class UsersService extends BaseService {
                 throw new Error("Existe una cuenta con el correo: " + userToRegister.email);
             }
 
-            userToRegister.fullName = `${userToRegister.name.trim()} ${(userToRegister.lastName ? userToRegister.lastName : '').trim()}`.trim()
-
-            userToRegister.password = await this.hashPasword(userToRegister.password!);
+            userToRegister.fullName = this.getFullName(userToRegister);
 
             await this.insertOne({ body: userToRegister,user: userToRegister });
             return userToRegister
@@ -121,25 +69,8 @@ class UsersService extends BaseService {
         }
     }
 
-
-    async submitPassword(body: ISubmitPassword): Promise<void> {
-        try {
-
-
-            const isValid = await this.validateTempCode({ type: "recoverPassword", identifier: body.email, code: body.code });
-
-            if (!isValid) {
-                throw new Error("El código no coincide con nuestros registros.");
-            }
-
-            const newPassword = await this.hashPasword(body.password);
-
-            await this.collection.updateOne({ email: body.email }, { $set: { password: newPassword } });
-            return;
-
-        } catch (error) {
-            throw error
-        }
+    getFullName(user: IUser) {
+        return `${user.name.trim()} ${(user?.lastName ? user.lastName.trim() : '').trim()}`.trim();
     }
 
     async sendEmailCode(user: IUser): Promise<void> {
@@ -151,7 +82,7 @@ class UsersService extends BaseService {
                 return
             }
 
-            const code = await this.generateTempCode({ identifier: queryExistsUser.email, type: "recoverPassword" });
+            const code = await this.generateTempCode({ identifier: queryExistsUser.email, type: EnumTypeTempCode.START_SESSION });
 
             const html = `
 
@@ -160,7 +91,7 @@ class UsersService extends BaseService {
             <head>
                 <meta charset="UTF-8">
                 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                <title>Código de Cambio de Contraseña</title>
+                <title>Código de Inicio de Sesión</title>
                 <style>
                     body {
                         font-family: Arial, sans-serif;
@@ -173,7 +104,7 @@ class UsersService extends BaseService {
                         margin: 0 auto;
                         background-color: #ffffff;
                         border-radius: 8px;
-                        border: 5px solid #FF6633; /* Borde sólido de 15px de ancho y color #FF6633 */
+                        border: 5px solid #FF6633; /* Borde sólido de 5px de ancho y color #FF6633 */
                         padding: 20px;
                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                     }
@@ -222,13 +153,13 @@ class UsersService extends BaseService {
             <body>
                 <div class="container">
                     <div class="header">
-                        <h1>Cambio de Contraseña</h1>
+                        <h1>Inicio de Sesión</h1>
                     </div>
                     <div class="content">
-                        <p>Hemos recibido una solicitud para cambiar la contraseña de su cuenta.</p>
-                        <p>Su código de verificación es:</p>
+                        <p>Hemos recibido una solicitud para iniciar sesión en su cuenta.</p>
+                        <p>Para continuar con el inicio de sesión, por favor utilice el siguiente código de verificación:</p>
                         <p class="code" id="verificationCode">${code}</p>
-                        <p>Utilice este código para cambiar su clave.</p>
+                        <p>Este código es válido solo durante 5 minutos.</p>
                     </div>
                     <div class="footer">
                         <p>Este correo ha sido enviado automáticamente. Por favor, no responda a este correo.</p>
@@ -239,34 +170,14 @@ class UsersService extends BaseService {
             
         `;
 
-            this.sendEmail({ to: [queryExistsUser.email], html, subject: "Cambio de clave" });
+            this.sendEmail({ to: queryExistsUser.email, html, subject: "Código de inicio de sesión" });
 
             return;
 
         } catch (error: any) {
-            throw new Error(error.message || "Hemos tenido inconvenientes al cambiar su clave, por favor intente nuevamente.");
+            throw new Error("Hemos tenido inconvenientes al cambiar su clave, por favor intente nuevamente.");
         }
     }
-
-    async hashPasword(password: string): Promise<string> {
-        const salt = await bcrypt.genSalt(10);
-        const hash = await bcrypt.hash(password, salt);
-        return hash
-    }
-
-
-    async verifyPassword({ password, hash }: { password: string, hash: string }) {
-
-        try {
-
-            return await bcrypt.compare(password, hash);
-
-        } catch (error) {
-            throw new Error("Ha ocurrido un error al verificar la clave.")
-        }
-    }
-
-
 
 }
 

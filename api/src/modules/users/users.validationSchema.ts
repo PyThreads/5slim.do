@@ -1,4 +1,4 @@
-import { body, validationResult,param } from "express-validator"
+import { body, validationResult, param } from "express-validator"
 import { Request, Response, NextFunction } from 'express';
 
 
@@ -38,11 +38,44 @@ const changePasswordValidation = () => {
 const registerUser = () => {
 
     return [
-        body('name').isString().notEmpty().withMessage("El nombre es obligatorio."),
-        body('lastName').optional().isString().withMessage("El apellido es obligatorio."),
+        body('name').isString().trim().withMessage("El nombre es obligatorio."),
+        body('lastName').optional().isString().trim().withMessage("El apellido es obligatorio."),
         body('email').isEmail().withMessage("El correo es obligatorio."),
-        body('phone').isString().withMessage("El teléfono es obligatorio."),
-        body('password').isString().withMessage("La clave es obligatoria."), // La contraseña es opcional en este esquema
+        body('phones').custom((value) => {
+            if (!Array.isArray(value) || value.length === 0) {
+                throw new Error('Debe agregar una via de contacto telefónica');
+            }
+
+            for (const phone of value) {
+                if (!phone.type || !phone.number) {
+                    throw new Error('Es necesario agregar el tipo de teléfono y el número');
+                }
+
+                if(["home", "work", "personal"].includes(phone.type) === false) {
+                    throw new Error('El tipo de teléfono debe ser home, work o personal');
+                }
+
+                if ("default" in phone === false) {
+                    phone.default = false;
+                }
+
+                if ("default" in phone === false) {
+                    phone.default = false;
+                }
+
+                if ("isWhatsapp" in phone === false) {
+                    phone.isWhatsapp = false;
+                }
+            }
+
+            const defaultPhone = value.find((phone) => phone.default === true);
+
+            if (!defaultPhone) {
+                value[0].default = true;
+            }
+
+            return true;
+        }),
         validation
     ]
 }
@@ -56,7 +89,7 @@ const validateLogin = () => {
     ]
 }
 
-const forgotPasswordValidation = () => {
+const sentCodeMail = () => {
     return [
         body('email').isString().withMessage("El correo del usuario es obligatorio."),
         validation
@@ -99,7 +132,7 @@ const validation = (req: Request, res: Response, next: NextFunction) => {
 export {
     registerUser,
     validateLogin,
-    forgotPasswordValidation,
+    sentCodeMail,
     submitPassword, addAddressValidation,
     changePasswordValidation,
     updatePersonalInfoValidation,

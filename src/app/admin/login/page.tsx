@@ -1,33 +1,49 @@
 "use client"
+
 import { useRouter } from "next/navigation";
-import { Button, Container, FilledInput, Grid, Typography } from "@mui/material";
+import { Button, CircularProgress, Container, FilledInput, Grid, Typography } from "@mui/material";
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
 import Image from "next/image";
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import axios from "axios";
 
 
 export default function LoginPage() {
 
     const router = useRouter()
     const [showPass, setShowPass] = useState(false);
-
+    const [loading, setLoading] = useState(false);
+    const [user, setUser] = useState({ email: "", password: "" });
+    const [sendCode, setSendCode] = useState(false);
 
     const handleShowP = (param: boolean) => {
         setShowPass(param)
     }
 
-    const submit =  (event: FormEvent<HTMLFormElement>) => {
-        event.preventDefault();
-        const formData = new FormData(event.currentTarget)
-        const email = formData.get('email')
-        const password = formData.get('password')
-
-        router.push("/admin/dashboard")   
+    const submit = async () => {
+        try {    
+            setLoading(true)
+            const {data} = await axios.post(process.env.NEXT_PUBLIC_API_URL +  "/admin/public/sendEmailCode",{username: user.email})
+            setSendCode(true)
+            console.log(user)
+        } catch (error) {
+            return
+        } finally {
+            setLoading(false)
+        }
     }
 
-    const forgotPass = ()=>{
-        router.push("/admin/enterEmail")   
+    const sendMailPass = () => {
+        try {
+
+            setSendCode(true)
+
+        } catch (error) {
+            return;
+        } finally {
+            setLoading(false)
+        }
     }
 
     return (
@@ -43,64 +59,94 @@ export default function LoginPage() {
                     priority
                 />
 
-                <form onSubmit={submit}>
-                    <FilledInput
-                        fullWidth
-                        required
-                        name="email"
-                        type="email"
-                        hiddenLabel
-                        size="small"
-                        placeholder="Usuario"
-                        disableUnderline
-                        autoComplete={"true"}
-                        sx={{ height: 36, fontSize: 13, mt: 4, borderRadius: "10px" }}
-                        autoFocus
-                    />
+                <FilledInput
+                    fullWidth
+                    required
+                    name="email"
+                    type="email"
+                    hiddenLabel
+                    size="small"
+                    placeholder="Usuario"
+                    disableUnderline
+                    autoComplete={"true"}
+                    sx={{ height: 36, fontSize: 13, mt: 4, borderRadius: "10px" }}
+                    autoFocus
+                    value={user.email}
+                    onChange={(e) => setUser({ ...user, email: e.target.value })}
+                />
 
-                    <FilledInput
-                        fullWidth
-                        required
-                        name="password"
-                        hiddenLabel
-                        size="small"
-                        placeholder="Clave"
-                        disableUnderline
-                        autoComplete={"true"}
-                        endAdornment={
-                            showPass ?
-                                <RemoveRedEyeIcon sx={{ color: "#677185", cursor: "pointer",fontSize: "10px"  }} onClick={() => handleShowP(false)} />
-                                :
-                                <VisibilityOffIcon sx={{ color: "#677185", cursor: "pointer",fontSize: "10px" }} onClick={() => handleShowP(true)} />
-                        }
-                        type={showPass ? "text" : "password"}
-                        sx={{ height: 36, fontSize: 13, mt: 2, borderRadius: "10px" }}
-                    />
+                {
+                    sendCode && (
+                        <FilledInput
+                            fullWidth
+                            required
+                            name="password"
+                            hiddenLabel
+                            size="small"
+                            placeholder="Clave"
+                            disableUnderline
+                            autoComplete={"true"}
+                            endAdornment={
+                                showPass ?
+                                    <RemoveRedEyeIcon sx={{ color: "#677185", cursor: "pointer", fontSize: "10px" }} onClick={() => handleShowP(false)} />
+                                    :
+                                    <VisibilityOffIcon sx={{ color: "#677185", cursor: "pointer", fontSize: "10px" }} onClick={() => handleShowP(true)} />
+                            }
+                            type={showPass ? "text" : "password"}
+                            sx={{ height: 36, fontSize: 13, mt: 2, borderRadius: "10px" }}
+                            value={user.password}
+                            onChange={(e) => setUser({ ...user, password: e.target.value })}
+                        />
+                    )
+                }
 
-                    <Typography sx={{ color: "#C7C7C7", fontSize: 12, mt: 2, textDecoration: "underline", textAlign: "right", cursor: "pointer" }} onClick={forgotPass}>Olvido su clave clave?</Typography>
+                {
+                    sendCode ? (
+                        <Button
+                            type="submit"
+                            fullWidth
+                            sx={{
+                                height: 36,
+                                backgroundColor: "#001987",
+                                textTransform: "inherit",
+                                color: "white",
+                                ":hover": {
+                                    backgroundColor: "#001987"
+                                },
+                                marginTop: 2,
+                                borderRadius: "10px",
+                                fontWeight: "bold"
+                            }}
+                            onClick={sendMailPass}
+                        >
+                            {loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Iniciar Sesión"}
+                        </Button>
+                    )
+                        :
+                        (
+                            <Button
+                                type="submit"
+                                fullWidth
+                                sx={{
+                                    height: 36,
+                                    backgroundColor: "#001987",
+                                    textTransform: "inherit",
+                                    color: "white",
+                                    ":hover": {
+                                        backgroundColor: "#001987"
+                                    },
+                                    marginTop: 2,
+                                    borderRadius: "10px",
+                                    fontWeight: "bold"
+                                }}
+                                onClick={submit}
+                            >
 
-                    <Button
-                        type="submit"
-                        fullWidth
-                        sx={{
-                            height: 36,
-                            backgroundColor: "#001987",
-                            textTransform: "inherit",
-                            color: "white",
-                            ":hover": {
-                                backgroundColor: "#001987"
-                            },
-                            marginTop: 2,
-                            borderRadius: "10px",
-                            fontWeight: "bold"
-                        }}
-                    >
-                        Iniciar Sesión
-                    </Button>
-                </form>
+                                {loading ? <CircularProgress size={20} sx={{ color: "white" }} /> : "Continuar"}
+                            </Button>
+                        )
+                }
             </Grid>
-
-
         </Container>
     )
 }

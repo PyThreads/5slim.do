@@ -1,5 +1,5 @@
 {
-  "name": "api-lbcautoparts",
+  "name": "api-5slimdo",
   "version": "1.0.0",
   "description": "api service",
   "main": "app.ts",
@@ -14,11 +14,13 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@types/mssql": "^9.1.5",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
+    "@azure/msal-node": "^3.4.1",
     "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.15",
     "bcrypt": "^5.1.1",
     "cors": "^2.8.5",
+    "dayjs": "^1.11.13",
     "express": "^4.18.2",
     "express-validator": "^7.0.1",
     "jsonwebtoken": "^9.0.2",

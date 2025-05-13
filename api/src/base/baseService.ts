@@ -1,10 +1,12 @@
 import { Db, Collection } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
 import { ConnectionPool } from "mssql";
-import nodemailer from 'nodemailer';
-import { IUser,ItypeTempCode } from "../interfaces";
+import { IUser, ItypeTempCode } from "../interfaces";
 import jwt from 'jsonwebtoken';
 import { NextFunction, Response, Request } from "express";
+const msal = require('@azure/msal-node');
+const { Client } = require('@microsoft/microsoft-graph-client');
+import {utils,Utils} from "../utils"
 
 
 class BaseService {
@@ -15,6 +17,7 @@ class BaseService {
     public readonly environmentConfig: EnvironmentConfig;
     public readonly tempCodeTable: string;
     public readonly JWT_SECRET_KEY;
+    public readonly utils: Utils
 
     constructor({ mongoDatabase, tableName }: { mongoDatabase: Db, tableName: string }) {
         this.JWT_SECRET_KEY = "JOSEPH-JOESTAR22@L."
@@ -23,6 +26,7 @@ class BaseService {
         this.mongoDatabase = mongoDatabase;
         this.collection = mongoDatabase.collection(this.tableName)
         this.tempCodeTable = "TEMP_CODES";
+        this.utils = utils
     }
 
     formatMoney(amount: number): string {
@@ -88,19 +92,20 @@ class BaseService {
     }
 
 
-    async insertOne({ body,user }: { body: any,user: IUser }): Promise<any> {
+    async insertOne({ body, user }: { body: any, user: IUser }): Promise<any> {
 
         try {
             let object = { ...body };
             object._id = await this.getSequence();
-            object.createdDate = new Date();
+            object.createdDate = this.utils.newDate();
             object.createdBy = {
-                _id: user._id,
+                _id: object._id,
                 fullName: user.fullName
             }
             await this.collection.insertOne(object)
             return object
         } catch (error) {
+            throw error
         }
     }
 
@@ -139,28 +144,54 @@ class BaseService {
     }
 
 
-    sendEmail({ to, html, subject }: { to: string[], html: string, subject: string }) {
+    async sendEmail({ to, html, subject }: { to: string[], html: string, subject: string }) {
         try {
 
-            const transporter = nodemailer.createTransport({
-                port: Number(this.environmentConfig.SMTP_PORT),
-                host: this.environmentConfig.SMTP_SERVER, // Puedes usar otros servicios SMTP aquí
-                secure: true,
+            const msalConfig = {
                 auth: {
-                    user: this.environmentConfig.SMTP_USER, // Cambia por tu dirección de correo electrónico
-                    pass: this.environmentConfig.SMTP_PASSWORD, // Cambia por tu contraseña o token de aplicación
-                },
+                    clientId: this.environmentConfig.microsoftClientId, // ID de la aplicación registrada
+                    authority: this.environmentConfig.microsoftAuthority, // Tenant ID
+                    clientSecret: this.environmentConfig.microsfotClientSecret, // Reemplaza por el secret de la aplicación
+                }
+            };
+
+            const clientCredentialRequest = {
+                scopes: ["https://graph.microsoft.com/.default"]
+            };
+
+            const cca = new msal.ConfidentialClientApplication(msalConfig);
+            const response = await cca.acquireTokenByClientCredential(clientCredentialRequest);  
+
+            const client = Client.init({
+                authProvider: (done:any) => {
+                    done(null, response.accessToken);
+                }
             });
 
-            const mailOptions: nodemailer.SendMailOptions = {
-                from: this.environmentConfig.SMTP_SEND_AS, // Dirección de correo del remitente
-                to: to.join(","), // Dirección de correo del destinatario
-                subject: subject,
-                html: html
+            const mail = {
+                message: {
+                    subject: subject,
+                    body: {
+                        contentType: "HTML",
+                        content: html
+                    },
+                    toRecipients: [
+                        {
+                            emailAddress: {
+                                address: to
+                            }
+                        }
+                    ]
+                },
+                saveToSentItems: false
             };
 
             setTimeout(async () => {
-                await transporter.sendMail(mailOptions);
+                try {
+                    await client.api(`/users/${this.environmentConfig.microsoftSendEmail}/sendMail`).post(mail);
+                } catch (error) {
+                    return
+                }
             }, 10)
 
             return
@@ -189,7 +220,7 @@ class BaseService {
                 code,
                 type,
                 used: false,
-                createdDate: new Date(),
+                createdDate: this.utils.newDate(),
             };
 
             // Insertar el documento en la colección
@@ -202,15 +233,15 @@ class BaseService {
     }
 
 
-    async validateTempCode(params: ItypeTempCode): Promise<boolean> {
+    async validateTempCode(params: Partial<ItypeTempCode>): Promise<boolean> {
 
         try {
 
             const collection = this.mongoDatabase.collection(this.tempCodeTable);
 
-            const match = await collection.findOne({ identifier: params.identifier, code: params.code!, type: params.type }, { projection: { code: 1 } })
-
-            return match ? true : false
+            const match = await collection.find(params).sort({_id: -1}).toArray();
+            
+            return match.length  > 0 ? true : false
 
         } catch (error) {
             throw error

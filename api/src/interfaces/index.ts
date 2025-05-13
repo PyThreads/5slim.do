@@ -26,9 +26,7 @@ export interface IUser {
     lastName: string
     fullName: string
     email: string,
-    userSeller?: string | null
-    password?: string | null
-    token? : string
+    token?: string
     phone?: string | undefined
     mobilePhone?: string
 }
@@ -53,8 +51,12 @@ export interface ISubmitPassword {
 
 export interface ItypeTempCode {
     identifier: any;
-    type: "recoverPassword";
+    type: EnumTypeTempCode;
     code?: string;
     used?: boolean
+    createdDate?: Date
 }
 
+export enum EnumTypeTempCode {
+    START_SESSION = "startSession"
+}

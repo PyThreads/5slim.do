@@ -3,7 +3,7 @@ import { Users } from "./users.controller"
 import {
     registerUser,
     validateLogin,
-    forgotPasswordValidation,
+    sentCodeMail,
     submitPassword,
     addAddressValidation,
     changePasswordValidation,
@@ -29,14 +29,9 @@ class UserRouter {
         //PUBLIC ROUTES
         publicRouter.post("/login", validateLogin(), this.usersController.login.bind(this.usersController))
         publicRouter.post("/register", registerUser(), this.usersController.register.bind(this.usersController))
-        publicRouter.post("/submitPassword", submitPassword(), this.usersController.submitPassword.bind(this.usersController))
-        publicRouter.post("/forgotPassword", forgotPasswordValidation(), this.usersController.sendEmailCode.bind(this.usersController))
+        publicRouter.post("/getTempLoginCode", sentCodeMail(), this.usersController.sendEmailCode.bind(this.usersController))
 
 
-        router.get("/address", this.usersController.getAddress.bind(this.usersController))
-        router.put("/address", addAddressValidation(), this.usersController.addAddress.bind(this.usersController))
-        router.put("/personalInformation", updatePersonalInfoValidation(), this.usersController.personalInformation.bind(this.usersController))
-        router.put("/changePassword", changePasswordValidation(), this.usersController.changePassword.bind(this.usersController))
         router.get("/me", this.usersController.me.bind(this.usersController))
 
         router.use("/private", this.baseService.verifyToken.bind(this.baseService))

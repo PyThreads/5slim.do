@@ -60,6 +60,30 @@ class Admin {
         }
     }
 
+    async sendEmailCode(req: Request, res: Response) {
+        try {
+
+            const { username }: { username: string } = req.body;
+
+            const response = await this.adminService.sendEmailCode({ email: username! });
+
+            res.status(200).json({
+                success: true,
+                data: response,
+                message: "Enviado de forma exitosa."
+            })
+
+        } catch (error: any) {
+
+            res.status(510).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al enviar el código."
+            })
+
+        }
+    }
+
 }
 
 export { Admin };

@@ -14,10 +14,7 @@ class Admin {
     async me(req: Request, res: Response) {
         try {
 
-            const user = await this.adminService.collection.findOne({ _id: res.locals.user._id })
-
-            delete user.password
-            user.token = this.adminService.generateToken(user);
+            const user = await this.adminService.collection.findOne({ _id: res.locals.admin._id })
 
             res.status(200).json({
                 success: true,

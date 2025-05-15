@@ -1,6 +1,4 @@
 "use client"
-
-import { useRouter } from "next/navigation";
 import { Button, CircularProgress, Container, FilledInput, Grid, Typography } from "@mui/material";
 import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import RemoveRedEyeIcon from '@mui/icons-material/RemoveRedEye';
@@ -11,22 +9,21 @@ import axios from "axios";
 
 export default function LoginPage() {
 
-    const router = useRouter()
     const [showPass, setShowPass] = useState(false);
     const [loading, setLoading] = useState(false);
     const [user, setUser] = useState({ email: "", password: "" });
     const [sendCode, setSendCode] = useState(false);
+    const [error, setError] = useState("");
 
     const handleShowP = (param: boolean) => {
         setShowPass(param)
     }
 
     const submit = async () => {
-        try {    
+        try {
             setLoading(true)
-            const {data} = await axios.post(process.env.NEXT_PUBLIC_API_URL +  "/admin/public/sendEmailCode",{username: user.email})
+            await axios.post(process.env.NEXT_PUBLIC_API_URL + "/admin/public/sendEmailCode", { username: user.email })
             setSendCode(true)
-            console.log(user)
         } catch (error) {
             return
         } finally {
@@ -34,17 +31,22 @@ export default function LoginPage() {
         }
     }
 
-    const sendMailPass = () => {
+    const sendMailPass = async () => {
         try {
-
-            setSendCode(true)
-
-        } catch (error) {
-            return;
+            setLoading(true)
+            const { data } = await axios.post(process.env.NEXT_PUBLIC_API_URL + "/admin/public/login", { username: user.email, password: user.password })
+            localStorage.setItem("TKN-5SL-M0",data.data.token);
+            window.location.href = "/admin/dashboard"
+        } catch (error: any) {
+            setError(error?.response?.data?.message || "Ha ocurrido un error al enviar el código.")
         } finally {
             setLoading(false)
         }
     }
+
+    const handleChange = (field: string, value: string) => {
+        setUser(prev => ({ ...prev, [field]: value }));
+    };
 
     return (
         <Container sx={{ display: "flex", justifyContent: "center", height: "100vh", alignItems: "center" }}>
@@ -72,7 +74,7 @@ export default function LoginPage() {
                     sx={{ height: 36, fontSize: 13, mt: 4, borderRadius: "10px" }}
                     autoFocus
                     value={user.email}
-                    onChange={(e) => setUser({ ...user, email: e.target.value })}
+                    onChange={(e) => handleChange('email', e.target.value)}
                 />
 
                 {
@@ -97,6 +99,22 @@ export default function LoginPage() {
                             value={user.password}
                             onChange={(e) => setUser({ ...user, password: e.target.value })}
                         />
+                    )
+                }
+
+                {
+                    error && (
+                        <Typography
+                            variant="h1"
+                            sx={{
+                                color: "#c75223",
+                                marginTop: "10px",
+                                fontSize: 12,
+                                fontFamily: "Poppins"
+                            }}
+                        >
+                            {error}
+                        </Typography>
                     )
                 }
 

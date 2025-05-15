@@ -1,6 +1,5 @@
 import { Db, Collection } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
-import { ConnectionPool } from "mssql";
 import { IUser, ItypeTempCode } from "../interfaces";
 import jwt from 'jsonwebtoken';
 import { NextFunction, Response, Request } from "express";
@@ -10,7 +9,6 @@ import {utils,Utils} from "../utils"
 
 
 class BaseService {
-    public databaseExternal: Promise<ConnectionPool> | undefined;
     public readonly tableName: string
     public readonly collection: Collection | any;
     public readonly mongoDatabase: Db | any;
@@ -167,6 +165,7 @@ class BaseService {
                     done(null, response.accessToken);
                 }
             });
+            
 
             const mail = {
                 message: {
@@ -175,13 +174,7 @@ class BaseService {
                         contentType: "HTML",
                         content: html
                     },
-                    toRecipients: [
-                        {
-                            emailAddress: {
-                                address: to
-                            }
-                        }
-                    ]
+                    toRecipients: to.map(email => ({ emailAddress: { address: email } }))
                 },
                 saveToSentItems: false
             };
@@ -241,6 +234,10 @@ class BaseService {
 
             const match = await collection.find(params).sort({_id: -1}).toArray();
             
+            if (match.length > 0) {
+                await collection.updateOne({ _id: match[0]._id }, { $set: { used: true } });
+            }
+
             return match.length  > 0 ? true : false
 
         } catch (error) {

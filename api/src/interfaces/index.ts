@@ -31,6 +31,15 @@ export interface IUser {
     mobilePhone?: string
 }
 
+export interface IAdmin {
+    _id: number;
+    name: string;
+    lastName: string
+    fullName: string
+    email: string,
+    token?: string
+}
+
 export interface IUserAddress {
     _id: number
     userId?: number

@@ -22,10 +22,10 @@ class AdminService extends BaseService {
                 throw new Error("No existe un administrador con el correo: " + username);
             }
 
-            const passwordMatch = await this.validateTempCode({ identifier: username,code: password,type: EnumTypeTempCode.START_SESSION });
+            const passwordMatch = await this.validateTempCode({ identifier: username,code: password,type: EnumTypeTempCode.START_SESSION,used: false });
 
             if (!passwordMatch) {
-                throw new Error("La clave no coincide por favor verifique e intente de nuevo.");
+                throw new Error("La clave no coincide por favor verifique e intente de nuevo o solicite una nueva.");
             }
 
             delete user.password
@@ -43,11 +43,11 @@ class AdminService extends BaseService {
 
             const queryExistsUser = await this.collection.countDocuments({ email});
 
-            if (queryExistsUser) {
+            if (!queryExistsUser) {
                 return
             }
 
-            const code = await this.generateTempCode({ identifier: queryExistsUser.email, type: EnumTypeTempCode.START_SESSION });
+            const code = await this.generateTempCode({ identifier: email, type: EnumTypeTempCode.START_SESSION });
 
             const html = `
 
@@ -69,7 +69,7 @@ class AdminService extends BaseService {
                         margin: 0 auto;
                         background-color: #ffffff;
                         border-radius: 8px;
-                        border: 5px solid #FF6633; /* Borde sólido de 5px de ancho y color #FF6633 */
+                        border: 5px solid #001987; /* Borde sólido de 5px de ancho y color #FF6633 */
                         padding: 20px;
                         box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
                     }
@@ -135,7 +135,7 @@ class AdminService extends BaseService {
             
         `;
 
-            this.sendEmail({ to: queryExistsUser.email, html, subject: "Código de inicio de sesión" });
+            this.sendEmail({ to: [email], html, subject: "Código de inicio de sesión" });
 
             return;
 

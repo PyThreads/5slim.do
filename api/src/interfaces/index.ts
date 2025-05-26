@@ -1,3 +1,9 @@
+export interface IFunctionProps {
+    createValidation: Function,
+    projection?: Object
+}
+
+
 export interface ICartTotals {
     total: number;
     tax: number;

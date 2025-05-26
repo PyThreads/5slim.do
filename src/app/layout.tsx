@@ -29,7 +29,7 @@ export default function RootLayout({
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords} />
       </head>
-        <body className={inter.className}>{children}</body>
+      <body className={inter.className}>{children}</body>
     </html>
   );
 }

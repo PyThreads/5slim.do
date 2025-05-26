@@ -1,13 +1,5 @@
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios';
-import { IUser } from '../interfaces';
+import axios, { AxiosInstance } from 'axios';
 
-interface ApiResponse<T> {
-    data: T;
-    status: number;
-    statusText: string;
-    headers: any;
-    config: AxiosRequestConfig;
-}
 
 // Define a type for your token
 type Token = string | undefined;

@@ -1,8 +1,8 @@
 import { Db, Collection } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
-import { IUser, ItypeTempCode } from "../interfaces";
+import { IFunctionProps, IUser, ItypeTempCode } from "../interfaces";
 import jwt from 'jsonwebtoken';
-import { NextFunction, Response, Request } from "express";
+import { NextFunction, Response, Request, Router } from "express";
 const msal = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 import {utils,Utils} from "../utils"
@@ -17,7 +17,7 @@ class BaseService {
     public readonly JWT_SECRET_KEY;
     public readonly utils: Utils
 
-    constructor({ mongoDatabase, tableName }: { mongoDatabase: Db, tableName: string }) {
+    constructor({ mongoDatabase, tableName,app, prefix,functionProps }: { mongoDatabase: Db, tableName: string,app?: Router, prefix?: string,functionProps?: IFunctionProps }) {
         this.JWT_SECRET_KEY = "JOSEPH-JOESTAR22@L."
         this.tableName = tableName
         this.environmentConfig = environmentConfig
@@ -25,6 +25,25 @@ class BaseService {
         this.collection = mongoDatabase.collection(this.tableName)
         this.tempCodeTable = "TEMP_CODES";
         this.utils = utils
+
+
+
+        app && app.post(`${prefix}`, functionProps!.createValidation(), async (req: Request, res: Response) =>{
+            try {
+                const result  =  await this.insertOne({ body: req.body, user: res.locals.admin });
+                res.status(200).json({
+                    success: true,
+                    data: result,
+                    message: "Guardado de forma exitosa"
+                })
+            } catch (error:any) { 
+                res.status(400).json({
+                    success: false,
+                    data: null,
+                    message: error?.message || "Ha ocurrido un error al guardar."
+                })
+            }
+        })
     }
 
     formatMoney(amount: number): string {
@@ -97,7 +116,7 @@ class BaseService {
             object._id = await this.getSequence();
             object.createdDate = this.utils.newDate();
             object.createdBy = {
-                _id: object._id,
+                _id: user._id,
                 fullName: user.fullName
             }
             await this.collection.insertOne(object)

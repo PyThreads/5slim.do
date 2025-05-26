@@ -1,8 +1,12 @@
+"use client"
 import { Button, Grid, TextField, Typography } from "@mui/material"
 import { Poppins } from "next/font/google"
 import AddIcon from '@mui/icons-material/Add';
 import TableArticle from "../../../../../components/tables/TableArticle";
 import SearchIcon from '@mui/icons-material/Search';
+import CreateArticlesModal from "../../../../../components/modals/CreateArticlesModal";
+import React from "react";
+import { useState } from "react";
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -11,6 +15,13 @@ const poppins = Poppins({
 })
 
 export default function AdminArticles() {
+    const [openModal,setOpenModal] = useState(true);
+    
+
+    const callback  = ()=>{
+        return;
+    }
+    
     return (
         <Grid item>
 
@@ -18,6 +29,7 @@ export default function AdminArticles() {
 
             <Grid item container justifyContent={"space-between"} alignItems={"center"}>
                 <Button variant="contained" sx={{ ...style.addButton }}
+                    onClick={() => setOpenModal(true)}
                     startIcon={<AddIcon />}
                 >
                     Agregar Artículo
@@ -43,7 +55,7 @@ export default function AdminArticles() {
                         },
                     }}
                     InputProps={{
-                        startAdornment: <SearchIcon sx={{marginRight: "4px", color: "#B5B7C0"}}/>,
+                        startAdornment: <SearchIcon sx={{ marginRight: "4px", color: "#B5B7C0" }} />,
                         style: style.searchInput,
                     }}
                     autoFocus
@@ -55,6 +67,8 @@ export default function AdminArticles() {
             <Grid item mt={"48px"}>
                 <TableArticle />
             </Grid>
+
+            <CreateArticlesModal open={openModal} setOpen={setOpenModal} callBack={callback}  />
 
         </Grid>
     )

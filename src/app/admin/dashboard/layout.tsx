@@ -223,7 +223,7 @@ const style = {
         padding: "23px 21px 0px 21px",
         margin: 0,
         width: "100% !important",
-        height: "100% !important",
+        minHeight: "100% !important",
         backgroundColor: "#F4F5FA"
     },
     boxLayout: {

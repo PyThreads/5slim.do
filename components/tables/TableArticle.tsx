@@ -127,7 +127,7 @@ const styles = {
     },
     table: {
         width: "100%",
-        borderRadius: "22px",
+        borderRadius: "0px",
         boxShadow: "none",
         border: "solid 1px",
         borderColor: "#707070"

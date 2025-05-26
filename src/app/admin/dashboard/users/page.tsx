@@ -32,7 +32,7 @@ export default function AdminClientes() {
                 <SummaryClients />
             </Box>
 
-            <Box mt={"23px"}>
+            <Box mt={"23px"}  pb={10}> 
                 <TableClientsList />
             </Box>
 

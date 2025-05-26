@@ -1,11 +1,11 @@
 // src/components/SplashScreen.tsx
 'use client';
-import { Box, CircularProgress } from '@mui/material';
+import { CircularProgress } from '@mui/material';
 
 export default function SplashScreen() {
   return (
-    <Box
-      sx={{
+    <div
+      style={{
         width: '100vw',
         height: '100vh',
         display: 'flex',
@@ -19,6 +19,6 @@ export default function SplashScreen() {
       }}
     >
       <CircularProgress sx={{ color: '#5570F1' }} />
-    </Box>
+    </div>
   );
 }

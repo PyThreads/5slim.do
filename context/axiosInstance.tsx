@@ -1,4 +1,5 @@
 import axios, { AxiosInstance } from 'axios';
+import { IUser } from '../api/src/interfaces';
 
 
 // Define a type for your token

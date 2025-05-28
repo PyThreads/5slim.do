@@ -1,5 +1,1 @@
-//RUNS FRONTEND APP
 nvm use 21 && npm run dev
-
-//RUNS BACKEND AND DATABASES
-cd DB && docker-compose up -d && cd .. &&  cd api && nvm use 21 && npm run dev

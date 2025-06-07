@@ -5,12 +5,17 @@
       "outDir": "./dist",
       "strict": true,
       "esModuleInterop": true,
-      "allowSyntheticDefaultImports": true
+      "allowSyntheticDefaultImports": true,
+      "skipLibCheck": true, // ✅ (opcional) evita errores en libs que no usas
+      "types": [
+        "node"
+      ]
     },
     "include": [
       "**/*.ts"
     ],
     "exclude": [
       "node_modules"
-    ]
+    ],
+
   }

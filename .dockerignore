@@ -1,0 +1,41 @@
+# Ignorar node_modules en todos los contextos
+**/node_modules
+**/dist
+**/.next
+**/.turbo
+
+# Archivos de sistema o temporales
+.DS_Store
+Thumbs.db
+
+# Git
+.git
+.gitignore
+
+# Logs
+**/*.log
+npm-debug.log*
+
+# Docker
+Dockerfile
+.dockerignore
+
+# Tests / coverage
+**/__tests__/
+**/coverage/
+**/*.spec.ts
+**/*.test.ts
+
+/DB
+
+# IDEs / config locales
+.vscode
+.idea
+.env.local
+.env.*.local
+.env
+
+# Cache de builds
+.next
+turbo
+.cache

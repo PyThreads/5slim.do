@@ -14,8 +14,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@azure/msal-node": "^3.4.1",
+    "@microsoft/microsoft-graph-client": "^3.0.7",
     "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.15",
     "bcrypt": "^5.1.1",

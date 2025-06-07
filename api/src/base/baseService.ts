@@ -1,4 +1,4 @@
-import { Db, Collection, Sort, Document } from "mongodb";
+import { Db, Collection, Sort } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
 import { COLLNAMES, IAdmin, IClient, IFunctionProps, IPaginationResult, ItypeTempCode, IUser } from "../interfaces";
 import jwt from 'jsonwebtoken';

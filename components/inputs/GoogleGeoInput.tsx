@@ -84,8 +84,8 @@ export const GooglePlacesAutocompleteInput = ({
             const place = autocomplete.getPlace();
             if (!place.geometry || !place.address_components) return;
 
-            const lat = place.geometry.location.lat();
-            const lng = place.geometry.location.lng();
+            const lat = place?.geometry?.location?.lat();
+            const lng = place?.geometry?.location?.lng();
 
             const components = place.address_components;
 
@@ -100,7 +100,7 @@ export const GooglePlacesAutocompleteInput = ({
 
             const selectedData = { address, zipCode, city, lat, lng, url, place_id: place.place_id };
 
-            const position = new window.google.maps.LatLng(lat, lng);
+            const position = new window.google.maps.LatLng(lat!, lng!);
 
             if (markerRef.current && mapRef.current) {
                 markerRef.current.setPosition(position);

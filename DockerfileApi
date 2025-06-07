@@ -1,12 +1,17 @@
-# Usar la imagen base de Python 3.10
-FROM node:21
+# Usa una imagen ligera de Node 21 con npm
+FROM node:21-slim
 
-# Establecer el directorio de trabajo
+# Establece el directorio de trabajo dentro del contenedor
 WORKDIR /app
 
-# Copiar los archivos de la aplicación al contenedor
-COPY ./api /app
+# Copia solo los archivos necesarios del directorio api
+COPY ./api/package*.json ./
 
-RUN npm install
+# Instala dependencias solo de producción si estás en producción
+RUN npm install --omit=dev
 
+# Copia el resto de la aplicación
+COPY ./api .
+
+# Comando por defecto para iniciar la app
 CMD ["npm", "start"]

@@ -35,6 +35,11 @@ class UsersService extends BaseService {
         }
     }
 
+    /**
+     * 
+     * @param query: IPaginateClients    
+     * @returns 
+     */
     async getAllClients({ query }: { query: IPaginateClients }): Promise<IPaginationResult> {
         try {
 

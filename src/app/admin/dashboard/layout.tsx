@@ -7,7 +7,7 @@ import { useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
 import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon, Notification, HomeSecondTopBar } from '../../../../components/icons/Svg';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
-import { useAdminAuth } from '../../../../context/AdminContext';
+import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
 import { IAdmin } from '../../../../interfaces';
 
 const poppins = Poppins({
@@ -53,7 +53,7 @@ const items = [
 const Li = ({ name, icon, href, showName }: { name?: string, icon: Function, href?: string, showName?: boolean }) => {
     const router = useRouter()
     const pathName = usePathname();
-    
+
 
     return (
         <Box sx={{
@@ -76,14 +76,23 @@ const Li = ({ name, icon, href, showName }: { name?: string, icon: Function, hre
     )
 }
 
+export default function ProtectedAdminDashboard({
+    children,
+}: Readonly<{ children: React.ReactNode; }>) {
+    return (
+        <AdminProvider>
+            <LayoutAdminDashboard>{children}</LayoutAdminDashboard>
+        </AdminProvider>
+    )
+}
 
-export default function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
+function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
 
     const pathName = usePathname();
     const { currentAdmin } = useAdminAuth() as { currentAdmin: IAdmin | null };
 
-    return (
 
+    return (
         <Box sx={style.boxLayout}>
 
             <Box sx={style.box}>
@@ -163,7 +172,6 @@ export default function LayoutAdminDashboard({ children }: Readonly<{ children: 
             </Box>
 
         </Box>
-
     );
 }
 

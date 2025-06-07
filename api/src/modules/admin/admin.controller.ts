@@ -2,13 +2,63 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
+import { IAdmin, IClient, IPaginateClients } from "../../interfaces";
+import { UsersService } from "../users/users.service";
 
 class Admin {
 
     public readonly adminService: AdminService
+    private readonly userService : UsersService
 
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         this.adminService = new AdminService({ mongoDatabase });
+        this.userService = new UsersService({ mongoDatabase });
+    }
+
+    async clientRegister(req: Request, res: Response) {
+        try {
+
+            const newClient = req.body as unknown as IClient
+            const admin = res.locals.admin as unknown as IAdmin
+            const client = await this.userService.register({ body: newClient, user: admin });
+
+            res.status(200).json({
+                success: true,
+                data: client,
+                message: "Se ha registrado de forma exitosa la información del cliente."
+            })
+
+        } catch (error: any) {
+
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al obtener los datos del administrador."
+            })
+        }
+    }
+
+    async getAllClients(req: Request, res: Response) {
+        try {
+
+            const query = req.query as unknown as IPaginateClients
+
+            const result = await this.userService.getAllClients({query})
+
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "Clientes obtenidos de forma exitosa."
+            })
+
+        } catch (error: any) {
+
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al obtener los clientes."
+            })
+        }
     }
 
     async me(req: Request, res: Response) {

@@ -1,6 +1,6 @@
 import { ErrorMessage, useField } from "formik";
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { Switch, SwitchProps, TextField, styled } from "@mui/material";
+import { FormControlLabel, Switch, SwitchProps, TextField, Typography, styled } from "@mui/material";
 import { Inter } from "next/font/google";
 
 const inter = Inter({
@@ -9,15 +9,15 @@ const inter = Inter({
   weight: "600"
 })
 
-const CustomError = ({ name, customErrorText }: any) => (
+export const CustomError = ({ name, customErrorText }: any) => (
   <ErrorMessage name={name}>
     {(formikError) => (
       <>
         {customErrorText && (
-          <span style={{ color: "red", fontSize: "15px" }} inert><ReportProblemIcon sx={{ fontSize: '13px', marginRight: "3px", marginTop: "3px" }} />{customErrorText}</span>
+          <Typography >{customErrorText}</Typography>
         )}
         {formikError && (
-          <span style={{ color: "red", fontSize: "15px" }} inert><ReportProblemIcon sx={{ fontSize: '13px', marginRight: "3px", marginTop: "3px" }} />{formikError}</span>
+          <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>{formikError}</Typography>
         )}
       </>
     )}
@@ -25,7 +25,7 @@ const CustomError = ({ name, customErrorText }: any) => (
 );
 
 
-export const CustomField = ({ name, customErrorText, value, label, ...props }: any) => {
+export const CustomField = ({ name, customErrorText, ...props }: any) => {
   const [field] = useField(name);
   return (
     <>
@@ -34,8 +34,6 @@ export const CustomField = ({ name, customErrorText, value, label, ...props }: a
         {...field}
         variant="outlined"
         size="small"
-        name={name}
-        placeholder={label}
         sx={{
           '& .MuiOutlinedInput-root': {
             height: '52px',
@@ -48,6 +46,10 @@ export const CustomField = ({ name, customErrorText, value, label, ...props }: a
             '&.Mui-focused fieldset': {
               border: 'none', // mismo color en hover para que no cambie
             },
+            '& input::placeholder': {
+              color: '#929596',
+              opacity: 1, // Quita opacidad
+            },
           },
 
         }}
@@ -58,9 +60,8 @@ export const CustomField = ({ name, customErrorText, value, label, ...props }: a
             outline: "none",
             fontSize: "16x",
             fontFamily: inter.style.fontFamily,
-            color: "#ABAFB1",
-            backgroundColor: "#EFF1F999"
-
+            color: "#929596",
+            backgroundColor: "#EFF1F999",
           },
         }}
         {...props}
@@ -80,26 +81,49 @@ export const InputValitaionMessage = ({ message }: any) => {
 
 }
 
+export const DefaultSwitch = ({ checked, setChecked, label }: { label: string, checked: boolean, setChecked: Function }) => {
+  return (
+    <FormControlLabel
+      control={
+        <IOSSwitch checked={checked} onChange={(event) => {
+          setChecked(event.target.checked)
+        }
+        } />
+      }
+      label={label}
+      labelPlacement="start"
 
+      sx={{
+        margin: 0,
+        '.MuiFormControlLabel-label': {
+          fontFamily: inter.style.fontFamily,
+          fontSize: "14px",
+          color: "#2B2F32",
+          margin: "0px 20px 0px 0px"
+        }
+      }}
+    />
+  )
+}
 
-export const IOSSwitch = styled((props: SwitchProps) => (
+const IOSSwitch = styled((props: SwitchProps) => (
   <Switch focusVisibleClassName=".Mui-focusVisible" disableRipple {...props} />
 ))(({ theme }) => ({
-  width: 42,
-  height: 26,
+  width: 40,
+  height: 20,
   padding: 0,
   '& .MuiSwitch-switchBase.Mui-checked': {
     color: '#5570F1',
   },
   '& .MuiSwitch-switchBase': {
     padding: 0,
-    margin: 2,
-    marginTop: 4,
-    marginLeft: 4,
+    marginTop: 1.8,
+    marginLeft: 3,
+    marginRight: 14,
     transitionDuration: '300ms',
 
     '&.Mui-checked': {
-      transform: 'translateX(16px)',
+      transform: 'translateX(18px)',
       color: '#5570F1',
       '& + .MuiSwitch-track': {
         backgroundColor: '#5570F166',
@@ -117,12 +141,12 @@ export const IOSSwitch = styled((props: SwitchProps) => (
       color: '#33cf4d',
       border: '6px solid #fff',
     },
-    
+
   },
   '& .MuiSwitch-thumb': {
     boxSizing: 'border-box',
-    width: 18,
-    height: 18,
+    width: 16,
+    height: 16,
     backgroundColor: '#5570F1',
   },
   '& .MuiSwitch-track': {

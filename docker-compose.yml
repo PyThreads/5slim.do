@@ -10,6 +10,8 @@ services:
       - "8001:3000" # Mapear el puerto 5000 del contenedor al puerto 5000 del host
     networks:
       - fiveslim-network
+    environment:
+      - NEXT_PUBLIC_TIME_ZONE=America/Santo_Domingo
 
 
 

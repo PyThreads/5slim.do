@@ -1,5 +1,5 @@
 "use client"
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import AddIcon from '@mui/icons-material/Add';
@@ -8,6 +8,8 @@ import TableClientsList from "./moduleComponents/TableClientsList";
 import CustomModal from "../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import CreateClientForm from "./moduleComponents/forms/createClientForm";
+import { IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
+import { userService } from "./userService";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -17,6 +19,20 @@ const inter = Inter({
 
 export default function AdminClientes() {
     const [open, setOpen] = React.useState(false);
+    const [filters, setFilers] = useState<IPaginateClients>({
+        page: 1,
+        limit: 10,
+    })
+    const [result, setResult] = useState<IPaginationResult>()
+
+    const getAllClients = async () => {
+        const result = await userService.getAllClients(filters)
+        setResult(result)
+    }
+
+    useEffect(() => {
+        getAllClients()
+    }, [filters, setResult])
 
     return (
         <Box>
@@ -38,12 +54,19 @@ export default function AdminClientes() {
             </Box>
 
             <Box mt={"23px"} pb={10}>
-                <TableClientsList />
+                <TableClientsList
+                    setFilers={setFilers}
+                    rows={result?.list || []}
+                    currentPage={filters.page}
+                    limit={filters.limit}
+                    totalItems={result?.totalItems || 0}
+                    totalPages={result?.totalPages || 0}
+                />
             </Box>
 
 
             <CustomModal open={open} borderRadius={"12px"}>
-                <Box padding={"28px 24px"} width={423} maxHeight={"90vh"}
+                <Box padding={"28px 24px"} maxWidth={423} minWidth={350} maxHeight={"90vh"}
                     sx={{
                         ...style.hideScroll
                     }}
@@ -60,7 +83,11 @@ export default function AdminClientes() {
 
                     <CreateClientForm
                         valuesToEdit={{}}
-                        onClose={() => setOpen(false)}
+                        onClose={() => {
+                            setOpen(false);
+                            setFilers({ limit: 10, page: 1 })
+                        }
+                        }
                     />
                 </Box>
             </CustomModal>

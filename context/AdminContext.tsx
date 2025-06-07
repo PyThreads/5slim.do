@@ -1,6 +1,8 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import { IAdmin } from "../interfaces";
+import SimpleSnackbar from "../components/notifications/SimpleSnackbar";
+import { eventBus } from "../src/app/utils/broadcaster";
 
 const AdminContext = createContext({});
 
@@ -10,7 +12,7 @@ export function useAdminAuth() {
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
 
-const whoAmI = async (token:string) => {
+const whoAmI = async (token: string) => {
   const config = {
     method: "GET",
     headers: { Authorization: `Bearer ${token}` },
@@ -18,7 +20,7 @@ const whoAmI = async (token:string) => {
   try {
     const { data } = await axios(`${API_URL}/admin/private/me`, config);
     return data.data;
-  } catch (e:any) {
+  } catch (e: any) {
     throw new Error(e.message);
   }
 };
@@ -26,14 +28,20 @@ const whoAmI = async (token:string) => {
 export function AdminProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
   const [currentAdmin, setCurrentAdmin] = useState<IAdmin | null>(null);
 
+  const [notify, setNotify] = useState({
+    message: "",
+    open: false,
+    type: "success" as "success" | "error",
+    title: ""
+  })
 
   const me = async () => {
     try {
 
 
       const accessToken: string | null = localStorage.getItem("TKN-5SL-M0");
-      
-      if(!accessToken){
+
+      if (!accessToken) {
         signOut()
       }
 
@@ -41,7 +49,7 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
       setCurrentAdmin(user);
 
       return user;
-    } catch (e:any) {
+    } catch (e: any) {
       signOut()
     }
   };
@@ -57,11 +65,34 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
   }, []);
 
 
+  useEffect(() => {
+    eventBus.on("notify", (data: any) => {
+      setNotify(data)
+    })
+
+    return () => {
+      eventBus.off("notify", (data: any) => {
+        setNotify(data)
+      })
+    }
+  }, [])
+
+
   const value: any = {
-    currentAdmin
+    currentAdmin,
+    setNotify
   };
 
   return (
-    <AdminContext.Provider value={value}>{children}</AdminContext.Provider>
+    <AdminContext.Provider value={value}>
+      <SimpleSnackbar title={notify.title} message={notify.message} type={notify.type} open={notify.open}
+        setOpen={
+          () => {
+            setNotify({ ...notify, open: false })
+          }
+        }
+      />
+      {children}
+    </AdminContext.Provider>
   );
 }

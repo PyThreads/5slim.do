@@ -1,8 +1,43 @@
+export interface IPaginateClients {
+    page: number
+    limit: number
+    fullName?: string
+    active?: boolean
+    email?: string
+
+}
+
+export interface IPaginationResult {
+    totalPages: number;
+    list: any[];
+    currentPage: number;
+    totalItems: number;
+}
+
+export enum COLLNAMES {
+    ADMIN = "ADMIN",
+    CLIENTS = "CLIENTS"
+}
+
+
+export interface INotify {
+    type: "success" | "error"
+    message: string
+    title: string
+    open: boolean
+    setOpen: Function
+}
+
+export enum IAddressType {
+    BILLING = "Residencial",
+    SHIPPING = "Envío",
+    WORK = "Trabajo"
+}
+
 export interface IFunctionProps {
     createValidation: Function,
     projection?: Object
 }
-
 
 export interface ICartTotals {
     total: number;
@@ -25,7 +60,6 @@ export interface IPaginateArticles {
     category?: string
 }
 
-
 export interface IUser {
     _id: number;
     name: string;
@@ -37,6 +71,46 @@ export interface IUser {
     mobilePhone?: string
 }
 
+export interface IClientAddressMap {
+    address: string;
+    zipCode?: string;
+    city: string;
+    lat: string | number;
+    lng: string | number;
+    url: string;
+    place_id: string;
+}
+
+
+
+export interface IClientAddress {
+    type: string;
+    name: string;
+    address: string;
+    city: string;
+    county: string;       // Municipio
+    childCounty: string;  // Sector
+    phone: string;
+    isMap: boolean;
+    map?: IClientAddressMap; // Puedes definir una estructura más específica si sabes qué contiene
+    default: boolean;
+}
+
+export interface IClient {
+    _id: number;
+    firstName: string;
+    lastName: string;
+    fullName?: string;
+    email: string;
+    addresses: IClientAddress[];
+    createdDate?: Date
+    createdBy?: ICreatedBy
+}
+
+export interface ICreatedBy {
+    _id: number;
+    fullName: string;
+}
 export interface IAdmin {
     _id: number;
     name: string;

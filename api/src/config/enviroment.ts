@@ -27,7 +27,7 @@ class EnvironmentConfig {
 
         this.SERVICE_PORT = Number(process.env.SERVICE_PORT || 8000);
 
-        this.timeZone = "America/Santo_Domingo";;
+        this.timeZone = "America/Santo_Domingo";
 
         this.microsoftClientId = "b097903b-5a03-4ef7-ab43-8ff7efa5c0c1", // ID de la aplicación registrada
         this.microsoftAuthority = "https://login.microsoftonline.com/d891dee3-8f04-4313-b79d-450fce8bba75", // Tenant ID

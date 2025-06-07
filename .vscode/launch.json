@@ -16,6 +16,12 @@
             "type": "node-terminal",
             "request": "launch",
             "command": "cd DB && docker-compose up -d && cd .. && cd api && nvm use 21 && npm run dev"
+        },
+        {
+            "name": "Start Next.js",
+            "type": "node-terminal",
+            "request": "launch",
+            "command": "nvm use 21 && npm run dev"
         }
     ]
 }

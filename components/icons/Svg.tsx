@@ -1,10 +1,91 @@
+import React from "react";
 import { FC } from "react";
 
 interface MiIconoProps {
     filled: boolean;
-    strokeBold?: boolean
+    strokeBold?: boolean,
+    color?: string,
+    type?: "success" | "error"
 }
 
+
+
+export const DownImageSnack: FC<MiIconoProps> = ({ filled, color }) => {
+    return (
+        <svg
+            width="54"
+            height="50"
+            viewBox="0 0 54 50"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <g clipPath="url(#clip0_104_41)">
+                <path
+                    d="M26.087 29.0318C23.587 29.0318 4.8791 25.0238 0.0870423 28.0318C-0.579624 34.6984 2.28704 48.5318 19.087 50.5318H48.087C45.5715 45.4375 37.587 37.0318 35.087 35.0318C32.587 33.0318 33.087 28.5318 35.087 26.0318C37.087 23.5318 41.587 24.0318 44.587 22.5318C47.587 21.0318 49.587 18.1318 49.587 14.5318C49.587 10.0318 46.087 4.53178 40.087 5.03178C34.087 5.53178 31.087 11.5318 31.587 14.5318C32.087 17.5318 35.087 22.0318 31.587 26.0318C28.087 30.0318 28.587 29.0318 26.087 29.0318Z"
+                    fill={color ? color : "none"}
+                />
+                <circle cx="51.25" cy="32.25" r="2.25" />
+                <circle cx="12.5" cy="5.5" r="5.5" fill={color ? color : "none"} />
+            </g>
+            <defs>
+                <clipPath id="clip0_104_41">
+                    <rect width="53.5" height="50.5318" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    )
+}
+
+
+
+
+export const ErrorIconSnack: FC<MiIconoProps> = ({ filled, color, type }) => {
+    return (
+        <svg
+            width="42"
+            height="54"
+            viewBox="0 0 42 54"
+            fill={color ? color : "none"}
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <g clipPath="url(#clip0_103_88)">
+                <path
+                    d="M23.2563 38.6904C24.6205 39.3026 24.855 41.1407 23.6882 42.0757L14.6175 49.3448C13.3986 50.3216 11.5805 49.5867 11.3828 48.0372L9.8484 36.0091C9.65074 34.4597 11.2261 33.2919 12.6511 33.9314L23.2563 38.6904Z"
+                    fill={color ? color : "none"}
+                />
+                <circle cx="21" cy="21" r="21" fill={color ? color : "none"} />
+
+                {
+                    type === "error" ?
+
+                        <React.Fragment>
+                            <path
+                                d="M25 17L17 25"
+                                stroke="white"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                            <path
+                                d="M17 17L25 25"
+                                stroke="white"
+                                strokeWidth="2.5"
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                            />
+                        </React.Fragment>
+                        :
+                        <path d="M27 16.5L18.75 24.75L15 21" stroke="white" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                }
+            </g>
+            <defs>
+                <clipPath id="clip0_103_88">
+                    <rect width="42" height="53.7175" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    )
+}
 
 
 

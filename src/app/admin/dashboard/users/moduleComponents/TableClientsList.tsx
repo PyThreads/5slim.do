@@ -3,7 +3,9 @@ import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../com
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchTableClients from "./SearchTableClients";
 import { Inter } from "next/font/google";
-import { table } from "console";
+import { IClient } from "../../../../../../api/src/interfaces";
+import { userService } from "../userService";
+import { useState } from "react";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -11,112 +13,27 @@ const inter = Inter({
     weight: "500"
 })
 
-
-function createData(
-    name: string,
-    calories: number,
-    fat: number,
-    carbs: number,
-    protein: number,
-) {
-    return { name, calories, fat, carbs, protein };
-}
-
-const rows = [
+export default function TableClientsList(
     {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
-    },
-    {
-        name: "Jose Reyes",
-        email: "n2Mlq@example.com",
-        phone: "123456789",
-        orders: 2,
-        totalOrders: "DOP 2,000.00",
-        clientSince: "01 Enero 2025 12:00 AM",
-        active: true
+        setFilers,
+        rows,
+        currentPage,
+        limit,
+        totalItems,
+        totalPages
     }
+        :
+        {
+            rows: IClient[],
+            currentPage: number,
+            limit: number
+            totalItems: number,
+            totalPages: number,
+            setFilers: Function
+        }
+) {
+    const [checked, setChecked] = useState<number[]>([]);
 
-];
-
-export default function TableClientsList() {
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
 
@@ -127,7 +44,9 @@ export default function TableClientsList() {
                 <Box display={"flex"} alignItems={"center"}>
 
                     <Box width={"250px"} m={1}>
-                        <SearchTableClients onChange={() => { }} />
+                        <SearchTableClients onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                            setFilers((prev: any) => ({ ...prev, fullName: e.target.value, page: 1 }))
+                        }} />
                     </Box>
 
                     <Box m={1}>
@@ -165,10 +84,18 @@ export default function TableClientsList() {
                             <TableRow
                                 sx={styles.tableRow}
                             >
-                                <TableCell >
+                                <TableCell>
                                     <Checkbox
-                                        checked={true}
+                                        checked={checked.length === rows.length}
+                                        onClick={() => {
+                                            if (checked.length === rows.length) {
+                                                setChecked([])
+                                            } else {
+                                                setChecked(rows.map(item => item._id) || [])
+                                            }
+                                        }}
                                         inputProps={{ 'aria-label': 'controlled' }}
+
                                     />
                                 </TableCell>
 
@@ -240,26 +167,29 @@ export default function TableClientsList() {
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
-                            {rows.map((row) => (
+                            {rows.map((row: IClient) => (
                                 <TableRow
-                                    key={row.name}
+                                    key={row._id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
                                 >
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Checkbox
-                                            checked={true}
+                                            checked={checked.some(item => row._id === item)}
                                             inputProps={{ 'aria-label': 'controlled' }}
                                             sx={{
                                                 '&.Mui-checked': {
                                                     color: "#5570F1", // color cuando está marcado
                                                 }
                                             }}
+                                            onClick={() => {
+                                                setChecked(checked.some(item => row._id === item) ? checked.filter(item => item !== row._id) : [...checked, row._id])
+                                            }}
                                         />
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.name}
+                                            {row.fullName}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
@@ -269,29 +199,29 @@ export default function TableClientsList() {
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.phone}
+                                            {row.addresses[0]?.phone || "N/A"}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.orders}
+                                            {0}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.totalOrders}
+                                            {0}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.clientSince}
+                                            {userService.formatAmPm(row.createdDate!)}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#519C66"} fontSize={"12px"}
-                                            borderRadius={"8px"} bgcolor={row.active ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"}
+                                            borderRadius={"8px"} bgcolor={true ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"}
                                         >
-                                            {row.active ? "Activo" : "Inactivo"}
+                                            {true ? "Activo" : "Inactivo"}
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -316,7 +246,7 @@ export default function TableClientsList() {
                         >
 
                             <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} >
-                                10
+                                {limit}
                             </Typography>
 
                             <KeyboardArrowDownIcon sx={{ color: "#8B8D97", fontSize: 20 }} />
@@ -334,24 +264,32 @@ export default function TableClientsList() {
 
                         <TablePagination
                             component="div"
-                            count={1}
-                            page={1}
-                            rowsPerPage={10}
-                            rowsPerPageOptions={[]}
-                            labelDisplayedRows={
-                                ({ page, count }) =>
-
-                                    <Typography component="span" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#666666"} ml={2} >
-                                        {`${page} de ${count !== -1 ? count + ` Páginas` : ``}`}
-                                    </Typography>
-                            }
+                            count={totalItems!} // total de elementos
+                            page={currentPage! - 1} // ajustamos a base 0
+                            rowsPerPage={limit}
+                            rowsPerPageOptions={[]} // si no quieres mostrar opciones
+                            labelDisplayedRows={({ page }) => (
+                                <Typography
+                                    component="span"
+                                    fontFamily={"Inter"}
+                                    fontSize={"14px"}
+                                    fontWeight={"400"}
+                                    color={"#666666"}
+                                    ml={2}
+                                >
+                                    {`${page + 1} de ${totalPages} Páginas`}
+                                </Typography>
+                            )}
                             labelRowsPerPage={""}
-                            onPageChange={() => { }}
+                            onPageChange={(_, newPage) => {
+                                setFilers((prev: any) => ({ ...prev, page: newPage + 1 }));
+                                setChecked([])
+                            }}
                             sx={{
                                 '& .MuiTablePagination-actions button': {
-                                  color: '#8B8D97', // Cambia este color al que necesites
+                                    color: '#8B8D97',
                                 },
-                              }}
+                            }}
                         />
 
                     </Box>

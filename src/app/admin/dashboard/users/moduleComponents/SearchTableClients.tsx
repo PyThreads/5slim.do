@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 
 
-export default function SearchTableClients({onChange}: {onChange: () => void}) {
+export default function SearchTableClients({onChange}: {onChange: Function}) {
     return (
         <TextField
             variant="outlined"
@@ -37,7 +37,7 @@ export default function SearchTableClients({onChange}: {onChange: () => void}) {
                 }
             }}
             autoFocus
-            onChange={onChange}
+            onChange={(e)=>{onChange(e)}}
         />
     )
 }

@@ -22,8 +22,10 @@ class AdminRouter {
         publicRouter.post("/login", adminRoutesValidations.validateLogin(), this.adminController.login.bind(this.adminController))
         publicRouter.post("/sendEmailCode", adminRoutesValidations.validateSendCode(), this.adminController.sendEmailCode.bind(this.adminController))
 
-
+        //PRIVATE ROUTES
         router.get("/me", this.adminController.me.bind(this.adminController));
+        router.post("/client/register", adminRoutesValidations.clientRegister(),this.adminController.clientRegister.bind(this.adminController));
+        router.get("/clients", adminRoutesValidations.getAllClients(), this.adminController.getAllClients.bind(this.adminController));
 
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", router);

@@ -1,27 +1,35 @@
 import { Formik } from 'formik';
 import { initialValuesClientForm, validationSchemaClientForm } from './CreateClientFormValidator';
 import Form from "./CreateClientForm";
-import axios from '../../../../../../../../context/axiosInstance';
+import axios from '../../../../../../../../context/adminAxiosInstance';
+import { IClient } from '../../../../../../../../api/src/interfaces';
+import { useAdminAuth } from '../../../../../../../../context/AdminContext';
 
-export default function  CreateClientForm({ valuesToEdit, onClose }: { valuesToEdit?: any, onClose: Function }) {
+export default function CreateClientForm({ valuesToEdit, onClose }: { valuesToEdit?: any, onClose: Function }) {
 
-
-
-    const handleSubmit = async (article: any) => {
+    const { setNotify } = useAdminAuth() as { setNotify: any};
+    
+    const handleSubmit = async (user: IClient) => {
 
         try {
 
-            if (article._id) {
+            user.fullName = user.firstName.trim() + " " + user.lastName.trim()
 
-                await axios.put(`/admin/user/update/${article._id}`, article)
+            if (user._id) {
+
+                await axios.put(`/admin/private/client/register/${user._id}`, user)
 
             } else {
 
-                await axios.post(`/admin/user/create`, article)
+                await axios.post(`/admin/private/client/register`, user)
             }
+
+            setNotify({ message: "Registro guardado de forma exitosa.", open: true, type: "success", title: "Guardado!" })
+            onClose()
 
         } catch (error: any) {
             const message = error?.response?.data?.message || "Ha ocurrido un error al crear el usuario."
+            setNotify({ message: message, open: true, type: "error", title: "Upss!" })
         }
 
     }
@@ -31,14 +39,18 @@ export default function  CreateClientForm({ valuesToEdit, onClose }: { valuesToE
     }
 
     return (
-        <Formik
-            validationSchema={validationSchemaClientForm}
-            initialValues={getInitialValues()}
-            onSubmit={handleSubmit}
-            validateOnBlur
-        >
-
+            <Formik
+                validationSchema={validationSchemaClientForm}
+                initialValues={getInitialValues()}
+                onSubmit={handleSubmit}
+                validateOnSubmit={true}
+                validateOnChange={false}
+                validateOnBlur={false}
+                validateOnMount={false}
+                shouldComponentUpdate
+            >
                 <Form />
-        </Formik>
+
+            </Formik>
     )
 }

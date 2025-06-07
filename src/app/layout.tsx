@@ -1,5 +1,6 @@
 import { Inter } from "next/font/google";
 import "./globals.css";
+import Script from "next/script";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -8,8 +9,6 @@ export const metadata = {
   description: "Los mejores precios online en Republica Dominicana, venta en general",
   keywords: [
     "Tecnología",
-    "Vehículos",
-    "auto partes",
     "Accesorios para computadoras",
     "5slim.do"
   ].join(", ") // Convierte el array de palabras clave en una cadena separada por comas
@@ -28,8 +27,15 @@ export default function RootLayout({
         <title>{metadata.title}</title>
         <meta name="description" content={metadata.description} />
         <meta name="keywords" content={metadata.keywords} />
+        <Script
+          src={`https://maps.googleapis.com/maps/api/js?key=AIzaSyD7Ma19YzVnx-a4KxPNyWfNqyrTLWqUlxI&libraries=places`}
+          strategy="beforeInteractive"
+        />
+
       </head>
       <body className={inter.className}>{children}</body>
+
+
     </html>
   );
 }

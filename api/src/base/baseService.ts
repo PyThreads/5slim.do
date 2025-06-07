@@ -1,11 +1,11 @@
-import { Db, Collection } from "mongodb";
+import { Db, Collection, Sort, Document } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
-import { IFunctionProps, IUser, ItypeTempCode } from "../interfaces";
+import { COLLNAMES, IAdmin, IClient, IFunctionProps, IPaginationResult, ItypeTempCode, IUser } from "../interfaces";
 import jwt from 'jsonwebtoken';
 import { NextFunction, Response, Request, Router } from "express";
 const msal = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
-import {utils,Utils} from "../utils"
+import { utils, Utils } from "../utils"
 
 
 class BaseService {
@@ -17,7 +17,7 @@ class BaseService {
     public readonly JWT_SECRET_KEY;
     public readonly utils: Utils
 
-    constructor({ mongoDatabase, tableName,app, prefix,functionProps }: { mongoDatabase: Db, tableName: string,app?: Router, prefix?: string,functionProps?: IFunctionProps }) {
+    constructor({ mongoDatabase, tableName, app, prefix, functionProps }: { mongoDatabase: Db, tableName: string, app?: Router, prefix?: string, functionProps?: IFunctionProps }) {
         this.JWT_SECRET_KEY = "JOSEPH-JOESTAR22@L."
         this.tableName = tableName
         this.environmentConfig = environmentConfig
@@ -28,15 +28,15 @@ class BaseService {
 
 
 
-        app && app.post(`${prefix}`, functionProps!.createValidation(), async (req: Request, res: Response) =>{
+        app && app.post(`${prefix}`, functionProps!.createValidation(), async (req: Request, res: Response) => {
             try {
-                const result  =  await this.insertOne({ body: req.body, user: res.locals.admin });
+                const result = await this.insertOne({ body: req.body, user: res.locals.admin });
                 res.status(200).json({
                     success: true,
                     data: result,
                     message: "Guardado de forma exitosa"
                 })
-            } catch (error:any) { 
+            } catch (error: any) {
                 res.status(400).json({
                     success: false,
                     data: null,
@@ -44,6 +44,75 @@ class BaseService {
                 })
             }
         })
+    }
+
+    diacriticSensitive(text: string): string {
+        const map: Record<string, string> = {
+            a: "[aá]",
+            e: "[eé]",
+            i: "[ií]",
+            o: "[oó]",
+            u: "[uúü]"
+        };
+        return text
+            .toLowerCase()
+            .replace(/[aeiou]/g, (vowel) => map[vowel] || vowel);
+    }
+
+    async paginate(
+        params: {
+            query?: any[];
+            page: number;
+            limit: number;
+            collection: COLLNAMES;
+            sort?: Sort;
+        }
+    ): Promise<IPaginationResult> {
+        try {
+            const { query = [], page, limit, collection, sort } = params;
+
+            const pipeline: any = [...query];
+
+            if (sort) {
+                pipeline.push({ $sort: sort });
+            }
+
+            const skip = (page - 1) * limit;
+
+            const aggCount = [...pipeline,
+            {
+                $group: {
+                    _id: null,
+                    totalCount: { $sum: 1 }
+                }
+            },
+            {
+                $project: {
+                    _id: 0,
+                    count: "$totalCount"
+                }
+            }
+            ];
+
+            const resultCount = await this.mongoDatabase.collection(collection).aggregate(aggCount, { allowDiskUse: true }).toArray();
+
+            pipeline.push({ $skip: skip });
+            pipeline.push({ $limit: limit });
+
+            const result = await this.mongoDatabase.collection(collection).aggregate(pipeline).toArray();
+
+            const count = resultCount[0]?.count || 0;
+            const totalPages = count > 0 ? Math.ceil(count / limit) : 1;
+
+            return {
+                totalPages,
+                list: result,
+                currentPage: page > totalPages ? totalPages : page,
+                totalItems: count
+            };
+        } catch (e) {
+            throw e;
+        }
     }
 
     formatMoney(amount: number): string {
@@ -55,26 +124,26 @@ class BaseService {
         return formatter.format(amount);
     }
 
-    async verifyToken(req: Request, res: Response, next: NextFunction) {
-        try {
-            const token = req.headers.authorization?.split(' ')[1];
+    // async verifyToken(req: Request, res: Response, next: NextFunction) {
+    //     try {
+    //         const token = req.headers.authorization?.split(' ')[1];
 
-            if (!token) {
-                throw new Error("El usuario no se ha autenticado de forma correcta.");
-            }
+    //         if (!token) {
+    //             throw new Error("El usuario no se ha autenticado de forma correcta.");
+    //         }
 
-            const user = jwt.verify(token, this.JWT_SECRET_KEY) as IUser;
-            const userOnDb = await this.mongoDatabase.collection("USERS").findOne({ _id: user._id });
-            res.locals.user = userOnDb; // Asigna el usuario decodificado a req.user
-            next();
-        } catch (error: any) {
-            res.status(401).json({
-                success: false,
-                data: null,
-                message: error?.message || "El usuario no se ha autenticado de forma correcta."
-            });
-        }
-    }
+    //         const user = jwt.verify(token, this.JWT_SECRET_KEY) as IUser;
+    //         const userOnDb = await this.mongoDatabase.collection("USERS").findOne({ _id: user._id });
+    //         res.locals.user = userOnDb; // Asigna el usuario decodificado a req.user
+    //         next();
+    //     } catch (error: any) {
+    //         res.status(401).json({
+    //             success: false,
+    //             data: null,
+    //             message: error?.message || "El usuario no se ha autenticado de forma correcta."
+    //         });
+    //     }
+    // }
 
     async verifyTokenAdmin(req: Request, res: Response, next: NextFunction) {
         try {
@@ -109,7 +178,7 @@ class BaseService {
     }
 
 
-    async insertOne({ body, user }: { body: any, user: IUser }): Promise<any> {
+    async insertOne({ body, user }: { body: any, user: IClient | IAdmin }): Promise<any> {
 
         try {
             let object = { ...body };
@@ -177,14 +246,14 @@ class BaseService {
             };
 
             const cca = new msal.ConfidentialClientApplication(msalConfig);
-            const response = await cca.acquireTokenByClientCredential(clientCredentialRequest);  
+            const response = await cca.acquireTokenByClientCredential(clientCredentialRequest);
 
             const client = Client.init({
-                authProvider: (done:any) => {
+                authProvider: (done: any) => {
                     done(null, response.accessToken);
                 }
             });
-            
+
 
             const mail = {
                 message: {
@@ -251,13 +320,13 @@ class BaseService {
 
             const collection = this.mongoDatabase.collection(this.tempCodeTable);
 
-            const match = await collection.find(params).sort({_id: -1}).toArray();
-            
+            const match = await collection.find(params).sort({ _id: -1 }).toArray();
+
             if (match.length > 0) {
                 await collection.updateOne({ _id: match[0]._id }, { $set: { used: true } });
             }
 
-            return match.length  > 0 ? true : false
+            return match.length > 0 ? true : false
 
         } catch (error) {
             throw error

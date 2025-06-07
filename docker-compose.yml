@@ -22,12 +22,6 @@ services:
       - ./logs:/app/logs
     networks:
       - fiveslim-network
-    environment:
-      - DB_HOST:3.18.104.165
-      - DB_NAME:FIVESLIM-DB
-      - DB_USER:root
-      - DB_PASSWORD:root
-      - DB_PORT:27019
 
 volumes:
   logs:

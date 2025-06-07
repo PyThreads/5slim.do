@@ -11,9 +11,7 @@ services:
     networks:
       - fiveslim-network
     environment:
-      - NEXT_PUBLIC_TIME_ZONE=America/Santo_Domingo
-
-
+      - NEXT_PUBLIC_TIME_ZONE:America/Santo_Domingo
 
 
   5slim-api:

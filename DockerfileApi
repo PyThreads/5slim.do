@@ -10,7 +10,7 @@ COPY ./api/package*.json ./
 # Instala dependencias solo de producción si estás en producción
 
 ENV DB_HOST=3.18.104.165
-ENV DB_NAME=FIVESLIM-DB
+ENV DB_NAME=5SLIM-DO
 ENV DB_USER=root
 ENV DB_PASSWORD=root
 ENV DB_PORT=27017

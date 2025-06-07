@@ -1,12 +1,14 @@
 import { COLLNAMES, IAdmin, IClient, IPaginateClients, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
+import { UserIndex } from "./usersIndex";
 
 class UsersService extends BaseService {
 
     public readonly collection: Document | any
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: COLLNAMES.CLIENTS });
+        new UserIndex({ mongoDatabase, tableName: COLLNAMES.CLIENTS });
     }
 
     /**
@@ -18,6 +20,8 @@ class UsersService extends BaseService {
         try {
 
             const exists = await this.collection.countDocuments({ email: body.email });
+
+            body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
 
             if (exists) {
                 throw new Error("Existe una cuenta con el correo: " + body.email);
@@ -44,41 +48,9 @@ class UsersService extends BaseService {
             ];
 
             if (fullName) {
-                const newField: any = {
-                    $addFields: {
-                        "fullSearch": {
-                            "$concat": [
-                                "$fullName",
-                                " ",
-                                "$email",
-                                " ",
-                                {
-                                    // Construimos una cadena con todos los phones:
-                                    $reduce: {
-                                        input: {
-                                            $map: {
-                                                input: "$addresses",
-                                                as: "addr",
-                                                in: { $ifNull: ["$$addr.phone", ""] }
-                                            }
-                                        },
-                                        initialValue: "",
-                                        in: {
-                                            $cond: [
-                                                { $eq: ["$$value", ""] },
-                                                "$$this",                  // si es la primera iteración, devuelve solo $$this
-                                                { $concat: ["$$value", " ", "$$this"] } // si hay valor previo, agrega espacio + siguiente phone
-                                            ]
-                                        }
-                                    }
-                                }
-                            ]
-                        }
-                    }
-                };
-                aggregate.unshift(newField);
-                match["fullSearch"] = { $regex: this.diacriticSensitive(fullName), $options: "i" };
+                match["fullClient"] = { $regex: this.diacriticSensitive(fullName), $options: "i" };
             }
+
             if (active !== undefined) {
                 match["active"] = active;
             }

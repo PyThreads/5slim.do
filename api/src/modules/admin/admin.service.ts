@@ -10,23 +10,6 @@ class AdminService extends BaseService {
         super({ mongoDatabase, tableName: COLLNAMES.ADMIN });
     }
 
-    async clientRegister({ admin, newClient }: { admin: IAdmin , newClient: IClient }) {
-
-        try {
-
-            const client = await this.mongoDatabase.collection(COLLNAMES.CLIENTS).countDocuments({ email: newClient.email });
-            
-            if (client) {
-                throw new Error("Existe un cliente con el correo: " + newClient.email);
-            }
-
-            await this.insertOne({ body: newClient,user: admin });
-
-        } catch (error: any) {
-            throw new Error(error?.message || "Ha ocurrido un error al registrar el cliente.");
-        }
-    }
-
     async login({ username, password }: { username: string, password: string }) {
 
         try {

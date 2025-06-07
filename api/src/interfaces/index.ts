@@ -105,6 +105,7 @@ export interface IClient {
     addresses: IClientAddress[];
     createdDate?: Date
     createdBy?: ICreatedBy
+    fullClient: string
 }
 
 export interface ICreatedBy {

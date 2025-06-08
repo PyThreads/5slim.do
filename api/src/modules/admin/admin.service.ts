@@ -39,7 +39,8 @@ class AdminService extends BaseService {
     async sendEmailCode({email}: { email: string }): Promise<void> {
         try {
 
-            const queryExistsUser = await this.collection.countDocuments({ email});
+            const filter = {email: {$regex: this.diacriticSensitive(email), $options: "i"}};
+            const queryExistsUser = await this.collection.countDocuments(filter);
 
             if (!queryExistsUser) {
                 return

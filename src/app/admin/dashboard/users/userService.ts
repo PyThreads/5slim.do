@@ -1,6 +1,6 @@
 import { BaseService } from "../../../utils/baseService";
 import adminAxios from "../../../../../context/adminAxiosInstance";
-import { IPaginationResult } from "../../../../../api/src/interfaces";
+import { IClient, IPaginationResult } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 
 class UserService extends BaseService {
@@ -22,6 +22,19 @@ class UserService extends BaseService {
                 currentPage: 1,
                 totalItems: 0
             }
+        }
+    }
+
+    async getClientDetails(query: any): Promise<IClient | null> {
+        try {
+            const params = this.transformQuery(query)
+            const { data: { data } }: { data: { data: IPaginationResult } } = await adminAxios.get("/admin/private/clients" + params)
+            return data.list[0] as unknown as IClient
+
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Ha ocurrido un error al obtener el cliente."
+            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            return null
         }
     }
 }

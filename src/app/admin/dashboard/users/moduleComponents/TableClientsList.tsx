@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SearchTableClients from "./SearchTableClients";
@@ -20,7 +20,8 @@ export default function TableClientsList(
         currentPage,
         limit,
         totalItems,
-        totalPages
+        totalPages,
+        onDoubleClickRow
     }
         :
         {
@@ -30,6 +31,7 @@ export default function TableClientsList(
             totalItems: number,
             totalPages: number,
             setFilers: Function
+            onDoubleClickRow: Function
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -169,8 +171,13 @@ export default function TableClientsList(
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
                             {rows.map((row: IClient) => (
                                 <TableRow
+                                    onDoubleClick={async () => {
+                                        const userFullDetails = await userService.getClientDetails({ _id: row._id });
+                                        onDoubleClickRow(userFullDetails)
+                                    }}
                                     key={row._id}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important", cursor: "pointer" }}
+
                                 >
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Checkbox
@@ -245,15 +252,39 @@ export default function TableClientsList(
                             borderRadius={"8px"}
                         >
 
-                            <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} >
+                            {/* <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} >
                                 {limit}
-                            </Typography>
+                            </Typography> */}
 
-                            <KeyboardArrowDownIcon sx={{ color: "#8B8D97", fontSize: 20 }} />
+                            <Select
+                                value={limit}
+                                size="small"
+                                variant="outlined"
+                                onChange={(e) => setFilers((prev: any) => ({ ...prev, limit: e.target.value, page: 1 }))}
+                                sx={{
+                                    width: 80,
+                                    height: 36,
+                                    outline: "none",
+                                    border: "none",
+                                    color: "#8B8D97",
+                                    "& .MuiOutlinedInput-notchedOutline": {
+                                        border: "none"
+                                    },
+                                    "& .MuiOutlinedInput-input": {
+                                        padding: 0,
+                                    }
+                                }}
+                            >
+                                {[5, 10, 25, 50, 100].map((option) => (
+                                    <MenuItem key={option} value={option} color="#8B8D97">
+                                        {option}
+                                    </MenuItem>
+                                ))}
+                            </Select>
 
                         </Box>
 
-                        <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} ml={2}>
+                        <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} ml={3}>
                             Items por página
                         </Typography>
 
@@ -299,7 +330,7 @@ export default function TableClientsList(
 
             </Grid>
 
-        </Box>
+        </Box >
     )
 }
 

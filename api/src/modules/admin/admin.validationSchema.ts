@@ -9,12 +9,14 @@ const getAllClients = () => {
         query("fullName").optional().isString().withMessage("fullName debe ser un string"),
         query("email").optional().isEmail().withMessage("email debe tener un formato válido"),
         query("active").optional().isBoolean().withMessage("active debe ser true o false").toBoolean(),
+        query("_id").optional().isInt({ min: 1 }).toInt().withMessage("_id debe ser un entero mayor o igual a 1"),
         validation
     ]
 }
 
 const clientRegister = () => {
     return [
+        param("_id").optional().isInt().toInt().withMessage("El id de usuario es obligatorio."),
         body('firstName').notEmpty().withMessage('El nombre es requerido.').isString().withMessage('El nombre debe ser texto.').trim(),
         body('lastName').notEmpty().withMessage('El apellido es requerido.').isString().withMessage('El apellido debe ser texto.').trim(),
         body('fullName').optional().isString().withMessage('El nombre completo debe ser texto.').trim(),

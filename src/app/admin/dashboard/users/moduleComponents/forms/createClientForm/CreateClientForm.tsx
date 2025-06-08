@@ -14,8 +14,8 @@ const inter = Inter({
 })
 
 export const CreateArticleForm = () => {
-    const [checked, setChecked] = React.useState(false);
     const { isSubmitting, values, setValues }: { isSubmitting: boolean, values: IClient, setValues: any } = useFormikContext<IClient>();
+    const [checked, setChecked] = React.useState(values && values.addresses.length > 0 ? true : false);
 
 
     const onSelect = (map: IClientAddressMap) => {

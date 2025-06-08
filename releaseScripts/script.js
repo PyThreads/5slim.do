@@ -11,7 +11,7 @@ var adminList = [
         _id: 2,
         firstName: "Lucia",
         lastName: "Figuereo",
-        fullName: "Jose Reyes",
+        fullName: "Lucia Figuereo",
         email: "luciagfiguereo@gmail.com"
     }
 ]

@@ -4,6 +4,7 @@ export interface IPaginateClients {
     fullName?: string
     active?: boolean
     email?: string
+    _id?: number
 
 }
 
@@ -105,7 +106,9 @@ export interface IClient {
     addresses: IClientAddress[];
     createdDate?: Date
     createdBy?: ICreatedBy
+    updatedBy?: ICreatedBy
     fullClient: string
+    updatedDate?: Date
 }
 
 export interface ICreatedBy {

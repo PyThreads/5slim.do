@@ -8,7 +8,7 @@ import TableClientsList from "./moduleComponents/TableClientsList";
 import CustomModal from "../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import CreateClientForm from "./moduleComponents/forms/createClientForm";
-import { IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IClient, IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
 import { userService } from "./userService";
 
 const inter = Inter({
@@ -19,6 +19,7 @@ const inter = Inter({
 
 export default function AdminClientes() {
     const [open, setOpen] = React.useState(false);
+    const [selectedClient, setSelectedClient] = useState<IClient | null>(null)
     const [filters, setFilers] = useState<IPaginateClients>({
         page: 1,
         limit: 10,
@@ -55,6 +56,10 @@ export default function AdminClientes() {
 
             <Box mt={"23px"} pb={10}>
                 <TableClientsList
+                    onDoubleClickRow={(client: IClient) => {
+                        setSelectedClient(client)
+                        setOpen(true)
+                    }}
                     setFilers={setFilers}
                     rows={result?.list || []}
                     currentPage={filters.page}
@@ -82,7 +87,7 @@ export default function AdminClientes() {
                     </Grid>
 
                     <CreateClientForm
-                        valuesToEdit={{}}
+                        valuesToEdit={ selectedClient?._id ? selectedClient : {}}
                         onClose={() => {
                             setOpen(false);
                             setFilers({ limit: 10, page: 1 })

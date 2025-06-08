@@ -1,4 +1,4 @@
-import { Db, Collection, Sort } from "mongodb";
+import { Db, Collection, Sort, ReturnDocument } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
 import { COLLNAMES, IAdmin, IClient, IFunctionProps, IPaginationResult, ItypeTempCode, IUser } from "../interfaces";
 import jwt from 'jsonwebtoken';
@@ -44,6 +44,23 @@ class BaseService {
                 })
             }
         })
+    }
+
+    async updateOne({filter,body,user,returnNew = true }: { filter: any, body: any, user: IAdmin | IClient,returnNew?: boolean}) {
+        try {
+
+            body.updatedBy = {
+                _id: user._id,
+                fullName: user.fullName
+            }
+
+            body.updatedDate = this.utils.newDate();
+
+            return await this.collection.updateOne(filter, { $set: body }, { ReturnDocument: returnNew ? ReturnDocument.AFTER : ReturnDocument.BEFORE });
+
+        } catch (error) {
+            throw error;
+        }
     }
 
     diacriticSensitive(text: string): string {

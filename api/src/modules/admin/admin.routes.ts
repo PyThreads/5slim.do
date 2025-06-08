@@ -25,8 +25,8 @@ class AdminRouter {
         //PRIVATE ROUTES
         router.get("/me", this.adminController.me.bind(this.adminController));
         router.post("/client/register", adminRoutesValidations.clientRegister(),this.adminController.clientRegister.bind(this.adminController));
+        router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));
         router.get("/clients", adminRoutesValidations.getAllClients(), this.adminController.getAllClients.bind(this.adminController));
-
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", router);
 

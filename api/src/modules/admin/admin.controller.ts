@@ -38,6 +38,31 @@ class Admin {
         }
     }
 
+    async updateClient(req: Request, res: Response) {
+        try {
+
+            const body = req.body as unknown as IClient
+            const _id = req.params._id as unknown as number
+
+
+            const result = await this.userService.updateClient({_id,body,user: res.locals.admin});
+
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "Cliente actualizado de forma exitosa."
+            })
+
+        } catch (error: any) {
+
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al actualizar los datos del cliente."
+            })
+        }
+    }
+
     async getAllClients(req: Request, res: Response) {
         try {
 

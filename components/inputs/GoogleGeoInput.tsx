@@ -1,5 +1,5 @@
 import { TextField, Box } from "@mui/material";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Inter } from "next/font/google";
 
 const InterFont = Inter({
@@ -11,8 +11,10 @@ const InterFont = Inter({
 export const GooglePlacesAutocompleteInput = ({
     onSelect,
     placeholder,
+    comingCords
 }: {
     onSelect: Function;
+    comingCords?: any 
     placeholder?: string;
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
@@ -20,52 +22,59 @@ export const GooglePlacesAutocompleteInput = ({
     const mapRef = useRef<google.maps.Map | null>(null);
     const markerRef = useRef<google.maps.Marker | null>(null);
     const geocoderRef = useRef<google.maps.Geocoder | null>(null);
+    const [cords, setCords] = useState<any>(comingCords)
 
-    // ✅ Detectar URL con lat/lng y geocodificar
-    const resolveUrlToLocation = (url: string) => {
-        if (!geocoderRef.current || !mapRef.current) return;
-
-        const latLngMatch =
-            url.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/) ||
-            url.match(/place\/(-?\d+\.\d+),(-?\d+\.\d+)/);
-
-        if (latLngMatch) {
-            const lat = parseFloat(latLngMatch[1]);
-            const lng = parseFloat(latLngMatch[2]);
-            const position = new google.maps.LatLng(lat, lng);
-
-            geocoderRef.current.geocode({ location: position }, (results, status) => {
-                if (status === "OK" && results && results.length > 0) {
-                    const result = results[0];
-                    const components = result.address_components;
-
-
-                    const getComponent = (type: string) =>
-                        components.find((c: any) => c.types.includes(type))?.long_name || "";
-
-                    const address = result.formatted_address || "";
-                    const zipCode = getComponent("postal_code");
-                    const country = getComponent("country");
-                    const url = `https://www.google.com/maps/place/?q=${lat},${lng}`;
-                    const city = getComponent("locality") || getComponent("administrative_area_level_2"); // fallback
-
-                    const data = { address, zipCode, country, city, lat, lng, url };
-
-                    if (inputRef.current) {
-                        inputRef.current.value = address;
-                    }
-
-                    if (markerRef.current) markerRef.current.setPosition(position);
-                    if (mapRef.current) {
-                        mapRef.current.panTo(position);
-                        mapRef.current.setZoom(16);
-                    }
-
-                    onSelect(data);
-                }
-            });
-        }
-    };
+    useEffect(() => {
+        if (
+            typeof window === "undefined" ||
+            !window.google ||
+            !geocoderRef.current ||
+            !mapRef.current ||
+            !markerRef.current
+        ) return;
+    
+        const { lat, lng } = cords;
+        if (!lat || !lng) return;
+    
+        const latLng = new window.google.maps.LatLng(lat, lng);
+    
+        geocoderRef.current.geocode({ location: latLng }, (results, status) => {
+            if (status === "OK" && results && results.length > 0) {
+                const result = results[0];
+                const components = result.address_components;
+    
+                const getComponent = (type: string) =>
+                    components.find((c: any) => c.types.includes(type))?.long_name || "";
+    
+                const address = result.formatted_address || "";
+                const zipCode = getComponent("postal_code");
+                const city = getComponent("locality") || getComponent("administrative_area_level_2");
+                const county = getComponent("administrative_area_level_2") ||
+                    getComponent("sublocality_level_1") ||
+                    getComponent("sublocality") ||
+                    getComponent("neighborhood");
+    
+                const url = `https://www.google.com/maps/place/?q=${lat},${lng}`;
+    
+                const data = {
+                    address,
+                    zipCode,
+                    lat,
+                    lng,
+                    url,
+                    city,
+                    place_id: result.place_id,
+                    county,
+                };
+    
+                if (inputRef.current) inputRef.current.value = address;
+                markerRef.current!.setPosition(latLng);
+                mapRef.current!.panTo(latLng);
+                mapRef.current!.setZoom(16);
+                onSelect(data);
+            }
+        });
+    }, [cords]);
 
     useEffect(() => {
         if (
@@ -118,7 +127,7 @@ export const GooglePlacesAutocompleteInput = ({
         return () => {
             document.head.removeChild(style);
         };
-    }, []);
+    }, [onSelect, cords]);
 
     useEffect(() => {
         if (
@@ -127,11 +136,11 @@ export const GooglePlacesAutocompleteInput = ({
             mapContainerRef.current &&
             !mapRef.current
         ) {
-            const initialLatLng = { lat: 18.4861, lng: -69.9312 };
+            const initialLatLng = { lat: cords.lat || 18.4861, lng:  cords.lng || -69.9312 };
 
             navigator.geolocation.getCurrentPosition((position) => {
-                initialLatLng.lat = position.coords.latitude;
-                initialLatLng.lng = position.coords.longitude;
+                initialLatLng.lat = cords.lat || position.coords.latitude;
+                initialLatLng.lng = cords.lng || position.coords.longitude;
             });
 
             const map = new window.google.maps.Map(mapContainerRef.current, {
@@ -164,7 +173,7 @@ export const GooglePlacesAutocompleteInput = ({
                         const zipCode = getComponent("postal_code");
                         const city = getComponent("locality") || getComponent("administrative_area_level_2");
                         const county = getComponent("administrative_area_level_2") ||
-                        getComponent("sublocality_level_1") ||
+                            getComponent("sublocality_level_1") ||
                             getComponent("sublocality") ||
                             getComponent("neighborhood");
 
@@ -172,7 +181,7 @@ export const GooglePlacesAutocompleteInput = ({
                         const lng = latLng.lng();
                         const url = `https://www.google.com/maps/place/?q=${lat},${lng}`;
 
-                        const data = { address, zipCode, lat, lng, url, city, place_id: result.place_id,county };
+                        const data = { address, zipCode, lat, lng, url, city, place_id: result.place_id, county };
 
                         if (inputRef.current) {
                             inputRef.current.value = address;
@@ -189,7 +198,23 @@ export const GooglePlacesAutocompleteInput = ({
                 });
             });
         }
-    }, []);
+    }, [onSelect, cords]);
+
+
+    const parseCoordinates = (input:string) => {
+        if (typeof input !== 'string') return {};
+
+        const parts = input.split(',').map(part => part.trim());
+
+        if (parts.length !== 2) return {};
+
+        const lat = parseFloat(parts[0]);
+        const lng = parseFloat(parts[1]);
+
+        if (isNaN(lat) || isNaN(lng)) return {};
+
+        return { lat, lng };
+    }
 
     return (
         <Box>
@@ -223,6 +248,38 @@ export const GooglePlacesAutocompleteInput = ({
                         color: "#ABAFB1",
                         backgroundColor: "#EFF1F999",
                     },
+                }}
+            />
+
+            <TextField
+                fullWidth
+                variant="outlined"
+                size="small"
+                placeholder={"Coordenadas Ej: 19,03465, -69.9312"}
+                sx={{
+                    "& .MuiOutlinedInput-root": {
+                        height: "52px",
+                        "& fieldset": { border: "none" },
+                        "&:hover fieldset": { border: "none" },
+                        "&.Mui-focused fieldset": { border: "none" },
+                    },
+                    mt: 1
+                }}
+                InputProps={{
+                    style: {
+                        height: "52px",
+                        borderRadius: "8px",
+                        outline: "none",
+                        fontSize: "16px",
+                        fontFamily: InterFont.style.fontFamily,
+                        color: "#ABAFB1",
+                        backgroundColor: "#EFF1F999",
+                    },
+                }}
+                value={`${cords.lat ? cords.lat : ""}, ${cords.lng ? cords.lng : ""}`}
+                onChange={(e) => {
+                    const value = e.target.value;
+                    setCords(parseCoordinates(value));
                 }}
             />
 

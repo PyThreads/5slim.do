@@ -1,13 +1,23 @@
 import { ErrorMessage, useField } from "formik";
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { FormControlLabel, Switch, SwitchProps, TextField, Typography, styled } from "@mui/material";
+import { FormControlLabel, InputAdornment, Switch, SwitchProps, TextField, Typography, styled } from "@mui/material";
 import { Inter } from "next/font/google";
+import { Theme, useTheme } from '@mui/material/styles';
+import Box from '@mui/material/Box';
+import OutlinedInput from '@mui/material/OutlinedInput';
+import InputLabel from '@mui/material/InputLabel';
+import MenuItem from '@mui/material/MenuItem';
+import FormControl from '@mui/material/FormControl';
+import Select from '@mui/material/Select';
+import Chip from '@mui/material/Chip';
+import React from "react";
 
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   weight: "600"
 })
+
 
 export const CustomError = ({ name, customErrorText }: any) => (
   <ErrorMessage name={name}>
@@ -25,18 +35,17 @@ export const CustomError = ({ name, customErrorText }: any) => (
 );
 
 
-export const CustomField = ({ name, customErrorText, ...props }: any) => {
+export const CustomField = ({ name, customErrorText, noValidate = false, startAdornment, endAdornment, ...props }: any) => {
   const [field] = useField(name);
   return (
     <>
 
       <TextField
         {...field}
-        variant="outlined"
-        size="small"
+        size="medium"
+        name={name}
         sx={{
           '& .MuiOutlinedInput-root': {
-            height: '52px',
             '& fieldset': {
               border: 'none', // mismo color en hover para que no cambie
             },
@@ -55,18 +64,31 @@ export const CustomField = ({ name, customErrorText, ...props }: any) => {
         }}
         InputProps={{
           style: {
-            height: "52px",
             borderRadius: "8px",
             outline: "none",
             fontSize: "16x",
             fontFamily: inter.style.fontFamily,
             color: "#929596",
-            backgroundColor: "#EFF1F999",
+            backgroundColor: "#EFF1F999"
           },
+          startAdornment: startAdornment ? <Box sx={{ margin: 0, marginRight: "4px" }}>{startAdornment}</Box> : null,
+          endAdornment: endAdornment ? <Box sx={{ margin: 0, marginRight: "4px" }}>{endAdornment}</Box> : null
         }}
         {...props}
       />
-      <CustomError name={name} customErrorText={customErrorText} inert />
+
+      {
+        noValidate == false ? (
+          <CustomError name={name} customErrorText={customErrorText} inert />
+        )
+          : (
+            <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>
+              {customErrorText}
+            </Typography>
+          )
+      }
+
+
     </>
   );
 };
@@ -74,14 +96,7 @@ export const CustomField = ({ name, customErrorText, ...props }: any) => {
 export default CustomField;
 
 
-export const InputValitaionMessage = ({ message }: any) => {
-  return (
-    <span style={{ color: "red", fontSize: "15px" }} ><ReportProblemIcon style={{ fontSize: '13px', marginRight: "3px", marginTop: "3px" }} />{message}</span>
-  )
-
-}
-
-export const DefaultSwitch = ({ checked, setChecked, label }: { label: string, checked: boolean, setChecked: Function }) => {
+export const DefaultSwitch = ({ checked, setChecked, label, stylesLabel = {} }: { label: string, checked: boolean, setChecked: Function, stylesLabel?: any }) => {
   return (
     <FormControlLabel
       control={
@@ -99,7 +114,8 @@ export const DefaultSwitch = ({ checked, setChecked, label }: { label: string, c
           fontFamily: inter.style.fontFamily,
           fontSize: "14px",
           color: "#2B2F32",
-          margin: "0px 20px 0px 0px"
+          margin: "0px 20px 0px 0px",
+          ...stylesLabel
         }
       }}
     />
@@ -154,3 +170,77 @@ const IOSSwitch = styled((props: SwitchProps) => (
     backgroundColor: '#5570F166',
   },
 }));
+
+
+export const MultipleSelectChip = ({ name, customErrorText, items, getLabel, selected, setSelected, label }: any) => {
+
+
+  return (
+    <React.Fragment>
+      <FormControl fullWidth>
+        <InputLabel id="demo-multiple-chip-label">{label}</InputLabel>
+        <Select
+          labelId="demo-multiple-chip-label"
+          id="demo-multiple-chip"
+          name={name}
+          multiple
+          value={selected}
+          onChange={(e) => setSelected(e.target.value)}
+          input={<OutlinedInput id="select-multiple-chip" label={label} />}
+          fullWidth
+          sx={{
+            borderRadius: "8px",
+            outline: "none",
+            fontSize: "16x",
+            fontFamily: inter.style.fontFamily,
+            color: "#929596",
+            backgroundColor: "#EFF1F999",
+            border: "none",
+            '& .MuiOutlinedInput-notchedOutline': {
+              border: "none"
+            }
+          }}
+          SelectDisplayProps={{
+            style: {
+              borderRadius: "8px",
+              outline: "none",
+              fontSize: "16x",
+              fontFamily: inter.style.fontFamily,
+              color: "#929596",
+              backgroundColor: "#EFF1F999",
+              border: "none"
+            }
+          }}
+          renderValue={(selected) => (
+            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5 }}>
+              {selected.map((value: any) => (
+                <Chip key={value} label={getLabel(items.find((item: any) => item._id === value))} />
+              ))}
+            </Box>
+          )}
+          MenuProps={
+            {
+              PaperProps: {
+                style: {
+                  maxHeight: 48 * 4.5 + 8,
+                  width: 250,
+                },
+              }
+            }
+          }
+        >
+          {items.map((value: any) => (
+            <MenuItem
+              key={value._id}
+              value={value._id}
+            >
+              {getLabel(value)}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+
+      <CustomError name={name} customErrorText={customErrorText} inert />
+    </React.Fragment>
+  )
+}

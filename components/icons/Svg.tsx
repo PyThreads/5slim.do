@@ -8,6 +8,132 @@ interface MiIconoProps {
     type?: "success" | "error"
 }
 
+export const DownloadCloudIcon = () => (
+    <svg
+      width="32"
+      height="32"
+      viewBox="0 0 32 32"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <rect width="32" height="32" rx="8" fill="#55615750" />
+      <g clipPath="url(#clip0_342_7540)">
+        <path
+          d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
+          stroke="#1C1D22"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M16 16V23.5"
+          stroke="#1C1D22"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M22.9919 21.3249C23.8047 20.8818 24.4467 20.1806 24.8168 19.3321C25.1868 18.4835 25.2637 17.5359 25.0354 16.6388C24.807 15.7417 24.2865 14.9462 23.5558 14.3778C22.8251 13.8094 21.9259 13.5005 21.0002 13.4999H19.9502C19.698 12.5243 19.2278 11.6185 18.5752 10.8507C17.9225 10.0829 17.1042 9.47311 16.182 9.06708C15.2597 8.66104 14.2573 8.46937 13.2503 8.50647C12.2433 8.54358 11.2578 8.80849 10.3679 9.28129C9.47795 9.7541 8.7068 10.4225 8.1124 11.2362C7.51799 12.05 7.11579 12.9879 6.93603 13.9794C6.75627 14.9709 6.80363 15.9903 7.07456 16.961C7.34548 17.9316 7.83291 18.8281 8.50021 19.5832"
+          stroke="#1C1D22"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <path
+          d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
+          stroke="#1C1D22"
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+      <defs>
+        <clipPath id="clip0_342_7540">
+          <rect width="20" height="20" fill="white" transform="translate(6 6)" />
+        </clipPath>
+      </defs>
+    </svg>
+  );
+export const TrashIcon = () => (
+    <svg
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <rect width="32" height="32" rx="8" fill="#55615750" />
+        <path
+            d="M22.1042 13.8906C22.1042 13.8906 21.6517 19.5031 21.3892 21.8673C21.2642 22.9965 20.5667 23.6581 19.4242 23.679C17.25 23.7181 15.0733 23.7206 12.9 23.6748C11.8008 23.6523 11.115 22.9823 10.9925 21.8731C10.7283 19.4881 10.2783 13.8906 10.2783 13.8906"
+            stroke="#130F26"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path
+            d="M23.2567 11.1999H9.125"
+            stroke="#130F26"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path
+            d="M20.5335 11.2C19.8793 11.2 19.316 10.7375 19.1877 10.0966L18.9852 9.08331C18.8602 8.61581 18.4368 8.29248 17.9543 8.29248H14.4268C13.9443 8.29248 13.521 8.61581 13.396 9.08331L13.1935 10.0966C13.0652 10.7375 12.5018 11.2 11.8477 11.2"
+            stroke="#130F26"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
+);
+
+export const UploadImageIcon: FC<MiIconoProps> = () => {
+    return (
+        <svg
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+        >
+            <g clipPath="url(#clip0_331_7227)">
+                <path
+                    d="M13.3337 13.3333L10.0003 10L6.66699 13.3333"
+                    stroke="#5570F1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M10 10V17.5"
+                    stroke="#5570F1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M16.9919 15.3249C17.8047 14.8818 18.4467 14.1806 18.8168 13.3321C19.1868 12.4835 19.2637 11.5359 19.0354 10.6388C18.807 9.7417 18.2865 8.94616 17.5558 8.37778C16.8251 7.80939 15.9259 7.50052 15.0002 7.4999H13.9502C13.698 6.52427 13.2278 5.61852 12.5752 4.85073C11.9225 4.08295 11.1042 3.47311 10.182 3.06708C9.25967 2.66104 8.25734 2.46937 7.25031 2.50647C6.24328 2.54358 5.25777 2.80849 4.36786 3.28129C3.47795 3.7541 2.7068 4.42249 2.1124 5.23622C1.51799 6.04996 1.11579 6.98785 0.936028 7.9794C0.756269 8.97095 0.803632 9.99035 1.07456 10.961C1.34548 11.9316 1.83291 12.8281 2.50021 13.5832"
+                    stroke="#5570F1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+                <path
+                    d="M13.3337 13.3333L10.0003 10L6.66699 13.3333"
+                    stroke="#5570F1"
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                />
+            </g>
+            <defs>
+                <clipPath id="clip0_331_7227">
+                    <rect width="20" height="20" fill="white" />
+                </clipPath>
+            </defs>
+        </svg>
+    )
+}
 
 
 export const DownImageSnack: FC<MiIconoProps> = ({ filled, color }) => {
@@ -180,21 +306,21 @@ export const Notification: FC<MiIconoProps> = ({ filled }) => {
     )
 }
 
-export const ArticlesIcons: FC<MiIconoProps> = ({ filled }) => {
+export const ArticlesIcons: FC<MiIconoProps> = ({ filled, color }) => {
     return (
         <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
             <path
                 fillRule="evenodd"
                 clipRule="evenodd"
                 d="M37.419 31.732C37.419 35.31 35.31 37.419 31.732 37.419H23.95C20.363 37.419 18.25 35.31 18.25 31.732V23.932C18.25 20.359 19.564 18.25 23.143 18.25H25.143C25.861 18.251 26.537 18.588 26.967 19.163L27.88 20.377C28.312 20.951 28.988 21.289 29.706 21.29H32.536C36.123 21.29 37.447 23.116 37.447 26.767L37.419 31.732Z"
-                stroke={filled ? "#FFFFFF" : "#53545C"}
+                stroke={filled ? color ? color : "#FFFFFF" : color ? color : "#53545C"}
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
             <path
                 d="M23.4814 30.4629H32.2164"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? color ? color : "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth="1.5"
                 strokeLinecap="round"
                 strokeLinejoin="round"

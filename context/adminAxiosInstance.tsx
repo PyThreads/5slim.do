@@ -6,10 +6,7 @@ type Token = string | undefined;
 
 // Create an Axios instance with custom configuration
 const axiosInstance: AxiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL, // Replace with your API base URL
-    headers: {
-        'Content-Type': 'application/json',
-    }
+    baseURL: process.env.NEXT_PUBLIC_API_URL
 });
 
 // Add a request interceptor to include the token in the headers

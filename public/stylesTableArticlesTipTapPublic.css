@@ -1,0 +1,9 @@
+.tiptap table td,
+.tiptap table th {
+  border: none !important;
+  box-sizing: border-box;
+  min-width: 1em;
+  padding: 6px 8px;
+  position: relative;
+  vertical-align: top;
+}

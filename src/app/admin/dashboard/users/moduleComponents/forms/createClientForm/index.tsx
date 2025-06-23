@@ -48,7 +48,7 @@ export default function CreateClientForm({ valuesToEdit, onClose }: { valuesToEd
                 validateOnMount={false}
                 shouldComponentUpdate
             >
-                <Form />
+                <Form  onClose={onClose}/>
 
             </Formik>
     )

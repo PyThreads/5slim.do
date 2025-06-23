@@ -1,5 +1,5 @@
 "use client"
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import AddIcon from '@mui/icons-material/Add';
@@ -26,14 +26,14 @@ export default function AdminClientes() {
     })
     const [result, setResult] = useState<IPaginationResult>()
 
-    const getAllClients = async () => {
+    const getAllClients = useCallback(async () => {
         const result = await userService.getAllClients(filters)
         setResult(result)
-    }
+    }, [setResult, filters])
 
     useEffect(() => {
         getAllClients()
-    }, [filters, setResult])
+    }, [filters, getAllClients])
 
     return (
         <Box>
@@ -81,16 +81,21 @@ export default function AdminClientes() {
                         <Typography fontFamily={"Poppins"} fontSize={"20px"} fontWeight={600}>Agregar Nuevo Cliente</Typography>
 
                         <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px" }}
-                            onClick={() => setOpen(false)}
+                            onClick={() => {
+                                setOpen(false);
+                                setFilers({ limit: 10, page: 1 })
+                                setSelectedClient(null)
+                            }}
                         />
 
                     </Grid>
 
                     <CreateClientForm
-                        valuesToEdit={ selectedClient?._id ? selectedClient : {}}
+                        valuesToEdit={selectedClient?._id ? selectedClient : {}}
                         onClose={() => {
                             setOpen(false);
                             setFilers({ limit: 10, page: 1 })
+                            setSelectedClient(null)
                         }
                         }
                     />

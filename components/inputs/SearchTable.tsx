@@ -2,7 +2,7 @@ import { TextField } from "@mui/material";
 import SearchIcon from '@mui/icons-material/Search';
 
 
-export default function SearchTableClients({onChange}: {onChange: Function}) {
+export default function SearchTable({onChange}: {onChange: Function}) {
     return (
         <TextField
             variant="outlined"

@@ -19,7 +19,9 @@ class EnvironmentConfig {
     public readonly microsoftClientId: string;
     public readonly microsoftAuthority: string;
     public readonly microsfotClientSecret: string;
-    public readonly microsoftSendEmail: string;  
+    public readonly microsoftSendEmail: string;
+    public readonly CLOUDFLARE_ACCOUNT_ID : string;
+    public readonly CLOUDFLARE_IMAGES_TOKEN : string;
 
     public readonly timeZone: string
 
@@ -46,6 +48,9 @@ class EnvironmentConfig {
         this.SMTP_PASSWORD = process.env.SMTP_PASSWORD || "ynP333ZHe8JJPYFK";
         this.SMTP_SERVER = process.env.SMTP_SERVER || "mail.smtp2go.com";
         this.SMTP_PORT = Number(process.env.SMTP_PORT) || 465;
+
+        this.CLOUDFLARE_ACCOUNT_ID = '8e63ba5b543a5e7b99fe1fc8cb2543fb';
+        this.CLOUDFLARE_IMAGES_TOKEN = '-9CsPFlsjbWYa5o1Q7flsQvdrs3NHkx1bq0c9w6P';
     }
 }
 

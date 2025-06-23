@@ -2,6 +2,53 @@ import { body, validationResult, param, query } from "express-validator"
 import { Request, Response, NextFunction } from 'express';
 
 
+const validationSchemaArticleForm = () => {
+    return [
+        body('description').trim().notEmpty().withMessage('El nombre del artículo es requerida*.'),
+    
+
+      body('categories').isArray({ min: 1 }).withMessage('Debe seleccionar al menos una categoría*.'),
+      body('categories.*._id').isNumeric().withMessage('La categoría es requerida*.'),
+      body('categories.*.description').trim().notEmpty().withMessage('La descripción es requerida*.'),
+      body('categories.*.slug').trim().notEmpty().withMessage('El slug es requerido*.'),
+      body('variants').optional().isArray(),body('hasDiscount').optional().isBoolean(),
+      body('discount').custom((value, { req }) => {
+        if (req.body.hasDiscount) {
+          if (!value || typeof value !== 'object') {
+            throw new Error('El descuento es requerido o desmarque el descuento en el formulario*.');
+          }
+    
+          if (!value.type || value.type.trim() === '') {
+            throw new Error('El tipo de descuento es requerido*.');
+          }
+    
+          if (value.value === undefined || value.value === null) {
+            throw new Error('El valor de descuento es requerido*.');
+          }
+    
+          if (value.hasExpiration && (!value.endDate || value.endDate.trim() === '')) {
+            throw new Error('Debe seleccionar una fecha de finalización*.');
+          }
+        }
+    
+        return true;
+      }),
+      body('advertisement.type').trim().notEmpty().withMessage('El tipo del monto publicitario es requerido*.'),
+      body('advertisement.value').isNumeric().withMessage('El valor de la publicidad es requerido*.'),
+      body('published').optional().isBoolean(),
+      body('shortDescription').trim().notEmpty().withMessage('La descripción es requerida*.'),
+      body('tipTap').optional().trim(),
+      body('images').optional().isArray()
+    ];
+}
+
+const deleteImage = () => {
+    return [
+        param("id").isString().withMessage("El id de la imagen es obligatorio."),
+        validation
+    ]
+}
+
 const getAllClients = () => {
     return [
         query("page").optional().isInt({ min: 1 }).toInt().withMessage("page debe ser un entero mayor o igual a 1"),
@@ -13,6 +60,19 @@ const getAllClients = () => {
         validation
     ]
 }
+
+
+const getAllArticles = () => {
+    return [
+        query("page").optional().isInt({ min: 1 }).toInt().withMessage("page debe ser un entero mayor o igual a 1"),
+        query("limit").optional().isInt({ min: 1 }).toInt().withMessage("limit debe ser un entero mayor o igual a 1"),
+        query("description").optional().isString().withMessage("description debe ser un string"),
+        query("slug").optional().isString().withMessage("slug debe tener un formato válido"),
+        query("_id").optional().isInt({ min: 1 }).toInt().withMessage("_id debe ser un entero mayor o igual a 1"),
+        validation
+    ]
+}
+
 
 const clientRegister = () => {
     return [
@@ -89,5 +149,8 @@ export const adminRoutesValidations = {
     validateOrdersDetails,
     validateSendCode,
     clientRegister,
-    getAllClients
+    getAllClients,
+    deleteImage,
+    validationSchemaArticleForm,
+    getAllArticles
 }

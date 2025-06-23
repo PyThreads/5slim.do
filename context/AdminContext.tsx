@@ -3,6 +3,7 @@ import axios from "axios";
 import { IAdmin } from "../interfaces";
 import SimpleSnackbar from "../components/notifications/SimpleSnackbar";
 import { eventBus } from "../src/app/utils/broadcaster";
+import SplashScreen from "../src/app/providers/SplashScreen";
 
 const AdminContext = createContext({});
 
@@ -27,6 +28,7 @@ const whoAmI = async (token: string) => {
 
 export function AdminProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
   const [currentAdmin, setCurrentAdmin] = useState<IAdmin | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const [notify, setNotify] = useState({
     message: "",
@@ -38,7 +40,7 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
   const me = async () => {
     try {
 
-
+      setLoading(true)
       const accessToken: string | null = localStorage.getItem("TKN-5SL-M0");
 
       if (!accessToken) {
@@ -51,6 +53,8 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
       return user;
     } catch (e: any) {
       signOut()
+    } finally {
+      setLoading(false)
     }
   };
 
@@ -92,7 +96,12 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
           }
         }
       />
-      {children}
+      {
+        !currentAdmin ? <SplashScreen />
+          :
+          children
+      }
+
     </AdminContext.Provider>
   );
 }

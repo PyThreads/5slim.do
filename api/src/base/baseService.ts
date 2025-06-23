@@ -6,7 +6,8 @@ import { NextFunction, Response, Request, Router } from "express";
 const msal = require('@azure/msal-node');
 const { Client } = require('@microsoft/microsoft-graph-client');
 import { utils, Utils } from "../utils"
-
+import axios from 'axios';
+const FormData = require('form-data');
 
 class BaseService {
     public readonly tableName: string
@@ -26,8 +27,6 @@ class BaseService {
         this.tempCodeTable = "TEMP_CODES";
         this.utils = utils
 
-
-
         app && app.post(`${prefix}`, functionProps!.createValidation(), async (req: Request, res: Response) => {
             try {
                 const result = await this.insertOne({ body: req.body, user: res.locals.admin });
@@ -46,7 +45,52 @@ class BaseService {
         })
     }
 
-    async updateOne({filter,body,user,returnNew = true }: { filter: any, body: any, user: IAdmin | IClient,returnNew?: boolean}) {
+    async deleteImage({ id }: { id: string }) {
+        try {
+
+            return await axios.delete(
+                `https://api.cloudflare.com/client/v4/accounts/${this.environmentConfig.CLOUDFLARE_ACCOUNT_ID}/images/v1/${id}`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${this.environmentConfig.CLOUDFLARE_IMAGES_TOKEN}`
+                    },
+                }
+            );
+            
+        } catch (error) {
+            throw error
+        }
+    }
+
+    
+    async uploadImage({ file }: { file: any }) {
+
+        try {
+
+            const form = new FormData();
+
+            form.append("file", file.buffer);
+
+            const {data}: {data : any} = await axios.post(
+                `https://api.cloudflare.com/client/v4/accounts/${this.environmentConfig.CLOUDFLARE_ACCOUNT_ID}/images/v1`,
+                form,
+                {
+                    headers: {
+                        Authorization: `Bearer ${this.environmentConfig.CLOUDFLARE_IMAGES_TOKEN}`,
+                        ...form.getHeaders()
+                    },
+                }
+            );
+
+            return data.result
+
+
+        } catch (error) {
+            throw error
+        }
+    }
+
+    async updateOne({ filter, body, user, returnNew = true }: { filter: any, body: any, user: IAdmin | IClient, returnNew?: boolean }) {
         try {
 
             body.updatedBy = {

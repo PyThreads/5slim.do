@@ -2,17 +2,135 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
-import { IAdmin, IClient, IPaginateClients } from "../../interfaces";
+import { IAdmin, IArticleImages, IClient, IPaginateClients } from "../../interfaces";
 import { UsersService } from "../users/users.service";
+import { ArticleService } from "../articles/articles.service";
 
 class Admin {
 
     public readonly adminService: AdminService
-    private readonly userService : UsersService
+    private readonly userService: UsersService
+    private readonly articleService: ArticleService;
 
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         this.adminService = new AdminService({ mongoDatabase });
         this.userService = new UsersService({ mongoDatabase });
+        this.articleService = new ArticleService ({ mongoDatabase });
+    }
+
+    async createArticle (req: Request, res: Response) {
+        try {
+
+            
+            const result =  await this.articleService.register({body: req.body, user: res.locals.admin})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Artículo creado de forma exitosa."
+            })
+            
+        } catch (_) {
+            
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message:  "Ha ocurrido un error al crear el artículo."
+            })
+        }
+    }
+
+
+    async getArticles (req: Request, res: Response) {
+        try {
+
+            
+            const result =  await this.articleService.getArticles({query: req.query as unknown as IPaginateClients})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Listado obtenido de forma exitosa"
+            })
+            
+        } catch (_) {
+            
+            return res.status(200).json({
+                success: false,
+                data: null,
+                message:  "Ha ocurrido un error al obtener los artículos."
+            })
+        }
+    }
+
+    async updateArticle (req: Request, res: Response) {
+        try {
+
+            const result =  await this.articleService.updateArticle({_id: Number(req.params._id), body: req.body, user: res.locals.admin})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Artículo actualizado de forma exitosa"
+            })
+            
+        } catch (_) {
+            
+            return res.status(200).json({
+                success: false,
+                data: null,
+                message:  "Ha ocurrido un error al actualizar el artículo."
+            })
+        }
+    }
+
+    async deleteImage (req: Request, res: Response) {
+        try {
+
+            const result =  await this.adminService.deleteImage({id: req.params.id})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Eliminado de forma exitosa"
+            })
+            
+        } catch (_) {
+            
+            return res.status(200).json({
+                success: false,
+                data: null,
+                message:  "Ha ocurrido un error al eliminar la imagen."
+            })
+        }
+    }
+
+    async uploadImage(req: Request, res: Response) {
+        try {
+
+            let arr : IArticleImages[] = []
+            
+            for(const file of req.files as any){
+                const result = await this.adminService.uploadImage({file});
+                arr.push({
+                    id: result.id,
+                    url: result.variants[0],
+                    primary: false
+                })
+            }
+            res.status(200).json({
+                success: true,
+                data: arr,
+                message: "Guardado de forma exitosa",
+            });
+
+        } catch (error: any) {
+            res.status(512).json({
+                success: false,
+                message: "Ocurrió un error al subir la imagen",
+                error: error.message || error,
+            });
+        }
     }
 
     async clientRegister(req: Request, res: Response) {
@@ -45,7 +163,7 @@ class Admin {
             const _id = req.params._id as unknown as number
 
 
-            const result = await this.userService.updateClient({_id,body,user: res.locals.admin});
+            const result = await this.userService.updateClient({ _id, body, user: res.locals.admin });
 
             res.status(200).json({
                 success: true,
@@ -68,7 +186,7 @@ class Admin {
 
             const query = req.query as unknown as IPaginateClients
 
-            const result = await this.userService.getAllClients({query})
+            const result = await this.userService.getAllClients({ query })
 
             res.status(200).json({
                 success: true,

@@ -2,8 +2,8 @@ import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody,
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
-import { IClient } from "../../../../../../api/src/interfaces";
-import { userService } from "../userService";
+import { IArticle, IClient } from "../../../../../../api/src/interfaces";
+import { articleService } from "../articleService";
 import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
 
@@ -13,7 +13,7 @@ const inter = Inter({
     weight: "500"
 })
 
-export default function TableClientsList(
+export default function TableArticlesList(
     {
         setFilers,
         rows,
@@ -25,7 +25,7 @@ export default function TableClientsList(
     }
         :
         {
-            rows: IClient[],
+            rows: IArticle[],
             currentPage: number,
             limit: number
             totalItems: number,
@@ -41,13 +41,13 @@ export default function TableClientsList(
 
             <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
 
-                <Typography fontFamily={"Inter"}>Clientes</Typography>
+                <Typography fontFamily={"Inter"}>Artículos</Typography>
 
                 <Box display={"flex"} alignItems={"center"}>
 
                     <Box width={"250px"} m={1}>
                         <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setFilers((prev: any) => ({ ...prev, fullName: e.target.value, page: 1 }))
+                            setFilers((prev: any) => ({ ...prev, description: e.target.value, page: 1 }))
                         }} />
                     </Box>
 
@@ -104,7 +104,7 @@ export default function TableClientsList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Nombres
+                                            Descripción
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -113,25 +113,7 @@ export default function TableClientsList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Correo
-                                        </Typography>
-                                        <SortTableIcon filled />
-                                    </Box>
-                                </TableCell>
-
-                                <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Celular
-                                        </Typography>
-                                        <SortTableIcon filled />
-                                    </Box>
-                                </TableCell>
-
-                                <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Ordenes
+                                            Stock
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -146,17 +128,8 @@ export default function TableClientsList(
                                     </Box>
                                 </TableCell>
 
-
+                               
                                 <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Cliente desde
-                                        </Typography>
-                                        <SortTableIcon filled />
-                                    </Box>
-                                </TableCell>
-
-                                <TableCell align="center" >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Estado
@@ -169,10 +142,10 @@ export default function TableClientsList(
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
-                            {rows.map((row: IClient) => (
+                            {rows.map((row: IArticle) => (
                                 <TableRow
                                     onDoubleClick={async () => {
-                                        const userFullDetails = await userService.getClientDetails({ _id: row._id });
+                                        const userFullDetails = await articleService.getArticleDetails({ slug: row.slug });
                                         onDoubleClickRow(userFullDetails)
                                     }}
                                     key={row._id}
@@ -196,19 +169,15 @@ export default function TableClientsList(
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.fullName}
+                                            {row.description}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.email}
+                                            {row.variants.length}
                                         </Typography>
                                     </TableCell>
-                                    <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.addresses[0]?.phone || "N/A"}
-                                        </Typography>
-                                    </TableCell>
+                                   
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
                                             {0}
@@ -216,19 +185,7 @@ export default function TableClientsList(
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {0}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {userService.formatAmPm(row.createdDate!)}
-                                        </Typography>
-                                    </TableCell>
-                                    <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#519C66"} fontSize={"12px"}
-                                            borderRadius={"8px"} bgcolor={true ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"}
-                                        >
-                                            {true ? "Activo" : "Inactivo"}
+                                            {row.published ? "Publicado" : "No publicado"}
                                         </Typography>
                                     </TableCell>
                                 </TableRow>
@@ -251,10 +208,6 @@ export default function TableClientsList(
                             alignItems={"center"}
                             borderRadius={"8px"}
                         >
-
-                            {/* <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} >
-                                {limit}
-                            </Typography> */}
 
                             <Select
                                 value={limit}

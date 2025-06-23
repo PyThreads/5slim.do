@@ -1,3 +1,66 @@
+export enum IArticleStatus {
+    NEW = "Nuevo",
+    USED = "Usado",
+    USED_LIKE_NEW = "Usado Como Nuevo",
+    REFURBISHED = "Reparado"
+}
+
+export interface ICategory {
+    _id: number;
+    description: string;
+    slug: string;
+}
+
+export interface IArticleDiscount {
+    type?: string;
+    value?: string;
+    startDate?: string;
+    endDate?: string;
+    hasExpiration?: boolean;
+}
+
+export interface IAdvertisementArticle {
+    type: string;
+    value: number
+}
+
+export interface IArticleImages {
+    id: string
+    url: string
+    primary: boolean
+}
+
+export interface IArticlesVariants {
+    _id: string;
+    costPrice: number;
+    sellingPrice: number;
+    stock: number;
+    status: IArticleStatus
+}
+
+export interface IArticle {
+    variants: IArticlesVariants[];
+    _id: number;
+    description: string;
+    slug: string;
+    categories: ICategory[];
+    hasDiscount: boolean;
+    discount?: IArticleDiscount;
+    published: boolean;
+    shortDescription: string;
+    tipTap: string;
+    advertisement?: IAdvertisementArticle
+    images: IArticleImages[];
+}
+
+export interface IPaginateArticles {
+    page: number
+    limit: number
+    description?: string
+    slug?: string
+    _id?: number
+}
+
 export interface IPaginateClients {
     page: number
     limit: number
@@ -8,6 +71,7 @@ export interface IPaginateClients {
 
 }
 
+
 export interface IPaginationResult {
     totalPages: number;
     list: any[];
@@ -17,7 +81,8 @@ export interface IPaginationResult {
 
 export enum COLLNAMES {
     ADMIN = "ADMIN",
-    CLIENTS = "CLIENTS"
+    CLIENTS = "CLIENTS",
+    ARTICLES = "ARTICLES"
 }
 
 
@@ -33,6 +98,11 @@ export enum IAddressType {
     BILLING = "Residencial",
     SHIPPING = "Envío",
     WORK = "Trabajo"
+}
+
+export enum IDiscountType {
+    PERCENT = "Porcentaje",
+    AMOUNT = "Monto"
 }
 
 export interface IFunctionProps {

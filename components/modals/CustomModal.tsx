@@ -3,7 +3,7 @@ import * as React from 'react';
 import Box from '@mui/material/Box';
 import Modal from '@mui/material/Modal';
 
-export default function CustomModal({ open, children, borderRadius = 12 } : { open: boolean, children: React.ReactNode, borderRadius: number |
+export default function CustomModal({ open, children, borderRadius = 12 } : { open: boolean, children: React.ReactNode, borderRadius?: number |
      string
 }) {
     return (

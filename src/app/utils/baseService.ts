@@ -8,7 +8,7 @@ dayjs.extend(timezone);
 
 export class BaseService {
     constructor() {
-        
+
     }
 
     transformQuery = (object: any) => {
@@ -27,19 +27,34 @@ export class BaseService {
     newDate(date?: Date | string): Date {
         const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
         return date
-          ? dayjs(date).tz(tz).toDate()
-          : dayjs().tz(tz).toDate();
-      }
-    
-      /**
-       * Retorna la fecha en formato "DD MMM YYYY - hh:mm a" (e.g. "12 Aug 2022 - 12:25 am")
-       */
-      formatAmPm(date: Date): string {
+            ? dayjs(date).tz(tz).toDate()
+            : dayjs().tz(tz).toDate();
+    }
+
+    dateToDateimeLocal(date: Date | string | undefined | null): string {
         const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
-    
+        return dayjs(date).tz(tz).format("YYYY-MM-DDTHH:mm")
+    }
+
+    /**
+     * Retorna la fecha en formato "DD MMM YYYY - hh:mm a" (e.g. "12 Aug 2022 - 12:25 am")
+     */
+    formatAmPm(date: Date): string {
+        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
         return dayjs(date)
-          .tz(tz)
-          .format("DD MMM YYYY - hh:mm a");
-      }
+            .tz(tz)
+            .format("DD MMM YYYY - hh:mm a");
+    }
+
+    dominicanNumberFormat(number: number): string {
+        const formatter = new Intl.NumberFormat('es-DO', {
+            style: 'currency',
+            currency: 'DOP'
+        });
+        return formatter.format(number);
+    }
 }
+
+export const baseService = new BaseService();

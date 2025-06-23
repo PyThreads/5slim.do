@@ -13,8 +13,8 @@ const inter = Inter({
     weight: "500"
 })
 
-export const CreateArticleForm = () => {
-    const { isSubmitting, values, setValues }: { isSubmitting: boolean, values: IClient, setValues: any } = useFormikContext<IClient>();
+export const CreateArticleForm = ({ onClose }: { onClose: Function }) => {
+    const { isSubmitting, values, setFieldValue }: { isSubmitting: boolean, values: IClient, setFieldValue: any } = useFormikContext<IClient>();
     const [checked, setChecked] = React.useState(values && values.addresses.length > 0 ? true : false);
 
 
@@ -28,15 +28,11 @@ export const CreateArticleForm = () => {
             isMap: true
         }
 
-        setValues({
-            ...values,
-            addresses: [address]
-        })
+        setFieldValue("addresses", [address])
     }
 
     return (
-        <FormikForm 
-            
+        <FormikForm
         >
             <Grid container >
 
@@ -61,9 +57,9 @@ export const CreateArticleForm = () => {
                 <Grid item xs={12} mt="28px">
                     <DefaultSwitch checked={checked} setChecked={(checked: boolean) => {
                         setChecked(checked)
-                        setValues({
-                            ...values,
-                            addresses: checked ? [
+                        setFieldValue(
+                            "addresses",
+                            checked ? [
                                 {
                                     type: "Residencial",
                                     name: "",
@@ -80,7 +76,7 @@ export const CreateArticleForm = () => {
                             ]
                                 :
                                 []
-                        })
+                        )
                     }
                     } label="Agregar Dirección" />
 
@@ -131,7 +127,7 @@ export const CreateArticleForm = () => {
                         </Grid>
 
                         <Grid item xs={12} mt="28px">
-                            <GooglePlacesAutocompleteInput onSelect={onSelect} placeholder="Buscar en mapa" />
+                            <GooglePlacesAutocompleteInput onSelect={onSelect} placeholder="Buscar en mapa" comingCords={{lng: values.addresses[0]?.map?.lng, lat: values.addresses[0]?.map?.lat}} />
                         </Grid>
                     </React.Fragment>
                 }
@@ -146,6 +142,9 @@ export const CreateArticleForm = () => {
                             type="submit"
                             fullWidth
                             sx={{ ...style.saveButton, ...style.cancelButton }}
+                            onClick={() => {
+                                onClose && onClose()
+                            }}
                         >
                             Cancelar
                         </Button>

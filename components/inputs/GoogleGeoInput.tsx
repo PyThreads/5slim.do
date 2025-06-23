@@ -224,12 +224,6 @@ export const GooglePlacesAutocompleteInput = ({
                 variant="outlined"
                 size="small"
                 placeholder={placeholder}
-                onBlur={(e) => {
-                    const value = e.target.value;
-                    if (value.startsWith("http")) {
-                        resolveUrlToLocation(value);
-                    }
-                }}
                 sx={{
                     "& .MuiOutlinedInput-root": {
                         height: "52px",

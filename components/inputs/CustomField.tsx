@@ -92,7 +92,7 @@ export const AutocompleteCustom = ({
 
 
 export const CustomField = ({ name, customErrorText, noValidate = false, startAdornment, endAdornment, ...props }: any) => {
-  const [field] = useField(name);
+  const [field] = noValidate ? [] : useField(name);
   const fieldProps = noValidate ? {} : field;
   return (
     <>

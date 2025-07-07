@@ -7,14 +7,23 @@ WORKDIR /app
 # Copia solo los archivos necesarios del directorio api
 COPY ./api/package*.json ./
 
-# Instala dependencias solo de producción si estás en producción
+# Instala librerías necesarias para Chromium
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    fonts-ipafont-gothic fonts-wqy-zenhei fonts-thai-tlwg fonts-khmeros \
+    fonts-kacst fonts-freefont-ttf dbus dbus-x11 \
+    libglib2.0-0 libnss3 libxss1 libatk-bridge2.0-0 libx11-xcb1 libxcb1 \
+    libdrm2 libgbm1 libasound2 libxcomposite1 libxdamage1 libxrandr2 xdg-utils \
+    libcups2 libgtk-3-0 \
+    && apt-get clean && rm -rf /var/lib/apt/lists/*
 
+# Variables de entorno
 ENV DB_HOST=3.18.104.165
 ENV DB_NAME=5SLIM-DO
 ENV DB_USER=root
 ENV DB_PASSWORD=root
 ENV DB_PORT=27017
 
+# Instala dependencias de Node
 RUN npm install
 
 # Copia el resto de la aplicación

@@ -78,7 +78,11 @@ export default function AdminClientes() {
                 open={openModal}
                 borderRadius={"12px"}
             >
-                <CreateOrder setOpenModal={() => setOpenModal(false)} />
+                <CreateOrder setOpenModal={() => {
+                    setOpenModal(false);
+                    getAllOrders();
+                }
+                } />
             </CustomModal>
 
         </Grid >

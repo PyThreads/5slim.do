@@ -63,9 +63,14 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
         try {
             setLoading(true);
             await ordersService.createOrder(order as IOrder);
-            // setOpenModal(false);
         } finally {
             setLoading(false);
+            setOpenModal(false);
+            setOrder({
+                total: { total: 0, discount: 0, subTotal: 0 },
+                status: IOrderStatus.PENDING,
+                articles: []
+            })
         }
     }, [order])
 
@@ -125,9 +130,12 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                                     if (!newValue) return
 
-                                    setOrder({ ...order, client: { _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, address: newValue.addresses.find(address => address.default)!, email: newValue.email,
-                                        createdDate: newValue.createdDate!
-                                     } })
+                                    setOrder({
+                                        ...order, client: {
+                                            _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, address: newValue.addresses.find(address => address.default)!, email: newValue.email,
+                                            createdDate: newValue.createdDate!
+                                        }
+                                    })
                                 }}
                                 customErrorText={""}
                                 label="Cliente"
@@ -210,6 +218,9 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                 <SearchTable
                                     onChange={(e) => {
                                         setFilersArticles(e.target.value);
+                                    }}
+                                    handleClick={(e) => {
+                                        setAnchorEl(e.currentTarget)
                                     }}
                                 />
 
@@ -314,13 +325,11 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                 <Grid display={"flex"} justifyContent={"center"} mt={"40px"} pb={2}>
                     <Box >
-                        <Button sx={style.btnAdd}>Cancelar</Button>
+                        <Button sx={style.btnAdd} onClick={() => setOpenModal(false)}>Cancelar</Button>
                         <Button sx={{ ...style.btnAdd, ...style.btnAddFilled }}
-                            onClick={createOrder}
-                        >
+                            onClick={createOrder}>
                             {loading && <CircularProgress size={15} color="inherit" sx={{ marginRight: 1 }} />}
                             {!loading ? "Crear Orden" : "Creando Orden"}
-
                         </Button>
                     </Box>
                 </Grid>
@@ -438,12 +447,12 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                 setOrder({ ...order, articles: [...arr, itemOnList] })
 
                                             } else {
-                                                
+
                                                 if (row.stock < 1) {
                                                     eventBus.emit("notify", { message: "No hay stock suficiente, seleccione otra variante.", open: true, type: "error", title: "Error!", delay: 2000 })
                                                     return
                                                 }
-                                               
+
                                                 setOrder({ ...order, articles: [...order.articles!, { ...currentClickedArticle, variant: { ...row, stock: 1 } }] })
                                             }
 

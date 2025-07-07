@@ -4,9 +4,10 @@ import SearchIcon from "@mui/icons-material/Search";
 
 interface SearchTableProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  handleClick?: (e: any) => void;
 }
 
-const SearchTable: React.FC<SearchTableProps> = ({ onChange }) => {
+const SearchTable: React.FC<SearchTableProps> = ({ onChange, handleClick }) => {
   return (
     <TextField
       variant="outlined"
@@ -14,6 +15,9 @@ const SearchTable: React.FC<SearchTableProps> = ({ onChange }) => {
       placeholder="Buscar"
       fullWidth
       onChange={onChange}
+      onFocus={(e)=>{
+        handleClick && handleClick(e)
+      }}
       sx={{
         borderRadius: "6px",
         '& .MuiOutlinedInput-root': {

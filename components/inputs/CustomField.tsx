@@ -1,4 +1,4 @@
-import { ErrorMessage, useField } from "formik";
+import { ErrorMessage, useField, useFormikContext } from "formik";
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
 import { FormControlLabel, InputAdornment, Switch, SwitchProps, TextField, Typography, styled, Autocomplete } from "@mui/material";
 import { Inter } from "next/font/google";
@@ -82,7 +82,7 @@ export const AutocompleteCustom = ({
             size="small"
             onChange={onSearch}
           />
-          
+
         )}
       />
       {customErrorText && <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>{customErrorText}</Typography>}
@@ -91,61 +91,67 @@ export const AutocompleteCustom = ({
 };
 
 
-export const CustomField = ({ name, customErrorText, noValidate = false, startAdornment, endAdornment, ...props }: any) => {
-  const [field] = noValidate ? [] : useField(name);
-  const fieldProps = noValidate ? {} : field;
+export const CustomField = ({
+  name,
+  customErrorText,
+  noValidate = false,
+  startAdornment,
+  endAdornment,
+  ...props
+}: any) => {
+  const formik = useFormikContext();
+  const isInsideFormik = !!formik;
+
+  let fieldProps: any = {};
+
+  if (!noValidate && isInsideFormik) {
+    const [field] = useField(name);
+    fieldProps = field;
+  }
+
   return (
     <>
-
       <TextField
         {...fieldProps}
         size="medium"
         name={name}
         sx={{
           '& .MuiOutlinedInput-root': {
-            '& fieldset': {
-              border: 'none', // mismo color en hover para que no cambie
-            },
-            '&:hover fieldset': {
-              border: 'none', // mismo color en hover para que no cambie
-            },
-            '&.Mui-focused fieldset': {
-              border: 'none', // mismo color en hover para que no cambie
-            },
+            '& fieldset': { border: 'none' },
+            '&:hover fieldset': { border: 'none' },
+            '&.Mui-focused fieldset': { border: 'none' },
             '& input::placeholder': {
               color: '#929596',
-              opacity: 1, // Quita opacidad
+              opacity: 1,
             },
           },
-
         }}
         InputProps={{
           style: {
-            borderRadius: "8px",
-            outline: "none",
-            fontSize: "16x",
+            borderRadius: '8px',
+            outline: 'none',
+            fontSize: '16px',
             fontFamily: inter.style.fontFamily,
-            color: "#929596",
-            backgroundColor: "#EFF1F999"
+            color: '#929596',
+            backgroundColor: '#EFF1F999',
           },
-          startAdornment: startAdornment ? <Box sx={{ margin: 0, marginRight: "4px" }}>{startAdornment}</Box> : null,
-          endAdornment: endAdornment ? <Box sx={{ margin: 0, marginRight: "4px" }}>{endAdornment}</Box> : null
+          startAdornment: startAdornment ? (
+            <Box sx={{ margin: 0, marginRight: '4px' }}>{startAdornment}</Box>
+          ) : null,
+          endAdornment: endAdornment ? (
+            <Box sx={{ margin: 0, marginRight: '4px' }}>{endAdornment}</Box>
+          ) : null,
         }}
         {...props}
       />
 
-      {
-        noValidate == false ? (
-          <CustomError name={name} customErrorText={customErrorText} inert />
-        )
-          : (
-            <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>
-              {customErrorText}
-            </Typography>
-          )
-      }
-
-
+      {!noValidate && isInsideFormik ? (
+        <CustomError name={name} customErrorText={customErrorText} inert />
+      ) : customErrorText ? (
+        <Typography fontFamily="Inter" fontSize="12px" color="#f74343">
+          {customErrorText}
+        </Typography>
+      ) : null}
     </>
   );
 };

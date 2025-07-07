@@ -3,12 +3,13 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import AddIcon from '@mui/icons-material/Add';
-import SummaryInventory from "./moduleComponents/SummaryInventory";
-import TableArticleList from "./moduleComponents/TableArticlesList";
-import { IArticle, IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
-import { articleService } from "./articleService";
-import Link from "next/link";
-import { useRouter } from 'next/navigation'
+import SummaryOrders from "./moduleComponents/SummaryOrders";
+import CustomModal from "../../../../../components/modals/CustomModal";
+import CreateOrder from "./moduleComponents/CreateOrder";
+import TableOrderList from "./moduleComponents/TableOrderList";
+import { IOrder, IPaginateOrders, IPaginationResult } from "../../../../../api/src/interfaces";
+import { ordersService } from "./ordersService";
+import { useRouter } from "next/navigation";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -17,48 +18,51 @@ const inter = Inter({
 })
 
 export default function AdminClientes() {
-
     const router = useRouter()
-
-    const [filters, setFilers] = useState<IPaginateClients>({
+    const [filters, setFilers] = useState<IPaginateOrders>({
         page: 1,
-        limit: 10,
+        limit: 10
     })
+
+    const [openModal, setOpenModal] = useState(false);
+
+
     const [result, setResult] = useState<IPaginationResult>()
 
-    const getAllArticles = useCallback(async () => {
-        const result = await articleService.getAllArticles(filters)
+    const getAllOrders = useCallback(async () => {
+        const result = await ordersService.getAllOrders(filters)
         setResult(result)
     }, [setResult, filters])
 
     useEffect(() => {
-        getAllArticles()
-    }, [filters, getAllArticles])
+        getAllOrders()
+    }, [filters, getAllOrders])
 
     return (
-        <Box>
+        <Grid>
             <Grid container justifyContent={"space-between"} alignItems={"center"}>
 
-                <Typography sx={{ ...style.title }}>Resumen inventario</Typography>
+                <Typography sx={{ ...style.title }}>Resumen Órdenes</Typography>
 
-                <Link href="/admin/dashboard/inventory/newArticle">
-                    <Button variant="contained" sx={{ ...style.addButton }}
-                        startIcon={<AddIcon />}
-                    >
-                        Agregar Nuevo Artículo
-                    </Button>
-                </Link>
+
+                <Button variant="contained" sx={{ ...style.addButton }}
+                    startIcon={<AddIcon />}
+                    onClick={() => setOpenModal(true)}
+                >
+                    Agregar Nueva Orden
+                </Button>
 
             </Grid>
 
             <Box mt={"23px"}>
-                <SummaryInventory />
+                <SummaryOrders />
             </Box>
 
+
             <Box mt={"23px"} pb={10}>
-                <TableArticleList
-                    onDoubleClickRow={(article: IArticle) => {
-                        router.push(`/admin/dashboard/inventory/newArticle/${article._id}`)
+                <TableOrderList
+                    onDoubleClickRow={(order: IOrder) => {
+                        router.push(`/admin/dashboard/orders/${order._id}`)
                     }}
                     setFilers={setFilers}
                     rows={result?.list || []}
@@ -70,19 +74,18 @@ export default function AdminClientes() {
             </Box>
 
 
-        </Box>
+            <CustomModal
+                open={openModal}
+                borderRadius={"12px"}
+            >
+                <CreateOrder setOpenModal={() => setOpenModal(false)} />
+            </CustomModal>
+
+        </Grid >
     )
 }
 
 const style = {
-    hideScroll: {
-        overflowY: "scroll",
-        scrollbarWidth: "none", // Firefox
-        msOverflowStyle: "none", // IE 10+
-        "&::-webkit-scrollbar": {
-            display: "none", // Chrome, Safari
-        },
-    },
     addButton: {
         backgroundColor: "#5570F1",
         fontSize: "14px",

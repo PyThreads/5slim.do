@@ -1,4 +1,4 @@
-import { COLLNAMES, IAdmin, IArticle, IClient, IPaginateArticles, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, IAdmin, IArticle, IArticleCart, IClient, IPaginateArticles, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { ArticlesIndex } from "./articlesIndex";
@@ -11,6 +11,65 @@ class ArticleService extends BaseService {
         new ArticlesIndex({ mongoDatabase, tableName: COLLNAMES.ARTICLES });
     }
 
+
+    async unsetToOrder({ articles }: { articles: IArticleCart[] }): Promise<void> {
+        try {
+
+            let message = "";
+
+            let arrPromises = [];
+
+            for (const article of articles) {
+
+                const isValid = await this.collection.count(
+                    {
+                        _id: article._id,
+                        variants: {
+                            $elemMatch: {
+                                _id: article.variant._id,
+                                stock: { $gte: article.variant.stock }
+                            }
+                        }
+                    }
+                );
+
+                if (isValid === 0) {
+                    message = `El artículo ${article.description} no tiene stock suficiente para la cantidad solicitada.`
+                    throw new Error(message);
+                }
+
+                if (isValid > 0) {
+                    arrPromises.push(await this.collection.updateOne(
+                        {
+                            _id: article._id,
+                            variants: {
+                                $elemMatch: {
+                                    _id: article.variant._id,
+                                    stock: { $gte: article.variant.stock }
+                                }
+                            }
+                        },
+                        {
+                            $inc: {
+                                "variants.$[variant].stock": -article.variant.stock
+                            }
+                        },
+                        {
+                            arrayFilters: [
+                                { "variant._id": article.variant._id }
+                            ]
+                        }
+                    ))
+                }
+
+            }
+
+            await Promise.all(arrPromises);
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
 
     async register({ body, user }: { body: IArticle, user: IClient | IAdmin }): Promise<IArticle> {
         try {
@@ -68,7 +127,7 @@ class ArticleService extends BaseService {
     async getArticles({ query }: { query: IPaginateArticles }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, slug, _id ,description} = query;
+            const { page, limit, slug, _id, description } = query;
             const match: Record<string, any> = {};
 
             const aggregate = [

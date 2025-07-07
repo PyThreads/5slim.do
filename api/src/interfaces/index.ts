@@ -1,8 +1,30 @@
+export interface IPaginateOrders {
+    page: number
+    limit: number
+    fullClient?: string
+    status?: IOrderStatus
+    _id?: number
+}
+
 export enum IArticleStatus {
     NEW = "Nuevo",
     USED = "Usado",
     USED_LIKE_NEW = "Usado Como Nuevo",
     REFURBISHED = "Reparado"
+}
+
+export enum IPaymentType {
+    CASH = "Efectivo",
+    CREDIT_CARD = "Tarjeta",
+    TRANSFER = "Transferencia"
+}
+
+export enum IOrderStatus {
+    PENDING = "Pendiente",
+    DELIVERED = "Entregado",
+    CANCELLED = "Cancelada",
+    PAID = "Pagado",
+    PREPARING_FOR_DELIVERY = "Preparando para entrega"
 }
 
 export interface ICategory {
@@ -35,11 +57,50 @@ export interface IArticlesVariants {
     costPrice: number;
     sellingPrice: number;
     stock: number;
-    status: IArticleStatus
+    status: IArticleStatus;
+    images: IArticleImages[]
 }
 
 export interface IArticle {
     variants: IArticlesVariants[];
+    _id: number;
+    description: string;
+    slug: string;
+    categories: ICategory[];
+    hasDiscount: boolean;
+    discount?: IArticleDiscount;
+    published: boolean;
+    shortDescription: string;
+    tipTap: string;
+    advertisement?: IAdvertisementArticle
+    images: IArticleImages[];
+}
+
+export interface IOrder {
+    _id: number;
+    articles: IArticleCart[];
+    client: IClientOrder;
+    paymentType: IPaymentType;
+    status: IOrderStatus;
+    createdDate: Date;
+    updatedDate: Date;
+    total: ICartTotals
+    createdBy: ICreatedBy
+    updatedBy?: ICreatedBy
+    comment?: string
+}
+
+export interface IClientOrder {
+    _id: number;
+    fullName: string;
+    fullClient: string;
+    email: string;
+    address: IClientAddress
+    createdDate: Date;
+}
+
+export interface IArticleCart {
+    variant: IArticlesVariants;
     _id: number;
     description: string;
     slug: string;
@@ -68,7 +129,6 @@ export interface IPaginateClients {
     active?: boolean
     email?: string
     _id?: number
-
 }
 
 
@@ -82,7 +142,14 @@ export interface IPaginationResult {
 export enum COLLNAMES {
     ADMIN = "ADMIN",
     CLIENTS = "CLIENTS",
-    ARTICLES = "ARTICLES"
+    ARTICLES = "ARTICLES",
+    ORDER = "0RDER"
+}
+
+export interface ICartTotals {
+    total: number;
+    subTotal: number;
+    discount: number
 }
 
 
@@ -92,6 +159,7 @@ export interface INotify {
     title: string
     open: boolean
     setOpen: Function
+    delay?: number
 }
 
 export enum IAddressType {
@@ -110,11 +178,6 @@ export interface IFunctionProps {
     projection?: Object
 }
 
-export interface ICartTotals {
-    total: number;
-    tax: number;
-    subTotal: number;
-}
 
 
 export interface IChangePasswordBody {
@@ -165,13 +228,14 @@ export interface IClientAddress {
     isMap: boolean;
     map?: IClientAddressMap; // Puedes definir una estructura más específica si sabes qué contiene
     default: boolean;
+    country?: string
 }
 
 export interface IClient {
     _id: number;
     firstName: string;
     lastName: string;
-    fullName?: string;
+    fullName: string;
     email: string;
     addresses: IClientAddress[];
     createdDate?: Date

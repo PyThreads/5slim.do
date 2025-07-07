@@ -1,6 +1,6 @@
 import { ErrorMessage, useField } from "formik";
 import ReportProblemIcon from '@mui/icons-material/ReportProblem';
-import { FormControlLabel, InputAdornment, Switch, SwitchProps, TextField, Typography, styled } from "@mui/material";
+import { FormControlLabel, InputAdornment, Switch, SwitchProps, TextField, Typography, styled, Autocomplete } from "@mui/material";
 import { Inter } from "next/font/google";
 import { Theme, useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
@@ -11,7 +11,6 @@ import FormControl from '@mui/material/FormControl';
 import Select from '@mui/material/Select';
 import Chip from '@mui/material/Chip';
 import React from "react";
-
 const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
@@ -35,13 +34,71 @@ export const CustomError = ({ name, customErrorText }: any) => (
 );
 
 
+export const AutocompleteCustom = ({
+  onChange,
+  options,
+  getOptionLabel,
+  isOptionEqualToValue,
+  getDefaultValue,
+  size = "medium",
+  customErrorText,
+  renderOption,
+  label,
+  onSearch
+}: {
+  size: "small" | "medium";
+  onChange: (event: any, newValue: any) => void;
+  options: any[];
+  getOptionLabel: (option: any) => any;
+  isOptionEqualToValue: (option: any, value: any) => boolean;
+  customErrorText?: string;
+  getDefaultValue: () => any
+  renderOption: (props: any, option: any) => React.ReactNode
+  label: string;
+  onSearch: (event: React.ChangeEvent<HTMLInputElement>) => any
+}) => {
+  return (
+    <React.Fragment>
+      <Autocomplete
+        options={options}
+        renderOption={renderOption}
+        getOptionLabel={getOptionLabel}
+        onChange={onChange}
+        fullWidth
+        size={size}
+        sx={{
+          borderRadius: "8px",
+          backgroundColor: "#EFF1F999"
+        }}
+        isOptionEqualToValue={isOptionEqualToValue}
+        defaultValue={getDefaultValue()}
+        renderInput={(params) => (
+          <CustomField
+            {...params}
+            placeholder="Seleccionar cliente"
+            label={label}
+            fullWidth
+            noValidate
+            size="small"
+            onChange={onSearch}
+          />
+          
+        )}
+      />
+      {customErrorText && <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>{customErrorText}</Typography>}
+    </React.Fragment>
+  );
+};
+
+
 export const CustomField = ({ name, customErrorText, noValidate = false, startAdornment, endAdornment, ...props }: any) => {
   const [field] = useField(name);
+  const fieldProps = noValidate ? {} : field;
   return (
     <>
 
       <TextField
-        {...field}
+        {...fieldProps}
         size="medium"
         name={name}
         sx={{

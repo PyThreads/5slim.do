@@ -8,52 +8,188 @@ interface MiIconoProps {
     type?: "success" | "error"
 }
 
+export const CreditCardIcon = () => (
+    <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <g clipPath="url(#clip0_64_24826)">
+            <path
+                d="M17.5006 3.33337H2.50065C1.58018 3.33337 0.833984 4.07957 0.833984 5.00004V15C0.833984 15.9205 1.58018 16.6667 2.50065 16.6667H17.5006C18.4211 16.6667 19.1673 15.9205 19.1673 15V5.00004C19.1673 4.07957 18.4211 3.33337 17.5006 3.33337Z"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M0.833984 8.33337H19.1673"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </g>
+        <defs>
+            <clipPath id="clip0_64_24826">
+                <rect width="20" height="20" fill="white" />
+            </clipPath>
+        </defs>
+    </svg>
+);
+
+export const LocationPinIcon = () => (
+    <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M12.0827 8.75038C12.0827 7.59932 11.15 6.66663 9.99977 6.66663C8.84871 6.66663 7.91602 7.59932 7.91602 8.75038C7.91602 9.9006 8.84871 10.8333 9.99977 10.8333C11.15 10.8333 12.0827 9.9006 12.0827 8.75038Z"
+            stroke="#130F26"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+        <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M9.99959 17.5C9.00086 17.5 3.75 13.2486 3.75 8.80274C3.75 5.3222 6.54758 2.5 9.99959 2.5C13.4516 2.5 16.25 5.3222 16.25 8.80274C16.25 13.2486 10.9983 17.5 9.99959 17.5Z"
+            stroke="#130F26"
+            strokeWidth="1.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+        />
+    </svg>
+);
+
+export const UserIconOrder = () => (
+    <svg
+        width="28"
+        height="28"
+        viewBox="0 0 28 28"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <path
+            d="M13.9958 17.7037C8.96402 17.7037 4.66602 18.4971 4.66602 21.6704C4.66602 24.8449 8.93718 25.6662 13.9958 25.6662C19.0277 25.6662 23.3257 24.8741 23.3257 21.6996C23.3257 18.5251 19.0557 17.7037 13.9958 17.7037Z"
+            fill="#130F26"
+        />
+        <path
+            opacity="0.4"
+            d="M13.9963 14.681C17.4239 14.681 20.1703 11.9335 20.1703 8.50701C20.1703 5.08051 17.4239 2.33301 13.9963 2.33301C10.5698 2.33301 7.82227 5.08051 7.82227 8.50701C7.82227 11.9335 10.5698 14.681 13.9963 14.681Z"
+            fill="#130F26"
+        />
+    </svg>
+);
+
+export const ShoppingCartIcon = () => (
+    <svg
+        width="20"
+        height="20"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+    >
+        <g clipPath="url(#clip0_513_725)">
+            <path
+                d="M16.6663 18.3333C17.1266 18.3333 17.4997 17.9602 17.4997 17.5C17.4997 17.0397 17.1266 16.6666 16.6663 16.6666C16.2061 16.6666 15.833 17.0397 15.833 17.5C15.833 17.9602 16.2061 18.3333 16.6663 18.3333Z"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M7.50033 18.3333C7.96056 18.3333 8.33366 17.9602 8.33366 17.5C8.33366 17.0397 7.96056 16.6666 7.50033 16.6666C7.04009 16.6666 6.66699 17.0397 6.66699 17.5C6.66699 17.9602 7.04009 18.3333 7.50033 18.3333Z"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M0.833008 0.833374H4.16634L6.39967 11.9917C6.47588 12.3754 6.6846 12.72 6.9893 12.9653C7.29399 13.2106 7.67526 13.3409 8.06634 13.3334H16.1663C16.5574 13.3409 16.9387 13.2106 17.2434 12.9653C17.5481 12.72 17.7568 12.3754 17.833 11.9917L19.1663 5.00004H4.99967"
+                stroke="black"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </g>
+        <defs>
+            <clipPath id="clip0_513_725">
+                <rect width="20" height="20" fill="white" />
+            </clipPath>
+        </defs>
+    </svg>
+);
+
+export const BagOrderIcon = () => (
+    <svg width="45" height="50" viewBox="0 0 45 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path
+            fillRule="evenodd"
+            clipRule="evenodd"
+            d="M44.7832 35.7868L42.8609 20.3002C41.6899 14.7741 38.3757 12.5 35.2161 12.5H9.82928C6.62555 12.5 3.20086 14.6149 2.2066 20.3002L0.262262 35.7868C-1.32856 47.1574 4.52654 50 12.1713 50H32.8962C40.5189 50 46.1972 45.8839 44.7832 35.7868ZM15.2425 25.3714C14.0222 25.3714 13.033 24.3533 13.033 23.0973C13.033 21.8414 14.0222 20.8232 15.2425 20.8232C16.4627 20.8232 17.452 21.8414 17.452 23.0973C17.452 24.3533 16.4627 25.3714 15.2425 25.3714ZM27.5051 23.0973C27.5051 24.3533 28.4943 25.3714 29.7145 25.3714C30.9348 25.3714 31.924 24.3533 31.924 23.0973C31.924 21.8414 30.9348 20.8232 29.7145 20.8232C28.4943 20.8232 27.5051 21.8414 27.5051 23.0973Z"
+            fill="#BEC0CA"
+        />
+        <path
+            opacity="0.4"
+            d="M34.9347 11.9358C34.9425 12.1297 34.9053 12.3228 34.8258 12.5H31.233C31.1634 12.3199 31.1266 12.1288 31.1242 11.9358C31.1242 7.14206 27.2247 3.25596 22.4144 3.25596C17.6041 3.25596 13.7046 7.14206 13.7046 11.9358C13.7376 12.1224 13.7376 12.3134 13.7046 12.5H10.0247C9.99176 12.3134 9.99176 12.1224 10.0247 11.9358C10.3043 5.26477 15.8125 0 22.5124 0C29.2122 0 34.7204 5.26477 35 11.9358H34.9347Z"
+            fill="#BEC0CA"
+        />
+    </svg>
+);
+
 export const DownloadCloudIcon = () => (
     <svg
-      width="32"
-      height="32"
-      viewBox="0 0 32 32"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
+        width="32"
+        height="32"
+        viewBox="0 0 32 32"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
     >
-      <rect width="32" height="32" rx="8" fill="#55615750" />
-      <g clipPath="url(#clip0_342_7540)">
-        <path
-          d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
-          stroke="#1C1D22"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M16 16V23.5"
-          stroke="#1C1D22"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M22.9919 21.3249C23.8047 20.8818 24.4467 20.1806 24.8168 19.3321C25.1868 18.4835 25.2637 17.5359 25.0354 16.6388C24.807 15.7417 24.2865 14.9462 23.5558 14.3778C22.8251 13.8094 21.9259 13.5005 21.0002 13.4999H19.9502C19.698 12.5243 19.2278 11.6185 18.5752 10.8507C17.9225 10.0829 17.1042 9.47311 16.182 9.06708C15.2597 8.66104 14.2573 8.46937 13.2503 8.50647C12.2433 8.54358 11.2578 8.80849 10.3679 9.28129C9.47795 9.7541 8.7068 10.4225 8.1124 11.2362C7.51799 12.05 7.11579 12.9879 6.93603 13.9794C6.75627 14.9709 6.80363 15.9903 7.07456 16.961C7.34548 17.9316 7.83291 18.8281 8.50021 19.5832"
-          stroke="#1C1D22"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-        <path
-          d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
-          stroke="#1C1D22"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </g>
-      <defs>
-        <clipPath id="clip0_342_7540">
-          <rect width="20" height="20" fill="white" transform="translate(6 6)" />
-        </clipPath>
-      </defs>
+        <rect width="32" height="32" rx="8" fill="#55615750" />
+        <g clipPath="url(#clip0_342_7540)">
+            <path
+                d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
+                stroke="#1C1D22"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M16 16V23.5"
+                stroke="#1C1D22"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M22.9919 21.3249C23.8047 20.8818 24.4467 20.1806 24.8168 19.3321C25.1868 18.4835 25.2637 17.5359 25.0354 16.6388C24.807 15.7417 24.2865 14.9462 23.5558 14.3778C22.8251 13.8094 21.9259 13.5005 21.0002 13.4999H19.9502C19.698 12.5243 19.2278 11.6185 18.5752 10.8507C17.9225 10.0829 17.1042 9.47311 16.182 9.06708C15.2597 8.66104 14.2573 8.46937 13.2503 8.50647C12.2433 8.54358 11.2578 8.80849 10.3679 9.28129C9.47795 9.7541 8.7068 10.4225 8.1124 11.2362C7.51799 12.05 7.11579 12.9879 6.93603 13.9794C6.75627 14.9709 6.80363 15.9903 7.07456 16.961C7.34548 17.9316 7.83291 18.8281 8.50021 19.5832"
+                stroke="#1C1D22"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M19.3337 19.3333L16.0003 16L12.667 19.3333"
+                stroke="#1C1D22"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+        </g>
+        <defs>
+            <clipPath id="clip0_342_7540">
+                <rect width="20" height="20" fill="white" transform="translate(6 6)" />
+            </clipPath>
+        </defs>
     </svg>
-  );
+);
 export const TrashIcon = () => (
     <svg
         width="32"
@@ -329,13 +465,13 @@ export const ArticlesIcons: FC<MiIconoProps> = ({ filled, color }) => {
     )
 }
 
-export const CustomersIcon: FC<MiIconoProps> = ({ filled, strokeBold }) => {
+export const CustomersIcon: FC<MiIconoProps> = ({ filled, strokeBold, color }) => {
     return (
         <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
             <path
                 fillRule="evenodd"
                 clipRule="evenodd" d="M25.591 31.2068C29.28 31.2068 32.433 31.7658 32.433 33.9988C32.433 36.2318 29.301 36.8068 25.591 36.8068C21.901 36.8068 18.749 36.2528 18.749 34.0188C18.749 31.7848 21.88 31.2068 25.591 31.2068Z"
-                stroke={filled ? "#FFFFFF" : "#53545C"}
+                stroke={filled ? "#FFFFFF" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -345,7 +481,7 @@ export const CustomersIcon: FC<MiIconoProps> = ({ filled, strokeBold }) => {
                 fillRule="evenodd"
                 clipRule="evenodd"
                 d="M25.5911 28.0198C23.1691 28.0198 21.2051 26.0568 21.2051 23.6348C21.2051 21.2128 23.1691 19.2498 25.5911 19.2498C28.0121 19.2498 29.9761 21.2128 29.9761 23.6348C29.9851 26.0478 28.0351 28.0108 25.6221 28.0198H25.5911Z"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -353,14 +489,14 @@ export const CustomersIcon: FC<MiIconoProps> = ({ filled, strokeBold }) => {
             <path
                 fill={filled ? "#99A9F7" : "transparent"}
                 d="M32.4824 26.8815C34.0834 26.6565 35.3164 25.2825 35.3194 23.6195C35.3194 21.9805 34.1244 20.6205 32.5574 20.3635"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
             <path
                 d="M34.5947 30.7322C36.1457 30.9632 37.2287 31.5072 37.2287 32.6272C37.2287 33.3982 36.7187 33.8982 35.8947 34.2112"
-                stroke={filled ? "#FFFFFF" : "#53545C"}
+                stroke={filled ? "#FFFFFF" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -370,35 +506,35 @@ export const CustomersIcon: FC<MiIconoProps> = ({ filled, strokeBold }) => {
     )
 }
 
-export const ShoppingBagIcon: FC<MiIconoProps> = ({ filled, strokeBold }) => {
+export const ShoppingBagIcon: FC<MiIconoProps> = ({ filled, strokeBold, color }) => {
     return (
         <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
             <path
                 fillRule="evenodd"
                 clipRule="evenodd"
                 d="M32.5134 37.4998H24.1655C21.0992 37.4998 18.7468 36.3922 19.415 31.9346L20.193 25.8934C20.6049 23.6691 22.0237 22.8179 23.2685 22.8179H33.447C34.7102 22.8179 36.0466 23.7332 36.5225 25.8934L37.3006 31.9346C37.8681 35.8888 35.5797 37.4998 32.5134 37.4998Z"
-                stroke={filled ? "#FFFFFF" : "#53545C"}
+                stroke={filled ? "#FFFFFF" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
             <path
                 d="M32.6502 22.5982C32.6502 20.2122 30.716 18.2779 28.3299 18.2779V18.2779C27.1809 18.273 26.0773 18.726 25.2631 19.5368C24.4489 20.3475 23.9912 21.4492 23.9912 22.5982V22.5982"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
             <path
                 d="M31.296 27.1017H31.2502"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"
             />
             <path
                 d="M25.4649 27.1017H25.4192"
-                stroke={filled ? "#99A9F7" : "#53545C"}
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
                 strokeWidth={strokeBold ? "2.5" : "1.5"}
                 strokeLinecap="round"
                 strokeLinejoin="round"

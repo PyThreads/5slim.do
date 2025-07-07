@@ -69,7 +69,6 @@ export default function AdminClientes() {
                 />
             </Box>
 
-
             <CustomModal open={open} borderRadius={"12px"}>
                 <Box padding={"28px 24px"} maxWidth={423} minWidth={350} maxHeight={"90vh"}
                     sx={{

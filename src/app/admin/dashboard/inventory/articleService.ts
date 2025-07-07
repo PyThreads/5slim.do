@@ -37,6 +37,14 @@ class ArticleService extends BaseService {
             return null
         }
     }
+
+    getStockNumber(article: IArticle): number {
+        let stockNumber = 0
+        article.variants.forEach(variants => {
+            stockNumber += variants.stock
+        })
+        return stockNumber
+    }
 }
 
 export const articleService = new ArticleService()

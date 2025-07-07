@@ -244,7 +244,7 @@ class BaseService {
         try {
             let object = { ...body };
             object._id = await this.getSequence();
-            object.createdDate = this.utils.newDate();
+            object.createdDate = body.createdDate ? body.createdDate : this.utils.newDate();
             object.createdBy = {
                 _id: user._id,
                 fullName: user.fullName

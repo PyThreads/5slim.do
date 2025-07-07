@@ -1,8 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
 
-// Define a type for your token
-type Token = string | undefined;
 
 // Create an Axios instance with custom configuration
 const axiosInstance: AxiosInstance = axios.create({

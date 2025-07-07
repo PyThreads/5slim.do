@@ -1,14 +1,19 @@
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
+import axiosInstance from "../../../context/adminAxiosInstance";
+import { IClientAddress } from "../../../api/src/interfaces";
 
 dayjs.extend(utc);
 dayjs.extend(timezone);
 
 
 export class BaseService {
-    constructor() {
 
+    axiosAdmin : typeof axiosInstance
+    
+    constructor() {
+        this.axiosAdmin = axiosInstance
     }
 
     transformQuery = (object: any) => {
@@ -39,13 +44,21 @@ export class BaseService {
     /**
      * Retorna la fecha en formato "DD MMM YYYY - hh:mm a" (e.g. "12 Aug 2022 - 12:25 am")
      */
-    formatAmPm(date: Date): string {
+    formatAmPmLetters(date: Date): string {
         const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
 
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
         return dayjs(date)
             .tz(tz)
             .format("DD MMM YYYY - hh:mm a");
+    }
+    formatLetters(date: Date): string {
+        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+
+        // Usamos dayjs directamente para formatear en la zona horaria adecuada
+        return dayjs(date)
+            .tz(tz)
+            .format("DD MMM YYYY");
     }
 
     dominicanNumberFormat(number: number): string {
@@ -54,6 +67,32 @@ export class BaseService {
             currency: 'DOP'
         });
         return formatter.format(number);
+    }
+
+    fullAddress(address: IClientAddress): string {
+        let add = "";
+
+        if (address.address) {
+            add = address.address;
+        }
+
+        if (address.childCounty) {
+            add = `${add}, ${address.childCounty}`;
+        }
+
+        if (address.county) {
+            add = `${add}, ${address.county}`;
+        }
+
+        if (address.city) {
+            add = `${add}, ${address.city}`;
+        }
+
+        if (address.country) {
+            add = `${add}, ${address.country}`;
+        }
+
+        return add + ".";
     }
 }
 

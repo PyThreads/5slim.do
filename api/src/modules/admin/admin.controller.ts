@@ -2,22 +2,84 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
-import { IAdmin, IArticleImages, IClient, IPaginateClients } from "../../interfaces";
+import { IAdmin, IArticleImages, IClient, IPaginateClients, IPaginateOrders } from "../../interfaces";
 import { UsersService } from "../users/users.service";
 import { ArticleService } from "../articles/articles.service";
+import { OrderService } from "../orders/orders.service";
 
 class Admin {
 
     public readonly adminService: AdminService
     private readonly userService: UsersService
     private readonly articleService: ArticleService;
+    private readonly orderService: OrderService;
 
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         this.adminService = new AdminService({ mongoDatabase });
         this.userService = new UsersService({ mongoDatabase });
         this.articleService = new ArticleService ({ mongoDatabase });
+        this.orderService = new OrderService({ mongoDatabase });
     }
 
+    async printOrder(req: Request, res: Response) {
+        try {
+
+            const result = await this.orderService.printOrder({_id: Number(req.params._id)});
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Se ha imprimido de forma exitosa la orden."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al imprimir la orden."
+            })
+        }
+    }
+
+    async getAllOrders (req: Request, res: Response) {
+        try {
+
+            const result = await this.orderService.getAllOrders({query: req.query as unknown as IPaginateOrders});
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Ordenes obtenidas de forma exitosa."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al obtener las ordenes."
+            })
+        }
+    }
+
+    async createOrder (req: Request, res: Response) {
+        try {
+
+            const result =  await this.orderService.createOrder({body: req.body, user: res.locals.admin})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Orden creada de forma exitosa."
+            })
+            
+        } catch (error:any) {
+            
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message:  error.message
+            })
+        }
+    }
     async createArticle (req: Request, res: Response) {
         try {
 

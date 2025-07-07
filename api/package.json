@@ -16,7 +16,6 @@
   "dependencies": {
     "@azure/msal-node": "^3.4.1",
     "@microsoft/microsoft-graph-client": "^3.0.7",
-    "@types/node": "^20.14.10",
     "@types/nodemailer": "^6.4.15",
     "axios": "^1.10.0",
     "bcrypt": "^5.1.1",
@@ -27,7 +26,8 @@
     "jsonwebtoken": "^9.0.2",
     "mongodb": "^6.8.0",
     "multer": "^2.0.1",
-    "nodemailer": "^6.9.14"
+    "nodemailer": "^6.9.14",
+    "puppeteer": "^24.11.2"
   },
   "devDependencies": {
     "@types/bcrypt": "^5.0.2",
@@ -37,6 +37,7 @@
     "@types/express-validator": "^3.0.0",
     "@types/jsonwebtoken": "^9.0.6",
     "@types/multer": "^1.4.13",
+    "@types/node": "^24.0.10",
     "@types/uuid": "^9.0.8",
     "dotenv": "^16.4.5",
     "nodemon": "^3.1.0",

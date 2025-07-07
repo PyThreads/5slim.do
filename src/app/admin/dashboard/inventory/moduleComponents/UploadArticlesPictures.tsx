@@ -22,7 +22,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
 
             const formData = new FormData();
 
-            for(const i in file){
+            for (const i in file) {
                 formData.append(i, file[i]);
             }
 
@@ -84,15 +84,15 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                             ref={refInput}
 
                         />
-                        <Box width={"458px"} height={372} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"}
+                        <Box width={"100%"} height={372} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"}
 
                             position={"relative"}
                         >
                             {
 
                                 primaryImage ? (
-                                    <Box>
-                                        <Box position={"absolute"} top={"17px"} right={"19px"} display={"flex"}>
+                                    <Box width={"100%"}>
+                                        <Box position={"absolute"} top={"17px"} right={"19px"} display={"flex"} zIndex={1}>
 
                                             <Box sx={{ cursor: "pointer" }}
                                                 component={"label"}
@@ -111,8 +111,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                                         <Image
                                             alt={"5slim main article picture"}
                                             style={{ objectFit: "contain" }}
-                                            width={458}
-                                            height={372}
+                                            fill
                                             src={primaryImage.url}
                                         />
                                     </Box>
@@ -173,7 +172,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
 
                             />
 
-                            <Box component={"label"} htmlFor="upload-image-main-secondary" width={220} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
+                            <Box component={"label"} htmlFor="upload-image-main-secondary" width={"100%"} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
                                 <Box textAlign={"center"}>
                                     <Image
                                         alt={"5slim.do. logo"}
@@ -202,9 +201,9 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                             images.filter(image => !image.primary).map((image, index) => {
                                 return (
                                     <Grid item xs={6} key={index}>
-                                        <Box position={"relative"} width={220} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
+                                        <Box position={"relative"} width={"100%"} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
 
-                                            <Box position={"absolute"} top={"17px"} right={"19px"} display={"flex"}>
+                                            <Box position={"absolute"} top={"17px"} right={"19px"} display={"flex"} zIndex={1}>
                                                 <Box sx={{ cursor: "pointer" }}
                                                     onClick={() => handleDeleteImage(image.id)}
                                                 >
@@ -215,8 +214,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                                             <Image
                                                 alt="Image Artículo"
                                                 src={image.url}
-                                                width={220} // valor base para calcular aspecto
-                                                height={200}
+                                                fill
                                                 style={{ objectFit: "contain" }}
                                             />
 

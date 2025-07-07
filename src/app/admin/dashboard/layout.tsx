@@ -8,8 +8,8 @@ import Image from "next/image";
 import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon, Notification, HomeSecondTopBar } from '../../../../components/icons/Svg';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
-import { IAdmin } from '../../../../interfaces';
 import Link from 'next/link';
+import { IAdmin } from '../../../../api/src/interfaces';
 
 const poppins = Poppins({
   subsets: ['latin'],
@@ -41,12 +41,20 @@ const items = [
     name: "Ordenes",
     showName: false,
     icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
-    href: "/admin/dashboard/articles",
+    href: "/admin/dashboard/orders",
     child: [
       {
-        path: "/admin/dashboard/articles",
+        path: "/admin/dashboard/orders",
         title: "Ordenes",
         order: 1
+      },
+      {
+        isDynamic: true,
+        path: "/admin/dashboard/orders/",
+        match: (pathname: string) =>
+          pathname.startsWith("/admin/dashboard/orders/"),
+        title: "Detalles orden",
+        order: 3
       }
     ]
   },

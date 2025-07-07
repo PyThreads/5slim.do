@@ -16,8 +16,8 @@ export default function SummaryClients() {
                         </Box>
 
                         <Box sx={{ cursor: "pointer" }}>
-                            <Grid item container >
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"16px"} fontWeight={400} >Esta semana </Typography>
+                            <Grid item container alignItems={"center"} >
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"12px"} fontWeight={400} >Esta semana </Typography>
                                 <KeyboardArrowDownIcon fontSize="medium" sx={{ color: "#BEC0CA" }} />
                             </Grid>
                         </Box>
@@ -27,10 +27,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Todos </Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Todos </Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >1,250 </Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >1,250 </Typography>
                                         <Typography fontFamily={"Inter"} color={"#519C66"} fontSize={"12px"} fontWeight={500} ml={1} > + 15.80% </Typography>
                                     </Grid>
                                 </Box>
@@ -39,10 +39,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Activos </Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Activos </Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >1,250 </Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >1,250 </Typography>
                                         <Typography fontFamily={"Inter"} color={"#519C66"} fontSize={"12px"} fontWeight={500} ml={1} > + 85% </Typography>
                                     </Grid>
                                 </Box>
@@ -52,10 +52,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Inactivos </Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Inactivos </Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >1,250 </Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >1,250 </Typography>
                                         <Typography fontFamily={"Inter"} color={"#519C66"} fontSize={"12px"} fontWeight={500} ml={1} > - 10% </Typography>
                                     </Grid>
                                 </Box>
@@ -77,8 +77,8 @@ export default function SummaryClients() {
                         </Box>
 
                         <Box sx={{ cursor: "pointer" }}>
-                            <Grid item container >
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"16px"} fontWeight={400} >Esta semana </Typography>
+                            <Grid item container alignItems={"center"}>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"12px"} fontWeight={400} >Esta semana </Typography>
                                 <KeyboardArrowDownIcon fontSize="medium" sx={{ color: "#BEC0CA" }} />
                             </Grid>
                         </Box>
@@ -88,10 +88,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Nuevos Clientes </Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Nuevos Clientes </Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >30</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >30</Typography>
                                         <Typography fontFamily={"Inter"} color={"#519C66"} fontSize={"12px"} fontWeight={500} ml={1} >+20%</Typography>
                                     </Grid>
                                 </Box>
@@ -100,10 +100,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Online </Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Online </Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >657</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >657</Typography>
                                     </Grid>
                                 </Box>
                             </Box>
@@ -112,10 +112,10 @@ export default function SummaryClients() {
 
                         <Grid item xs={6} sm={4}>
                             <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"18px"} fontWeight={500} >Compras pendientes</Typography>
+                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Compras pendientes</Typography>
                                 <Box sx={{ cursor: "pointer" }}>
                                     <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"25px"} fontWeight={500} >5</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >5</Typography>
                                     </Grid>
                                 </Box>
                             </Box>

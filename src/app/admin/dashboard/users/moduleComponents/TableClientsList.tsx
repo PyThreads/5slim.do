@@ -176,7 +176,7 @@ export default function TableClientsList(
                                         onDoubleClickRow(userFullDetails)
                                     }}
                                     key={row._id}
-                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important", cursor: "pointer" }}
+                                    sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
 
                                 >
                                     <TableCell align="left" sx={styles.tableCellBody}>
@@ -221,7 +221,7 @@ export default function TableClientsList(
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {userService.formatAmPm(row.createdDate!)}
+                                            {userService.formatAmPmLetters(row.createdDate!)}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>

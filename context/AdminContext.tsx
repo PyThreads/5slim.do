@@ -1,9 +1,9 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
-import { IAdmin } from "../interfaces";
 import SimpleSnackbar from "../components/notifications/SimpleSnackbar";
 import { eventBus } from "../src/app/utils/broadcaster";
 import SplashScreen from "../src/app/providers/SplashScreen";
+import { IAdmin } from "../api/src/interfaces";
 
 const AdminContext = createContext({});
 
@@ -28,19 +28,18 @@ const whoAmI = async (token: string) => {
 
 export function AdminProvider({ children }: Readonly<{ children: React.ReactNode; }>) {
   const [currentAdmin, setCurrentAdmin] = useState<IAdmin | null>(null);
-  const [loading, setLoading] = useState(false);
 
   const [notify, setNotify] = useState({
     message: "",
     open: false,
     type: "success" as "success" | "error",
-    title: ""
+    title: "",
+    delay: 6000
   })
 
   const me = async () => {
     try {
 
-      setLoading(true)
       const accessToken: string | null = localStorage.getItem("TKN-5SL-M0");
 
       if (!accessToken) {
@@ -51,10 +50,9 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
       setCurrentAdmin(user);
 
       return user;
-    } catch (e: any) {
-      signOut()
+
     } finally {
-      setLoading(false)
+      return;
     }
   };
 
@@ -89,7 +87,7 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
 
   return (
     <AdminContext.Provider value={value}>
-      <SimpleSnackbar title={notify.title} message={notify.message} type={notify.type} open={notify.open}
+      <SimpleSnackbar title={notify.title} message={notify.message} type={notify.type} open={notify.open} delay={notify.delay}
         setOpen={
           () => {
             setNotify({ ...notify, open: false })

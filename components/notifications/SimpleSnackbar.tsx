@@ -1,5 +1,4 @@
 import * as React from 'react';
-import Button from '@mui/material/Button';
 import Snackbar, { SnackbarCloseReason } from '@mui/material/Snackbar';
 import IconButton from '@mui/material/IconButton';
 import CloseIcon from '@mui/icons-material/Close';
@@ -7,112 +6,70 @@ import { Box, Typography } from '@mui/material';
 import { DownImageSnack, ErrorIconSnack } from '../icons/Svg';
 import { INotify } from '../../api/src/interfaces';
 
-export default function SimpleSnackbar({ type, message, title, open, setOpen }: INotify) {
-
+export default function SimpleSnackbar({ type, message, title, open, setOpen, delay = 6000 }: INotify) {
   const handleClose = (
     event: React.SyntheticEvent | Event,
     reason?: SnackbarCloseReason,
   ) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-
-    setOpen()
-
+    if (reason === 'clickaway') return;
+    setOpen();
   };
-
-
 
   return (
     <Snackbar
       open={open}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      autoHideDuration={6000}
+      autoHideDuration={delay}
       onClose={handleClose}
-      sx={{
-        mt: 1
-      }}
+      sx={{ mt: 1 }}
     >
       <Box
         sx={{
           width: 348,
-          height: "95px",
-          backgroundColor: type === "success" ? "#4E8D7C" :  "#F64B3C",
+          backgroundColor: type === "success" ? "#4E8D7C" : "#F64B3C",
           borderRadius: 5,
-          p: 1.5
+          p: 1.5,
+          position: "relative",
+          display: "flex",
+          alignItems: "flex-start",
+          gap: "12px",
         }}
-        
       >
-        <Box
-          sx={{
-            position: "relative",
-            bottom: 31,
-            left: 5
-          }}
-        >
-          <ErrorIconSnack filled color={type === "success" ?  "#396559" : "#C81912" } type={type}/>
+
+        <Box position="absolute" top={-30} left={14}>
+          <ErrorIconSnack filled color={type === "success" ? "#396559" : "#C81912"} type={type} />
         </Box>
 
-
-        <Box
-          sx={{
-            position: "relative",
-            bottom: 24.2,
-            left: -12
-          }}
-        >
+        <Box position="absolute" bottom={-4} left={0}>
           <DownImageSnack filled color={type === "success" ? "#396559" : "#C81912"} />
         </Box>
 
+
+        <Box flexGrow={1} pr={4} ml={6} mt={1}>
+          <Typography fontFamily="Inter" fontSize="18px" color="#FFFFFF" fontWeight={600} mb={0.5}>
+            {title}
+          </Typography>
+          <Typography fontFamily="Inter" fontSize="13px" color="#FFFFFF">
+            {message}
+          </Typography>
+        </Box>
+
+        {/* Botón de cerrar */}
         <IconButton
-          sx={{
-            position: "absolute",
-            top: "18px",
-            right: 22,
-            zIndex :  1
-          }}
           onClick={(e) => {
             e.stopPropagation();
             setOpen();
-          }}>
-
-          <CloseIcon sx={
-            {
-              color: "white",
-              fontSize: "20px",
-              fontWeight: "bold",
-              cursor: "pointer"
-            }
-          }
-
-          />
-        </IconButton>
-
-
-        <Box
+          }}
           sx={{
             position: "absolute",
-            top: "17px",
-            left: 60
+            top: "10px",
+            right: "10px",
+            color: "white",
+            zIndex: 1,
           }}
         >
-          <Typography
-            fontFamily={"Inter"}
-            fontSize={"20px"}
-            color={"#FFFFFF"}
-          >
-            {title}
-          </Typography>
-
-          <Typography
-            fontFamily={"Inter"}
-            fontSize={"13px"}
-            color={"#FFFFFF"}
-          >
-            {message}
-          </Typography>
-
-        </Box>
+          <CloseIcon sx={{ fontSize: "20px", fontWeight: "bold" }} />
+        </IconButton>
       </Box>
     </Snackbar>
   );

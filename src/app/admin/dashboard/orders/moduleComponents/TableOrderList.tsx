@@ -2,11 +2,11 @@ import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody,
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
-import { IArticle } from "../../../../../../api/src/interfaces";
-import { articleService } from "../articleService";
 import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
-import Image from "next/image";
+import { ordersService } from "../ordersService";
+import { baseService } from "../../../../utils/baseService";
+import { IOrder } from "../../../../../../api/src/interfaces";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -14,7 +14,7 @@ const inter = Inter({
     weight: "500"
 })
 
-export default function TableArticlesList(
+export default function TableOrderList(
     {
         setFilers,
         rows,
@@ -26,7 +26,7 @@ export default function TableArticlesList(
     }
         :
         {
-            rows: IArticle[],
+            rows: IOrder[],
             currentPage: number,
             limit: number
             totalItems: number,
@@ -42,13 +42,13 @@ export default function TableArticlesList(
 
             <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
 
-                <Typography fontFamily={"Inter"}>Artículos</Typography>
+                <Typography fontFamily={"Inter"}>Órdenes De Clientes</Typography>
 
                 <Box display={"flex"} alignItems={"center"}>
 
                     <Box width={"250px"} m={1}>
                         <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setFilers((prev: any) => ({ ...prev, description: e.target.value, page: 1 }))
+                            setFilers((prev: any) => ({ ...prev, fullClient: e.target.value, page: 1 }))
                         }} />
                     </Box>
 
@@ -59,7 +59,6 @@ export default function TableArticlesList(
                             Filtrar
                         </Button>
                     </Box>
-
 
                     <Box m={1}>
                         <Button variant="outlined" sx={{ ...styles.btnAdd }}
@@ -102,12 +101,10 @@ export default function TableArticlesList(
                                     />
                                 </TableCell>
 
-                                <TableCell align="center" />
-
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Descripción
+                                            Nombre del cliente
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -116,7 +113,7 @@ export default function TableArticlesList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Stock
+                                            Fecha de orden
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -125,7 +122,7 @@ export default function TableArticlesList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Total Ordenes
+                                            Artículos
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -140,15 +137,23 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
+                                <TableCell >
+                                    <Box display={"flex"} alignItems={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Total
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
 
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
-                            {rows.map((row: IArticle) => (
+                            {rows.map((row: IOrder) => (
                                 <TableRow
                                     onDoubleClick={async () => {
-                                        const articleDetails = await articleService.getArticleDetails({ slug: row.slug });
-                                        onDoubleClickRow(articleDetails)
+                                        onDoubleClickRow(row)
                                     }}
                                     key={row._id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
@@ -169,41 +174,34 @@ export default function TableArticlesList(
                                         />
                                     </TableCell>
 
-                                    <TableCell align="right" sx={styles.tableCellBody}>
-                                        <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"}>
-                                            <Image
-                                                fill
-                                                src={row.images.find(item => item.primary)?.url!}
-                                                alt="Image articles list"
-                                                objectFit="contain"
-                                                style={{ borderRadius: "8px" }}
-                                            />
-                                        </Box>
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                            {row.client.fullName}
+                                        </Typography>
                                     </TableCell>
 
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"} ml={1}>
-                                            {row.description}
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                            {ordersService.formatAmPmLetters(row.createdDate)}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {articleService.getStockNumber(row)}
+                                            {row.articles.length}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {0}
+                                            {row.status}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#519C66"} fontSize={"12px"}
-                                            borderRadius={"8px"} bgcolor={true ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"}
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"} 
                                         >
-                                            {row.published ? "Publicado" : "No publicado"}
+                                            {baseService.dominicanNumberFormat(row.total.total)}
                                         </Typography>
                                     </TableCell>
 

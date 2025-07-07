@@ -10,5 +10,6 @@ export class ArticlesIndex {
         this.mongoDatabase.collection(tableName).createIndex({ slug: 1 }, { unique: true, name: "slug" });
         this.mongoDatabase.collection(tableName).createIndex({ description: 1 }, { unique: false, name: "description" });
         this.mongoDatabase.collection(tableName).createIndex({ categories: 1 }, {  name: "categories" });
+        this.mongoDatabase.collection(tableName).createIndex({ "variant._id": 1,"_id": 1 }, { unique: false, name: "variant_id_filter" });
     }
 }

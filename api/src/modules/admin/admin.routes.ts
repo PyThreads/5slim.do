@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express"
+import express from "express"
 import { Admin } from "./admin.controller"
 import { adminRoutesValidations } from "./admin.validationSchema"
 import { Db } from "mongodb"
@@ -25,6 +25,10 @@ class AdminRouter {
 
         //PRIVATE ROUTES
         router.get("/me", this.adminController.me.bind(this.adminController));
+
+        router.post("/orders/create", adminRoutesValidations.creatOrderValidation(), this.adminController.createOrder.bind(this.adminController));
+        router.get("/orders", adminRoutesValidations.paginatOrdersValidation(), this.adminController.getAllOrders.bind(this.adminController));
+        router.get("/orders/print/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
 
         router.post("/client/register", adminRoutesValidations.clientRegister(), this.adminController.clientRegister.bind(this.adminController));
         router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));

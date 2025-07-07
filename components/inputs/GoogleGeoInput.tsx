@@ -74,7 +74,7 @@ export const GooglePlacesAutocompleteInput = ({
                 onSelect(data);
             }
         });
-    }, [cords]);
+    }, [cords, onSelect]);
 
     useEffect(() => {
         if (

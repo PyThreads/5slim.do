@@ -2,11 +2,43 @@ import { body, validationResult, param, query } from "express-validator"
 import { Request, Response, NextFunction } from 'express';
 
 
+
+const printOrder = () => {
+    return [
+        param("_id").isInt().toInt().withMessage("Por favor el '_id' de la orden."),
+        validation
+    ]
+}
+
+const creatOrderValidation = () => {
+    return [
+        body("articles").isArray({ min: 1 }).withMessage("Debe seleccionar al menos un artículo."),
+        body("client._id").isInt().toInt().withMessage("Por favor incluir un cliente en la orden."),
+        body("client.fullName").isString().withMessage("Por favor incluir el nombre del cliente en la orden."),
+        body("client.fullClient").isString().withMessage("Por favor incluir un cliente en la orden."),
+        body("client.email").isEmail().withMessage("Por favor incluir el correo del cliente en la orden."),
+        body("client.address").isObject().withMessage("Por favor incluir la dirección del cliente en la orden."),
+        body("paymentType").matches(/^Efectivo|Tarjeta|Transferencia$/).withMessage("Por favor incluir un tipo de pago en la orden."),
+        body("status").matches(/^Pendiente|Entregado|Cancelada|Pagado|Preparando para entrega$/).withMessage("Por favor enviar un estado de la orden válido."),
+        body("comment").optional().isString().withMessage("Por favor incluir un comentario en la orden."),
+        validation
+    ]
+}
+
+const paginatOrdersValidation = ()=>{
+    return[
+        query("page").isInt({min:1}).toInt().withMessage("Debe ingresar un número de página."),
+        query("limit").isInt({min:1}).toInt().withMessage("Debe ingresar un número de límite."),
+        query("status").optional().isString().withMessage("Debe ingresar un estado válido."),
+        query("fullClient").optional().isString().withMessage("Debe ingresar un estado válido."),
+        query("_id").optional().isInt({min:1}).toInt().withMessage("Debe ingresar un id."),
+        validation
+    ]
+}
+
 const validationSchemaArticleForm = () => {
     return [
-        body('description').trim().notEmpty().withMessage('El nombre del artículo es requerida*.'),
-    
-
+      body('description').trim().notEmpty().withMessage('El nombre del artículo es requerida*.'),
       body('categories').isArray({ min: 1 }).withMessage('Debe seleccionar al menos una categoría*.'),
       body('categories.*._id').isNumeric().withMessage('La categoría es requerida*.'),
       body('categories.*.description').trim().notEmpty().withMessage('La descripción es requerida*.'),
@@ -152,5 +184,9 @@ export const adminRoutesValidations = {
     getAllClients,
     deleteImage,
     validationSchemaArticleForm,
-    getAllArticles
+    getAllArticles,
+    creatOrderValidation,
+    paginatOrdersValidation,
+    printOrder
+    
 }

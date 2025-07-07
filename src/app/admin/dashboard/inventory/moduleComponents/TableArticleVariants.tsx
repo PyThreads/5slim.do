@@ -11,17 +11,22 @@ import { v4 as uuidv4 } from 'uuid';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import { Box, MenuItem, Typography } from '@mui/material';
-import { IArticleStatus, IArticlesVariants } from '../../../../../../api/src/interfaces';
+import { IArticleImages, IArticleStatus, IArticlesVariants } from '../../../../../../api/src/interfaces';
 import { baseService } from '../../../../utils/baseService';
+import { UploadImageIcon } from '../../../../../../components/icons/Svg';
+import axios from '../../../../../../context/adminAxiosInstance';
+import { eventBus } from '../../../../utils/broadcaster';
+import Image from 'next/image';
 
 export default function TableArticleVariants({ rows = [], onChange }: { rows: IArticlesVariants[], onChange: Function }) {
-
-    const [newOne, setNewOne] = React.useState<IArticlesVariants>({
-        _id: uuidv4(),
+    const refInput = React.useRef<HTMLInputElement>(null);
+    const refInput2 = React.useRef<HTMLInputElement>(null);
+    const [newOne, setNewOne] = React.useState<Partial<IArticlesVariants>>({
         costPrice: 0,
         sellingPrice: 0,
         status: IArticleStatus.NEW,
-        stock: 1
+        stock: 1,
+        images: []
     })
 
     const handleChangeNewOne = (value: any, name: any, row?: IArticlesVariants | null | undefined) => {
@@ -42,9 +47,12 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
 
             return;
         }
-
-        setNewOne({
+        const structure = {
             ...newOne,
+            _id: uuidv4()
+        }
+        setNewOne({
+            ...structure,
             [name]: value
         })
     }
@@ -53,13 +61,14 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
 
         const arr = [...rows];
 
-        for (let stockIn = 1; stockIn <= newOne.stock; stockIn++) {
+        for (let stockIn = 1; stockIn <= newOne.stock!; stockIn++) {
             const object: IArticlesVariants = {
                 _id: uuidv4(),
-                costPrice: newOne.costPrice,
-                sellingPrice: newOne.sellingPrice,
+                costPrice: newOne.costPrice!,
+                sellingPrice: newOne.sellingPrice!,
                 status: IArticleStatus.NEW,
-                stock: 1
+                stock: 1,
+                images: newOne.images!
             }
 
             arr.push(object)
@@ -72,7 +81,8 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
             costPrice: 0,
             sellingPrice: 0,
             status: IArticleStatus.NEW,
-            stock: 1
+            stock: 1,
+            images: []
         })
     }
 
@@ -80,6 +90,70 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
         const arr = rows.filter((item) => item._id !== row._id);
         onChange([...arr])
     }
+
+    const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, isPrimary = false, item?: IArticlesVariants | null) => {
+        try {
+            const file = e.target.files;
+            if (!file || file.length === 0) return;
+
+            const formData = new FormData();
+            for (const i in file) {
+                formData.append(i, file[i]);
+            }
+
+            const { data }: { data: any } = await axios.post("/admin/private/images/upload", formData);
+            let result = data.data as IArticleImages[];
+
+            if (isPrimary && result.length > 0) {
+                result = result.map((image, index) => ({
+                    ...image,
+                    primary: index === 0 // solo el primero será primary
+                }));
+            }
+
+            if (item) {
+                const arr = [...rows];
+                const index = arr.findIndex((value) => item._id === value._id);
+                if (index !== -1) {
+                    const currentImages = arr[index].images || [];
+
+                    // Elimina cualquier imagen que esté marcada como primaria
+                    const cleanedImages = currentImages.map(img => ({ ...img, primary: false }));
+
+                    // Inserta las nuevas imágenes al final
+                    const list = [...cleanedImages, ...result];
+
+                    arr[index] = {
+                        ...arr[index],
+                        images: list
+                    };
+
+                    onChange([...arr]);
+                }
+                return;
+            }
+
+            const cleanedNewImages = (newOne.images || []).map(img => ({ ...img, primary: false }));
+            const newImageList = [...cleanedNewImages, ...result];
+
+            setNewOne({
+                ...newOne,
+                images: newImageList
+            });
+
+        } catch (error) {
+            eventBus.emit("notify", {
+                message: "Ha ocurrido un error al subir la imagen.",
+                open: true,
+                type: "error",
+                title: "Upss!"
+            });
+        } finally {
+            if (refInput.current) refInput.current.value = "";
+            if (refInput2.current) refInput2.current.value = "";
+        }
+    };
+
 
     return (
         <Box overflow={"auto"} maxHeight={"80vh"} sx={{
@@ -94,6 +168,44 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                 <Table sx={{ minWidth: 900 }} size="small" aria-label="a dense table">
                     <TableBody>
                         <TableRow>
+                            <TableCell align="right">
+
+                                <Box textAlign={"center"}
+                                    component={"label"} htmlFor="upload-image-variant"
+                                >
+                                    <input
+                                        type="file"
+                                        style={{ display: "none" }}
+                                        id="upload-image-variant"
+                                        accept="image/*"
+                                        multiple={false}
+                                        onChange={(e) => handleChange(e, true)}
+                                        ref={refInput}
+
+                                    />
+                                    <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"} justifyContent={"center"} display={"flex"} alignItems={"center"}>
+                                        {
+                                            newOne.images!.length > 0 ? (
+                                                <Image
+                                                    fill
+                                                    key={newOne.images!.find(item => item.primary)?.url!}
+                                                    src={newOne.images!.find(item => item.primary)?.url!}
+                                                    alt="Image articles list"
+                                                    objectFit="contain"
+                                                    style={{ borderRadius: "8px" }}
+                                                />
+
+                                            )
+                                                :
+                                                (
+
+                                                    <UploadImageIcon filled={false} />
+                                                )
+                                        }
+                                    </Box>
+
+                                </Box>
+                            </TableCell>
                             <TableCell align="right">
                                 <CustomField size={"small"} placeholder="Nombres" fullWidth noValidate select value={newOne.status}
                                     name="status"
@@ -151,6 +263,7 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
 
                     <TableHead>
                         <TableRow>
+                            <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}></Typography></TableCell>
                             <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}>Estado</Typography></TableCell>
                             <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}>Stock</Typography></TableCell>
                             <TableCell align="left"> <Typography fontFamily={"Inter"} fontSize={"16px"}>Costo</Typography></TableCell>
@@ -167,6 +280,46 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                                 key={key}
                                 sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                             >
+
+                                <TableCell align="right">
+
+                                    <Box textAlign={"center"}
+                                        component={"label"} htmlFor={"upload-image-variant-listed" + row._id}
+                                    >
+                                        <input
+                                            type="file"
+                                            style={{ display: "none" }}
+                                            id={"upload-image-variant-listed" + row._id}
+                                            accept="image/*"
+                                            multiple={false}
+                                            onChange={(e) => handleChange(e, true, row)}
+                                            ref={refInput2}
+
+                                        />
+                                        <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"} justifyContent={"center"} display={"flex"} alignItems={"center"}>
+                                            {
+                                                row.images?.length > 0 ? (
+                                                    <Image
+                                                        fill
+                                                        key={newOne.images!.find(item => item.primary)?.url!}
+                                                        src={row.images.find(item => item.primary)?.url!}
+                                                        alt="Image articles list"
+                                                        objectFit="contain"
+                                                        style={{ borderRadius: "8px" }}
+                                                    />
+
+                                                )
+                                                    :
+                                                    (
+
+                                                        <UploadImageIcon filled={false} />
+                                                    )
+                                            }
+                                        </Box>
+
+                                    </Box>
+                                </TableCell>
+
                                 <TableCell align="right">
                                     <CustomField size={"small"} placeholder="Nombres" fullWidth noValidate select value={row.status}
                                         onChange={(e: any) => handleChangeNewOne(e.target.value, "status", row)}

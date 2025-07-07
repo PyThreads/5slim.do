@@ -22,7 +22,7 @@ class Utils {
 
 
     formatAmPmLetters(date: Date): string {
-        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+        const tz = environmentConfig.timeZone;
 
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
         return dayjs(date)
@@ -30,7 +30,7 @@ class Utils {
             .format("DD MMM YYYY - hh:mm a");
     }
     formatLetters(date: Date): string {
-        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+        const tz = environmentConfig.timeZone;
 
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
         return dayjs(date)

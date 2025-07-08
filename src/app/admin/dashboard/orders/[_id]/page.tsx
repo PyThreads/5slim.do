@@ -10,6 +10,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SplashScreen from "../../../../providers/SplashScreen";
 import SummaryOrderDetails from "../moduleComponents/SummaryOrderDetails";
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
+import CircularProgress from '@mui/material/CircularProgress';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -22,6 +23,7 @@ export default function AdminClientes() {
     const [order, setOrder] = useState<IOrder | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [loading, setLoading] = useState(true);
+    const [printing,setPrinting] = useState(false)
     const params = useParams();
 
     if (!params._id) {
@@ -39,8 +41,10 @@ export default function AdminClientes() {
     }, [getOrder])
 
     const handlePrint = async() => {
-        await ordersService.printOrder(order!._id);
+        setPrinting(true)
         setAnchorEl(null);
+        await ordersService.printOrder(order!._id);
+        setPrinting(false)
     };
 
     return (
@@ -70,10 +74,10 @@ export default function AdminClientes() {
 
                                 <Box>
                                     <Button variant="contained" sx={{ ...style.accionButton }}
-                                        endIcon={<KeyboardArrowDownIcon />}
+                                        endIcon={printing ? <CircularProgress sx={{color:"white"}} size={13} /> : <KeyboardArrowDownIcon />}
                                         onClick={(event) => setAnchorEl(event.currentTarget)}
                                     >
-                                        Acción
+                                        {printing ? "Imprimiendo" : "Acción"}
                                     </Button>
 
                                     <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton, ml: 2 }}

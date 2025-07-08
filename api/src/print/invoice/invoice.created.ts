@@ -147,8 +147,8 @@ export const invoiceCreated = ({ order }: { order: IOrder }) => {
                     <td>${index + 1}</td>
                     <td>${article.description}</td>
                     <td>${article.variant.stock}</td>
-                    <td>${article.variant.sellingPrice}</td>
-                    <td>${article.variant.sellingPrice * article.variant.stock}</td>
+                    <td>${utils.dominicanNumberFormat(article.variant.sellingPrice)}</td>
+                    <td>${utils.dominicanNumberFormat(article.variant.sellingPrice * article.variant.stock)}</td>
                   </tr>
                 `;
               }).join('')}
@@ -158,7 +158,7 @@ export const invoiceCreated = ({ order }: { order: IOrder }) => {
 
         <!-- Total -->
         <div class="total">
-            Total a pagar: <strong>RD$ ${order.total.total}</strong>
+            Total a pagar: <strong>${utils.dominicanNumberFormat(order.total.total)}</strong>
         </div>
 
         <!-- Footer -->

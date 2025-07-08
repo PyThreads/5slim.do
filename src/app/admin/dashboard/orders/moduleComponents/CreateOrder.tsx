@@ -42,7 +42,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     const totals = ordersService.getTotalOrder(order.articles as IArticleCart[])
 
     const getAllClients = useCallback(async () => {
-        const result = await userService.getAllClients({ fullClient: filtersClient })
+        const result = await userService.getAllClients({ fullName: filtersClient })
         setResult(result)
     }, [setResult, filtersClient])
 

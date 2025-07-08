@@ -76,8 +76,8 @@ class ArticleService extends BaseService {
 
             body.slug = await this.getArticleSlug(body.description);
 
-            await this.insertOne({ body, user });
-            return body
+            const result = await this.insertOne({ body, user });
+            return result
 
         } catch (error: any) {
             throw error;

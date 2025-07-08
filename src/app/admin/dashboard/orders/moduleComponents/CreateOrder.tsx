@@ -62,15 +62,21 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     const createOrder = useCallback(async () => {
         try {
             setLoading(true);
+            ordersService.validateNewOrder(order as IOrder)
             await ordersService.createOrder(order as IOrder);
-        } finally {
-            setLoading(false);
-            setOpenModal(false);
             setOrder({
                 total: { total: 0, discount: 0, subTotal: 0 },
                 status: IOrderStatus.PENDING,
                 articles: []
             })
+            setOpenModal(false);
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al crear la orden."
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            
+        } finally {
+            setLoading(false);
+            
         }
     }, [order])
 
@@ -253,7 +259,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                             onClick={() => {
                                                                 setOrder({
                                                                     ...order,
-                                                                    articles: order?.articles?.filter(item => item.variant._id !== item.variant._id)
+                                                                    articles: order?.articles?.filter(value => value.variant._id !== item.variant._id)
                                                                 }
                                                                 )
                                                             }}

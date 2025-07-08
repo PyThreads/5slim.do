@@ -21,60 +21,54 @@ import Image from 'next/image';
 export default function TableArticleVariants({ rows = [], onChange }: { rows: IArticlesVariants[], onChange: Function }) {
     const refInput = React.useRef<HTMLInputElement>(null);
     const refInput2 = React.useRef<HTMLInputElement>(null);
-    const [newOne, setNewOne] = React.useState<Partial<IArticlesVariants>>({
+    const [newOne, setNewOne] = React.useState<Partial<IArticlesVariants>>(() => ({
+        _id: uuidv4(),
         costPrice: 0,
         sellingPrice: 0,
         status: IArticleStatus.NEW,
         stock: 1,
         images: []
-    })
+    }));
 
     const handleChangeNewOne = (value: any, name: any, row?: IArticlesVariants | null | undefined) => {
-
         if (row) {
-            const obt: IArticlesVariants = {
+            const updatedRow: IArticlesVariants = {
                 ...row,
                 [name]: value
             };
 
             const arr = [...rows];
-            const index = arr.findIndex((item) => item._id === obt._id);
+            const index = arr.findIndex((item) => item._id === updatedRow._id);
 
             if (index !== -1) {
-                arr[index] = obt;
-                onChange([...arr]); // Clonamos para asegurar rerender
+                arr[index] = updatedRow;
+                onChange([...arr]);
             }
-
             return;
         }
-        const structure = {
-            ...newOne,
-            _id: uuidv4()
-        }
-        setNewOne({
-            ...structure,
+
+        setNewOne(prev => ({
+            ...prev,
             [name]: value
-        })
+        }));
     }
 
     const addSelected = () => {
-
         const arr = [...rows];
 
-        for (let stockIn = 1; stockIn <= newOne.stock!; stockIn++) {
-            const object: IArticlesVariants = {
+        for (let i = 1; i <= newOne.stock!; i++) {
+            const variant: IArticlesVariants = {
                 _id: uuidv4(),
                 costPrice: newOne.costPrice!,
                 sellingPrice: newOne.sellingPrice!,
                 status: IArticleStatus.NEW,
                 stock: 1,
                 images: newOne.images!
-            }
-
-            arr.push(object)
+            };
+            arr.push(variant);
         }
 
-        onChange(arr)
+        onChange(arr);
 
         setNewOne({
             _id: uuidv4(),
@@ -83,12 +77,12 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
             status: IArticleStatus.NEW,
             stock: 1,
             images: []
-        })
+        });
     }
 
     const removeSelected = (row: IArticlesVariants) => {
         const arr = rows.filter((item) => item._id !== row._id);
-        onChange([...arr])
+        onChange([...arr]);
     }
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, isPrimary = false, item?: IArticlesVariants | null) => {
@@ -107,7 +101,7 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
             if (isPrimary && result.length > 0) {
                 result = result.map((image, index) => ({
                     ...image,
-                    primary: index === 0 // solo el primero será primary
+                    primary: index === 0
                 }));
             }
 
@@ -116,11 +110,7 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                 const index = arr.findIndex((value) => item._id === value._id);
                 if (index !== -1) {
                     const currentImages = arr[index].images || [];
-
-                    // Elimina cualquier imagen que esté marcada como primaria
                     const cleanedImages = currentImages.map(img => ({ ...img, primary: false }));
-
-                    // Inserta las nuevas imágenes al final
                     const list = [...cleanedImages, ...result];
 
                     arr[index] = {
@@ -153,7 +143,6 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
             if (refInput2.current) refInput2.current.value = "";
         }
     };
-
 
     return (
         <Box overflow={"auto"} maxHeight={"80vh"} sx={{

@@ -4,11 +4,14 @@ import Form from "./CreateArticleForm";
 import axios from '../../../../../../../../context/adminAxiosInstance';
 import { IArticle } from '../../../../../../../../api/src/interfaces';
 import { eventBus } from '../../../../../../utils/broadcaster';
+import { useRouter } from 'next/navigation';
 
 
 export default function CreateArticleForm({ valuesToEdit, onClose }: { valuesToEdit?: any, onClose: Function }) {
     
-    const handleSubmit = async (article: IArticle) => {
+    const navigation = useRouter()
+
+    const handleSubmit = async (article: IArticle,{ resetForm }:any) => {
 
         try {
 
@@ -22,8 +25,9 @@ export default function CreateArticleForm({ valuesToEdit, onClose }: { valuesToE
                 await axios.put(`/admin/private/articles/update/${article._id}`, article)
 
             } else {
-
-                await axios.post(`/admin/private/articles/register`, article)
+                const {data}: any = await axios.post(`/admin/private/articles/register`, article)
+                resetForm();
+                navigation.push("/admin/dashboard/inventory/newArticle/" + data.data._id)
             }
 
             eventBus.emit("notify", { message: "Registro guardado de forma exitosa.", open: true, type: "success", title: "Guardado!" })

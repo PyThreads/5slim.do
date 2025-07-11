@@ -1,9 +1,9 @@
 "use client"
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Button, Grid, Popover, Typography } from "@mui/material"
+import { Box, Button, Checkbox, Grid, Popover, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import TableOrderDetailList from "../moduleComponents/TableOrderDetailList";
-import { IOrder } from "../../../../../../api/src/interfaces";
+import { CancelOrderType, IOrder, IOrderStatus } from "../../../../../../api/src/interfaces";
 import { ordersService } from "../ordersService";
 import { useRouter, useParams } from "next/navigation";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
@@ -11,6 +11,9 @@ import SplashScreen from "../../../../providers/SplashScreen";
 import SummaryOrderDetails from "../moduleComponents/SummaryOrderDetails";
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import CircularProgress from '@mui/material/CircularProgress';
+import CustomModal from "../../../../../../components/modals/CustomModal";
+import CloseIcon from '@mui/icons-material/Close';
+import CheckIcon from '@mui/icons-material/Check';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -23,7 +26,11 @@ export default function AdminClientes() {
     const [order, setOrder] = useState<IOrder | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [loading, setLoading] = useState(true);
-    const [printing,setPrinting] = useState(false)
+    const [printing, setPrinting] = useState(false)
+    const [modalCancel, setModalCancel] = useState(false);
+    const [cancelType, setCancelType] = useState<CancelOrderType>(CancelOrderType.RETURN_ITEMS)
+    const [canceled, setCanceled] = useState(false);
+    const [loadingCancel, setLoadingCancel] = useState(false);
     const params = useParams();
 
     if (!params._id) {
@@ -34,18 +41,41 @@ export default function AdminClientes() {
         const result = await ordersService.getOrderDetails({ _id: params._id, page: 1, limit: 1 });
         setOrder(result)
         setLoading(false);
-    }, [setOrder, setLoading,params])
+    }, [setOrder, setLoading, params])
 
     useEffect(() => {
         getOrder()
     }, [getOrder])
 
-    const handlePrint = async() => {
+    const handlePrint = async () => {
         setPrinting(true)
         setAnchorEl(null);
         await ordersService.printOrder(order!._id);
         setPrinting(false)
     };
+
+    const handleCloseCancel = () => {
+        setLoadingCancel(true)
+        setCancelType(CancelOrderType.RETURN_ITEMS)
+        setModalCancel(false);
+        setCanceled(false)
+        setLoadingCancel(false);
+    }
+
+    const cancelOrder = async () => {
+        try {
+            if (order?.status === IOrderStatus.CANCELLED) {
+                return
+            }
+            setLoadingCancel(true);
+            const orderUpdated = await ordersService.cancelOrder({ orderId: order!._id, type: cancelType });
+            setOrder(orderUpdated);
+            setCanceled(true);
+
+        } finally {
+            setLoadingCancel(false);
+        }
+    }
 
     return (
         <React.Fragment>
@@ -62,25 +92,37 @@ export default function AdminClientes() {
 
                                 <Box sx={{ display: "flex" }}>
                                     <Box sx={{ display: "flex" }}>
-                                        <Typography fontFamily={"Inter"} fontSize={16} color={"#45464E"}>Orden Número  </Typography>
-                                        <Typography fontFamily={"Inter"} fontSize={16} color={"#45464E40"} ml={0.5}> #{order?._id}</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"}
+                                            sx={{ fontSize: { xs: "9px", sm: "16px" } }}
+                                        >
+                                            Orden Número
+                                        </Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5}
+                                            sx={{ fontSize: { xs: "12px", sm: "16px" } }}
+                                        > #{order?._id}</Typography>
                                     </Box>
 
                                     <Box sx={{ display: "flex" }} ml={3}>
-                                        <Typography fontFamily={"Inter"} fontSize={16} color={"#45464E"}>Fecha</Typography>
-                                        <Typography fontFamily={"Inter"} fontSize={16} color={"#45464E40"} ml={0.5}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "9px", sm: "16px" } }}>Fecha</Typography>
+                                        <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5} sx={{ fontSize: { xs: "9px", sm: "16px" } }}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
                                     </Box>
                                 </Box>
 
                                 <Box>
                                     <Button variant="contained" sx={{ ...style.accionButton }}
-                                        endIcon={printing ? <CircularProgress sx={{color:"white"}} size={13} /> : <KeyboardArrowDownIcon />}
+                                        endIcon={printing ? <CircularProgress sx={{ color: "white" }} size={13} /> : <KeyboardArrowDownIcon />}
                                         onClick={(event) => setAnchorEl(event.currentTarget)}
                                     >
                                         {printing ? "Imprimiendo" : "Acción"}
                                     </Button>
 
                                     <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton, ml: 2 }}
+                                        onClick={() => {
+                                            if (order?.status === IOrderStatus.CANCELLED) {
+                                                return
+                                            }
+                                            setModalCancel(true)
+                                        }}
                                     >
                                         Cancelar Orden
                                     </Button>
@@ -95,7 +137,6 @@ export default function AdminClientes() {
                             <Box mt={"23px"} pb={10}>
                                 <TableOrderDetailList order={order!} />
                             </Box>
-
 
                             <Popover
                                 id={Boolean(anchorEl) ? 'simple-popover' : undefined}
@@ -135,6 +176,88 @@ export default function AdminClientes() {
                         </Grid >
                     )
             }
+
+            <CustomModal
+                open={modalCancel}
+                borderRadius={"16px"}
+            >
+                <Grid container width={320} p={1}>
+
+                    <Grid item xs={12} display={"flex"} justifyContent={"flex-end"}>
+
+                        <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px", color: "#000" }}
+                            onClick={handleCloseCancel}
+                        />
+                    </Grid>
+
+                    {
+                        !canceled ?
+
+                            <React.Fragment>
+                                <Grid item xs={12}>
+                                    <Typography fontFamily={"Inter"} fontWeight={400} fontSize={"18px"} mt={2} ml={1.3}>
+                                        Seleccione una opción:
+                                    </Typography>
+                                </Grid>
+
+                                <Grid container spacing={2} mt={1}>
+                                    <Grid item xs={12} mt={-1} textAlign={"center"}>
+                                        <Checkbox
+                                            value={CancelOrderType.CANCEL_ONLY}
+                                            checked={cancelType === CancelOrderType.CANCEL_ONLY}
+                                            inputProps={{ 'aria-label': 'controlled' }}
+                                            onChange={(e: any) => setCancelType(e.target.value)}
+                                        />
+                                        No agregar items al inventario.
+                                    </Grid>
+
+                                    <Grid item xs={12} mt={-1} textAlign={"center"}>
+                                        <Checkbox
+                                            value={CancelOrderType.RETURN_ITEMS}
+                                            checked={cancelType === CancelOrderType.RETURN_ITEMS}
+                                            inputProps={{ 'aria-label': 'controlled' }}
+                                            onChange={(e: any) => setCancelType(e.target.value)}
+                                        />
+                                        Agregar items al inventario.
+                                    </Grid>
+
+
+                                    <Button variant="contained" sx={{ ...style.accionButton, ml: 2, mt: 2, height: 36 }}
+                                        fullWidth
+                                        onClick={cancelOrder}
+                                        endIcon={loadingCancel ? <CircularProgress sx={{ color: "white" }} size={13} /> : null}
+                                    >
+                                        {loadingCancel ? "Cancelando" : "Cancelar Orden"}
+                                    </Button>
+                                </Grid>
+                            </React.Fragment>
+
+                            :
+
+                            <React.Fragment>
+                                {
+                                    !loadingCancel ?
+
+                                        <Grid container spacing={2} mt={1} mb={2} justifyContent={"center"} sx={{ transition: "2s" }}>
+                                            <Grid item xs={12} textAlign={"center"}>
+                                                <CheckIcon sx={{ fontSize: 100, p: 2, backgroundColor: "#CC5F5F", color: "white", borderRadius: "100%", transition: "2" }} />
+                                                <Typography fontFamily={"Inter"} fontWeight={400} fontSize={"18px"} mt={2}>Orden cancelada</Typography>
+                                            </Grid>
+                                        </Grid>
+
+                                        :
+
+                                        <Grid container spacing={2} mt={1} mb={2} justifyContent={"center"}>
+                                            <Grid item xs={12} textAlign={"center"}>
+                                                <Typography fontFamily={"Inter"} fontWeight={400} fontSize={"18px"} mt={2}>Cancelando orden...</Typography>
+                                            </Grid>
+                                        </Grid>
+                                }
+                            </React.Fragment>
+                    }
+
+                </Grid>
+            </CustomModal>
         </React.Fragment>
     )
 }
@@ -142,9 +265,9 @@ export default function AdminClientes() {
 const style = {
     accionButton: {
         backgroundColor: "#1C1D22",
-        fontSize: "14px",
+        fontSize: { xs: 12, sm: 14 },
         fontFamily: inter.style.fontFamily,
-        height: "36px",
+        height: { xs: 20, sm: 36 },
         textTransform: "none",
         borderRadius: "12px",
         "&:hover": {

@@ -1,4 +1,4 @@
-import { COLLNAMES, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IPaginateOrders, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IPaginateOrders, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
@@ -17,11 +17,27 @@ export class OrderService extends BaseService {
     }
 
 
+    async cancelOrder({ orderId, type, user }: { orderId: number, user: IAdmin | IClient, type: CancelOrderType }): Promise<IOrder> {
+        try {
+
+            const updated: IOrder = await this.updateOne({ filter: { _id: orderId }, body: { status: IOrderStatus.CANCELLED, cancelType: type }, user });
+
+            if (type === CancelOrderType.RETURN_ITEMS) {
+                await this.articleService.setToOrder({ articles: updated.articles });
+            }
+
+            return updated;
+
+        } catch (error: any) {
+            throw error
+        }
+    }
+
     async printOrder({ _id }: { _id: number }): Promise<any> {
         try {
             const order = await this.collection.findOne({ _id });
             const html = invoiceCreated({ order });
-            return await generarFacturaPDF({html});
+            return await generarFacturaPDF({ html });
         } catch (error: any) {
             throw error;
         }
@@ -31,12 +47,12 @@ export class OrderService extends BaseService {
         try {
 
             await this.articleService.unsetToOrder({ articles: body.articles });
-            
+
             body.total = this.getTotalOrder(body.articles);
 
             await this.insertOne({ body, user });
             return body;
-            
+
         } catch (error: any) {
             throw error;
         }
@@ -56,24 +72,24 @@ export class OrderService extends BaseService {
     }
 
 
-    async getAllOrders({query}: {query: IPaginateOrders}): Promise<IPaginationResult> {
+    async getAllOrders({ query }: { query: IPaginateOrders }): Promise<IPaginationResult> {
         try {
 
             const match: any = {};
 
-            if(query.fullClient) {
+            if (query.fullClient) {
                 match["client.fullClient"] = { $regex: this.diacriticSensitive(query.fullClient), $options: "i" };
             }
 
-            if(query.status) {
+            if (query.status) {
                 match["status"] = query.status;
             }
 
-            if(query._id) {
+            if (query._id) {
                 match["_id"] = query._id;
             }
 
-            const pipeline =[
+            const pipeline = [
                 {
                     $match: match
                 }
@@ -83,15 +99,17 @@ export class OrderService extends BaseService {
                 query: pipeline,
                 page: query.page ? query.page : 1,
                 limit: query.limit ? query.limit : 10,
-                collection: COLLNAMES.ORDER
-            })
+                collection: COLLNAMES.ORDER,
+                sort: {
+                    _id: -1
+                }
+            }) 
 
 
             return result
-            
+
         } catch (error: any) {
             throw new Error("Ha ocurrido un error al buscar las ordenes.");
         }
     }
-
 }

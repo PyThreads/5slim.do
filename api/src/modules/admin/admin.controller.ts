@@ -2,7 +2,7 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
-import { IAdmin, IArticleImages, IClient, IPaginateClients, IPaginateOrders } from "../../interfaces";
+import { CancelOrderType, IAdmin, IArticleImages, IClient, IPaginateClients, IPaginateOrders } from "../../interfaces";
 import { UsersService } from "../users/users.service";
 import { ArticleService } from "../articles/articles.service";
 import { OrderService } from "../orders/orders.service";
@@ -19,6 +19,28 @@ class Admin {
         this.userService = new UsersService({ mongoDatabase });
         this.articleService = new ArticleService ({ mongoDatabase });
         this.orderService = new OrderService({ mongoDatabase });
+    }
+
+    async cancelOrder(req: Request, res: Response) {
+        try {
+            const { type }: { type: CancelOrderType } = req.body
+            const user: IAdmin = res.locals.admin;
+
+            const result = await this.orderService.cancelOrder({ orderId: Number(req.params._id),type,user });
+            
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Se ha cancelado de forma exitosa la orden."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al cancelar la orden."
+            })
+        }
     }
 
     async printOrder(req: Request, res: Response) {

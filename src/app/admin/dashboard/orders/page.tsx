@@ -92,7 +92,7 @@ export default function AdminClientes() {
 const style = {
     addButton: {
         backgroundColor: "#5570F1",
-        fontSize: "14px",
+        fontSize: { xs: 12, sm: 14, md: 16 },
         fontFamily: inter.style.fontFamily,
         height: "36px",
         textTransform: "none",
@@ -103,7 +103,7 @@ const style = {
     },
     title: {
         fontFamily: inter.style.fontFamily,
-        fontSize: 16,
+        fontSize: { xs: 13, sm: 16, md: 16 },
         color: "#45464E",
     }
 }

@@ -79,7 +79,7 @@ export default function AdminClientes() {
                     <Grid container p={0} m={0} justifyContent={"space-between"} >
                         <Typography fontFamily={"Poppins"} fontSize={"20px"} fontWeight={600}>Agregar Nuevo Cliente</Typography>
 
-                        <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px" }}
+                        <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px", color: "#000" }}
                             onClick={() => {
                                 setOpen(false);
                                 setFilers({ limit: 10, page: 1 })
@@ -127,7 +127,6 @@ const style = {
     },
     title: {
         fontFamily: inter.style.fontFamily,
-        fontSize: 16,
         color: "#45464E",
     }
 }

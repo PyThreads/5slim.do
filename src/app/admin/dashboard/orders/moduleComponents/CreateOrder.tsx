@@ -73,17 +73,18 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al crear la orden."
             eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
-            
+
         } finally {
             setLoading(false);
-            
+
         }
     }, [order])
 
     return (
-        <Box padding={"28px 24px"} minWidth={800} height={"90vh"}
+        <Box height={"90vh"}
             sx={{
-                ...style.hideScroll
+                ...style.hideScroll,
+                padding: { xs: "24px 16px", md: "28px 24px" }
             }}
         >
             <Grid p={0} m={0} height={"90%"}>
@@ -99,7 +100,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                 <Grid container spacing={2} xs={12} mt={2}>
 
-                    <Grid item xs={6}>
+                    <Grid item xs={12} md={12} lg={6} >
 
                         <Grid xs={12} >
                             <Typography fontFamily={"Poppins"} fontSize={"16px"} color={"#8B8D97"} fontWeight={500}>Detalles De La Orden</Typography>
@@ -213,7 +214,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                     </Grid>
 
-                    <Grid item xs={6}>
+                    <Grid item xs={12} md={12} lg={6} >
 
                         <Grid xs={12}>
                             <Typography fontFamily={"Poppins"} fontSize={"16px"} color={"#8B8D97"} fontWeight={500}>Artículos</Typography>
@@ -252,7 +253,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                                                     <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} position={"absolute"} top={0}>
                                                         <Tooltip title={item.description} placement="top" arrow>
-                                                            <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
+                                                            <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "10px", md: "12px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
                                                         </Tooltip>
 
                                                         <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#CC5F5F"} fontWeight={500} sx={{ cursor: "pointer" }}
@@ -294,11 +295,11 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                             <BagOrderIcon />
                                         </Box>
 
-                                        <Typography fontFamily={"Poppins"} fontSize={"20px"} color={"#000"} fontWeight={500} mt={"40px"}>
+                                        <Typography fontFamily={"Poppins"} sx={{ fontSize: { xs: "14px", sm: "20px" } }} color={"#000"} fontWeight={500} mt={"40px"}>
                                             Agregar Artículos
                                         </Typography>
 
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#8B8D97"} fontWeight={500} mt={"12px"}>
+                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "11px", sm: "13px"} }} textAlign={"center"} color={"#8B8D97"} fontWeight={500} mt={"12px"}>
                                             Busca y Agrega Artículos a Esta Orden.
                                         </Typography>
                                     </Box>
@@ -330,7 +331,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                 </Grid>
 
                 <Grid display={"flex"} justifyContent={"center"} mt={"40px"} pb={2}>
-                    <Box >
+                    <Box sx={{ display: { xs: "flex", md: "block" } }}>
                         <Button sx={style.btnAdd} onClick={() => setOpenModal(false)}>Cancelar</Button>
                         <Button sx={{ ...style.btnAdd, ...style.btnAddFilled }}
                             onClick={createOrder}>
@@ -384,7 +385,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                 </Box>
                                 <Box ml={"14px"} width={"100%"} position={"relative"} height={"49px"}>
                                     <Tooltip title={item.description} placement="top" arrow>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
+                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "12px", md: "14px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
                                     </Tooltip>
 
                                     <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} position={"absolute"} bottom={0}>
@@ -405,7 +406,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
             </Popover >
 
             <CustomModal open={openModalArticle} borderRadius={"8px"}>
-                <Box padding={"10px 10px"} minWidth={800} minHeight={200} maxHeight={"80vh"} overflow={"auto"}>
+                <Box padding={"10px 10px"} minHeight={200} maxHeight={"80vh"}>
                     <Grid item container height={10} justifyContent={"space-between"}>
                         <Typography fontFamily={"Poppins"} fontSize={"20px"} fontWeight={600}>Seleccionar Variante</Typography>
                         <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px", color: "#000" }}
@@ -417,8 +418,12 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                         />
                     </Grid>
 
-                    <TableContainer component={Paper} sx={{ marginTop: "40px" }}>
-                        <Table sx={{ minWidth: 900 }} size="small" aria-label="a dense table">
+                    <TableContainer component={Paper} sx={{
+                        marginTop: "40px",
+                        overflowX: "auto",
+                        width: {xs: 300, md: "100%"}
+                    }} >
+                        <Table size="small" aria-label="a dense table">
 
                             <TableHead>
                                 <TableRow>
@@ -534,7 +539,6 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
 
 const style = {
-
     hideScroll: {
         overflowY: "scroll",
         scrollbarWidth: "none", // Firefox
@@ -544,9 +548,9 @@ const style = {
         },
     },
     btnAdd: {
-        fontSize: "14px",
+        fontSize: { xs: "12px", md: "14px" },
         fontFamily: inter.style.fontFamily,
-        height: "58px",
+        height: { xs: "36px", sm: "36px", md: "40px", lg: "58px" },
         textTransform: "none",
         borderRadius: "12px",
         padding: "8px",
@@ -556,7 +560,7 @@ const style = {
         borderColor: "#5570F1",
         border: "1px solid",
         color: "#5570F1",
-        width: "180px",
+        width: { xs: 100, md: "180px" },
         margin: "0px 8px"
     },
     btnAddFilled: {

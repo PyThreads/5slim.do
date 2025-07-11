@@ -71,6 +71,69 @@ class ArticleService extends BaseService {
         }
     }
 
+    async setToOrder({ articles }: { articles: IArticleCart[] }): Promise<void> {
+        try {
+            let arrPromises = [];
+
+            for (const article of articles) {
+
+                const exists = await this.collection.count(
+                    {
+                        "variants._id": article.variant._id
+                    }
+                );
+
+                if (exists > 0) {
+
+                    arrPromises.push(await this.collection.updateOne(
+                        {
+                            _id: article._id,
+                            variants: {
+                                $elemMatch: {
+                                    _id: article.variant._id
+                                }
+                            }
+                        },
+                        {
+                            $inc: {
+                                "variants.$[variant].stock": +article.variant.stock
+                            }
+                        },
+                        {
+                            arrayFilters: [
+                                { "variant._id": article.variant._id }
+                            ]
+                        }
+                    ))
+                } else {
+
+                    arrPromises.push(await this.collection.updateOne(
+                        { _id: article._id },
+                        {
+                            $push: {
+                                variants: {
+                                    _id: article.variant._id,
+                                    stock: article.variant.stock,
+                                    sellingPrice: article.variant.sellingPrice,
+                                    costPrice: article.variant.costPrice,
+                                    images: article.variant.images,
+                                    status: article.variant.status
+                                }
+                            }
+                        }
+                    ))
+                }
+
+            }
+
+            await Promise.all(arrPromises);
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+
     async register({ body, user }: { body: IArticle, user: IClient | IAdmin }): Promise<IArticle> {
         try {
 
@@ -148,7 +211,11 @@ class ArticleService extends BaseService {
                 match["slug"] = slug;
             }
 
-            return await this.paginate({ query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.ARTICLES });
+            return await this.paginate({
+                query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.ARTICLES, sort: {
+                    _id: -1
+                }
+            });
 
         } catch (error: any) {
             throw error;

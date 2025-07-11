@@ -40,42 +40,44 @@ export default function TableOrderList(
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
 
-            <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
+            <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"} spacing={1}>
 
-                <Typography fontFamily={"Inter"}>Órdenes De Clientes</Typography>
+                <Grid item xs={12} md={5} lg={5} >
+                    <Typography fontFamily={"Inter"}>Órdenes De Clientes</Typography>
+                </Grid>
 
-                <Box display={"flex"} alignItems={"center"}>
+                <Grid container item display={"flex"} alignItems={"center"}  xs={12} md={12} lg={7} spacing={1}>
 
-                    <Box width={"250px"} m={1}>
+                    <Grid item width={"250px"} m={1}>
                         <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                             setFilers((prev: any) => ({ ...prev, fullClient: e.target.value, page: 1 }))
                         }} />
-                    </Box>
+                    </Grid>
 
-                    <Box m={1}>
+                    <Grid item m={1}>
                         <Button variant="outlined" sx={{ ...styles.btnAdd }}
                             startIcon={<FilterIcon filled />}
                         >
                             Filtrar
                         </Button>
-                    </Box>
+                    </Grid>
 
-                    <Box m={1}>
+                    <Grid item m={1}>
                         <Button variant="outlined" sx={{ ...styles.btnAdd }}
                             startIcon={<FilterDateIcon filled />}
                         >
                             Filtrar
                         </Button>
-                    </Box>
+                    </Grid>
 
-                    <Box m={1}>
+                    <Grid item m={1}>
                         <Button variant="outlined" sx={{ ...styles.btnAdd }}
                             endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
                         >
                             Acciones
                         </Button>
-                    </Box>
-                </Box>
+                    </Grid>
+                </Grid>
 
             </Grid>
 
@@ -199,7 +201,7 @@ export default function TableOrderList(
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"} 
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}
                                         >
                                             {baseService.dominicanNumberFormat(row.total.total)}
                                         </Typography>

@@ -1,5 +1,5 @@
 import { BaseService } from "../../../utils/baseService";
-import { IArticleCart, ICartTotals, IOrder, IOrderStatus, IPaginationResult, IPaymentType } from "../../../../../api/src/interfaces";
+import { CancelOrderType, IArticleCart, ICartTotals, IOrder, IOrderStatus, IPaginationResult, IPaymentType } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 import adminAxios from "../../../../../context/adminAxiosInstance";
 
@@ -101,6 +101,19 @@ class OrdersService extends BaseService {
             throw new Error("Por favor agregar una dirección al cliente.")
         }
     }
+
+    async cancelOrder({ orderId, type }: { orderId: number, type: CancelOrderType}): Promise<IOrder> {
+        try {
+            const {data} = await this.axiosAdmin.put(`/admin/private/orders/cancel/${orderId}`, { type });
+            return data.data as IOrder
+        } catch (error: any) {
+        const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al cancelar la orden."
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+
+    }
+
 }
 
 export const ordersService = new OrdersService()

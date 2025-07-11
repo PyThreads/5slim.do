@@ -35,11 +35,11 @@ class UsersService extends BaseService {
         }
     }
 
-    async updateClient({ _id, user,body }: {_id: number, body: IClient, user: IClient | IAdmin }) {
+    async updateClient({ _id, user, body }: { _id: number, body: IClient, user: IClient | IAdmin }) {
         try {
 
             const filter = { _id }
-            await this.updateOne({filter,body,user});
+            await this.updateOne({ filter, body, user });
             return body
         } catch (error: any) {
             throw error;
@@ -54,7 +54,7 @@ class UsersService extends BaseService {
     async getAllClients({ query }: { query: IPaginateClients }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, fullName, active, email,_id } = query;
+            const { page, limit, fullName, active, email, _id } = query;
             const match: Record<string, any> = {};
 
             const aggregate = [
@@ -63,7 +63,7 @@ class UsersService extends BaseService {
                 }
             ];
 
-            if(_id) {
+            if (_id) {
                 match["_id"] = _id
             }
 
@@ -78,7 +78,11 @@ class UsersService extends BaseService {
                 match["email"] = { $regex: email, $options: "i" };
             }
 
-            return await this.paginate({ query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.CLIENTS });
+            return await this.paginate({
+                query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.CLIENTS, sort: {
+                    _id: -1
+                }
+            });
 
         } catch (error: any) {
             throw error;

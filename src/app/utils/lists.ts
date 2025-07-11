@@ -57,8 +57,8 @@ export const categories = [
     },
     {
         _id: 12,
-        description: "Tarjetas de V_ideo",
-        slug: "tarjetas-de-v_ideo"
+        description: "Tarjetas de Video",
+        slug: "tarjetas-de-video"
     },
     {
         _id: 13,

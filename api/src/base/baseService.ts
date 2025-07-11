@@ -1,4 +1,4 @@
-import { Db, Collection, Sort, ReturnDocument } from "mongodb";
+import { Db, Collection, Sort } from "mongodb";
 import { EnvironmentConfig, environmentConfig } from "../config";
 import { COLLNAMES, IAdmin, IClient, IFunctionProps, IPaginationResult, ItypeTempCode, IUser } from "../interfaces";
 import jwt from 'jsonwebtoken';
@@ -100,7 +100,14 @@ class BaseService {
 
             body.updatedDate = this.utils.newDate();
 
-            return await this.collection.updateOne(filter, { $set: body }, { ReturnDocument: returnNew ? ReturnDocument.AFTER : ReturnDocument.BEFORE });
+            return await this.collection.findOneAndUpdate(
+                filter,
+                { $set: body },
+                {
+                  returnDocument: returnNew ? "after" : "before",
+                  upsert: false // opcional
+                }
+              );
 
         } catch (error) {
             throw error;

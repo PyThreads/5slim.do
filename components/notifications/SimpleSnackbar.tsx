@@ -68,7 +68,7 @@ export default function SimpleSnackbar({ type, message, title, open, setOpen, de
             zIndex: 1,
           }}
         >
-          <CloseIcon sx={{ fontSize: "20px", fontWeight: "bold" }} />
+          <CloseIcon sx={{ fontSize: "20px", fontWeight: "bold",color:"black" }} />
         </IconButton>
       </Box>
     </Snackbar>

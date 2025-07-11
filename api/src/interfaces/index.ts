@@ -6,6 +6,11 @@ export interface IPaginateOrders {
     _id?: number
 }
 
+export enum CancelOrderType {
+    CANCEL_ONLY = "Solo cancelar orden",
+    RETURN_ITEMS = "Cancelar y retornar items"
+}
+
 export enum IArticleStatus {
     NEW = "Nuevo",
     USED = "Usado",

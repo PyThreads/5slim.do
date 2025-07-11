@@ -157,9 +157,9 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                         Fotos adicionales
                     </Typography>
 
-                    <Grid container item xs={12} justifyContent={"left"} spacing={2} >
+                    <Grid container item xs={12} justifyContent={"left"} spacing={1} >
 
-                        <Grid item xs={6}>
+                        <Grid item xs={12} sm={12} md={12} lg={6} >
 
                             <input
                                 type="file"
@@ -172,7 +172,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
 
                             />
 
-                            <Box component={"label"} htmlFor="upload-image-main-secondary" width={"100%"} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
+                            <Box component={"label"} htmlFor="upload-image-main-secondary" width={"100%"} sx={{ height: { xs: "145px", sm: "145px", md: "175px" } }} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
                                 <Box textAlign={"center"}>
                                     <Image
                                         alt={"5slim.do. logo"}
@@ -186,7 +186,7 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
 
                                         <UploadImageIcon filled={false} />
 
-                                        <Typography fontFamily={"Inter"} fontSize={"17px"} color={"#5570F1"} fontWeight={"500"} ml={"12px"}>
+                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "12px", sm: "11px", md: "13" } }} color={"#5570F1"} fontWeight={"500"} ml={"12px"}>
                                             Subir Imagen
                                         </Typography>
 
@@ -200,8 +200,8 @@ export function UploadArticlesPictures({ images, setImages }: { images: IArticle
                         {
                             images.filter(image => !image.primary).map((image, index) => {
                                 return (
-                                    <Grid item xs={6} key={index}>
-                                        <Box position={"relative"} width={"100%"} height={220} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
+                                    <Grid item xs={12} sm={12} md={12} lg={6} key={index} >
+                                        <Box position={"relative"} width={"100%"}  sx={{ height: { xs: "145px", sm: "145px", md: "175px" } }} bgcolor={"#F4F5FA"} borderRadius={"12px"} border={"1px"} display={"flex"} justifyContent={"center"} alignItems={"center"} mt={"12px"}>
 
                                             <Box position={"absolute"} top={"17px"} right={"19px"} display={"flex"} zIndex={1}>
                                                 <Box sx={{ cursor: "pointer" }}

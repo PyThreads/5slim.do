@@ -257,12 +257,12 @@ export const CreateArticleForm = () => {
                     <Grid container item xs={12} alignItems={"center"} justifyContent={"space-between"} >
                         <Typography fontFamily={"Inter"} fontSize={"16px"} color={"#45464E"} fontWeight={"bold"}>Variantes del Artículo</Typography>
 
-                        <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px" }}
+                        <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px",color:"black" }}
                             onClick={() => { setOpenModalVariantes(false) }}
                         />
                     </Grid>
 
-                    <Grid xs={12} mt={2}>
+                    <Grid xs={12} mt={2} sx={{width: {xs: 300, md:"100%"}}}>
                         <TableArticleVariants rows={values.variants} onChange={(list: IArticlesVariants[])=>setFieldValue("variants", list)} />
                     </Grid>
 

@@ -100,7 +100,7 @@ export default function TableOrderDetailList(
                                             </Box>
 
 
-                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"} ml={1}>
+                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"} ml={1}>
                                                 {row.description}
                                             </Typography>
                                         </Box>

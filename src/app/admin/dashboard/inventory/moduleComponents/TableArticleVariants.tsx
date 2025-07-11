@@ -145,7 +145,7 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
     };
 
     return (
-        <Box overflow={"auto"} maxHeight={"80vh"} sx={{
+        <Box overflow={"auto"} maxHeight={"70vh"} sx={{
             overflowX: 'auto',
             whiteSpace: 'nowrap',
             scrollbarWidth: 'none',

@@ -17,7 +17,7 @@ const inter = Inter({
     weight: "500"
 })
 
-export default function AdminClientes() {
+export default function Orders() {
     const router = useRouter()
     const [filters, setFilers] = useState<IPaginateOrders>({
         page: 1,

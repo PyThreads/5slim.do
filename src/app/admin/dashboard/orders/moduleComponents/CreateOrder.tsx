@@ -81,7 +81,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     }, [order])
 
     return (
-        <Box height={"90vh"}
+        <Box height={"70vh"}
             sx={{
                 ...style.hideScroll,
                 padding: { xs: "24px 16px", md: "28px 24px" }

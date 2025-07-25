@@ -1,11 +1,26 @@
 import { BaseService } from "../../../utils/baseService";
 import adminAxios from "../../../../../context/adminAxiosInstance";
-import { IArticle, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IArticle, IArticlesSummary, IPaginationResult } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 
 class ArticleService extends BaseService {
     constructor() {
         super()
+    }
+
+    async summaryArticles(): Promise<IArticlesSummary> {
+            try {
+                const { data: { data } }: any = await adminAxios.get("/admin/private/articles/summary")
+                return data as unknown as IArticlesSummary
+            } catch (error: any) {
+                const message = error?.response?.data?.message || "Ha ocurrido un error al obtener el resumen de artículos."
+                eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+                return {
+                    total: 0,
+                    outOfStock: 0,
+                    soldToday: 0
+                }
+            }
     }
 
     async getAllArticles(query: any): Promise<IPaginationResult> {

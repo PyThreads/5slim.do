@@ -1,3 +1,8 @@
+export interface IArticlesSummary {
+    total: number;
+    outOfStock: number;
+    soldToday: number;
+}
 export interface IPaginateOrders {
     page: number
     limit: number
@@ -64,6 +69,16 @@ export interface IArticlesVariants {
     stock: number;
     status: IArticleStatus;
     images: IArticleImages[]
+}
+
+export interface IOrdersSummary {
+    total: number;
+    pending: number;
+    delivered: number;
+    cancelled: number;
+    paid: number;
+    preparingForDelivery: number;
+    earnings: number;
 }
 
 export interface IArticle {

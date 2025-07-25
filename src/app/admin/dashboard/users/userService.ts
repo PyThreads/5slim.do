@@ -8,6 +8,17 @@ class UserService extends BaseService {
         super()
     }
 
+    async getAllClientsSummary(): Promise<number> {
+        try {
+            const { data: { data } }: any = await adminAxios.get("/admin/private/clients/summary")
+            return data as unknown as number
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Ha ocurrido un error al el resumen de los clientes."
+            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            return 0
+        }
+    }
+
     async getAllClients(query: any): Promise<IPaginationResult> {
         try {
             const params = this.transformQuery(query)

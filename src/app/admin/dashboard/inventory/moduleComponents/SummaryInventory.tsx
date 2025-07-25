@@ -1,102 +1,141 @@
 import { Box, Grid, Typography } from "@mui/material";
 import { ArticlesIcons, CustomersIcon } from "../../../../../../components/icons/Svg";
+import { useCallback, useEffect, useState } from "react";
+import { IArticlesSummary } from "../../../../../../api/src/interfaces";
+import React from "react";
+import SplashScreen from "../../../../providers/SplashScreen";
+import { articleService } from "../articleService";
 
 
-export default function SummaryInventory() {
+export default function SummaryInventory({ reload = false }: { reload: boolean }) {
+
+    const [loading, setLoading] = useState(false);
+    const [summary, setSummary] = useState<IArticlesSummary>({
+        total: 0,
+        outOfStock: 0,
+        soldToday: 0
+    });
+
+
+    const getSummary = useCallback(async () => {
+        try {
+            setLoading(true);
+            const summary = await articleService.summaryArticles();
+            setSummary(summary);
+        } finally {
+            setLoading(false);
+        }
+    }, [setSummary, setLoading])
+
+
+    useEffect(() => {
+        getSummary();
+    }, [reload])
+
     return (
-        <Grid container spacing={2}>
+        <React.Fragment>
+            {
+                loading ?
+                    (
+                        <SplashScreen />)
+                    : (
 
-            <Grid container item xs={12} md={6} >
-                <Box borderRadius={"12px"} padding={"11px 15px"} minHeight={"145px"} margin={0} width={"100%"} bgcolor={"#5570F1"} >
-                    <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
+                        <Grid container spacing={2}>
 
-                        <Box bgcolor={"#ffcc9140"} width={50} height={50} borderRadius={"8px"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                            <ArticlesIcons filled={false} strokeBold color="#FFF" />
-                        </Box>
-                    </Grid>
+                            <Grid container item xs={12} md={6} >
+                                <Box borderRadius={"12px"} padding={"11px 15px"} minHeight={"145px"} margin={0} width={"100%"} bgcolor={"#5570F1"} >
+                                    <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
 
-                    <Grid item container spacing={1} mt={"32px"}>
-
-                        <Grid item xs={12} sm={7}>
-                            <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Todos</Typography>
-                                <Box sx={{ cursor: "pointer" }}>
-                                    <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >1,250 </Typography>
+                                        <Box bgcolor={"#ffcc9140"} width={50} height={50} borderRadius={"8px"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                                            <ArticlesIcons filled={false} strokeBold color="#FFF" />
+                                        </Box>
                                     </Grid>
-                                </Box>
-                            </Box>
-                        </Grid>
 
-                        <Grid item xs={12} sm={4}>
-                            <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Activos </Typography>
-                                <Box sx={{ cursor: "pointer" }}>
-                                    <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >1,250 </Typography>
-                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"12px"} fontWeight={500} ml={1} > 86% </Typography>
+                                    <Grid item container spacing={1} mt={"32px"}>
+
+                                        <Grid item xs={12} sm={7}>
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Todos</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={4}>
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Activos</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
+                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"12px"} fontWeight={500} ml={1} >100%</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
                                     </Grid>
+
                                 </Box>
-                            </Box>
-                        </Grid>
-
-                    </Grid>
-
-                </Box>
-            </Grid>
+                            </Grid>
 
 
-            <Grid container item xs={12} md={6} >
-                <Box borderRadius={"12px"} bgcolor={"#FFFFFF"} padding={"11px 15px"} minHeight={"145px"} margin={0} width={"100%"} >
-                    <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
+                            <Grid container item xs={12} md={6} >
+                                <Box borderRadius={"12px"} bgcolor={"#FFFFFF"} padding={"11px 15px"} minHeight={"145px"} margin={0} width={"100%"} >
+                                    <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"}>
 
-                        <Box bgcolor={"#ffcc9140"} width={50} height={50} borderRadius={"8px"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
-                            <CustomersIcon filled={false} strokeBold />
-                        </Box>
+                                        <Box bgcolor={"#ffcc9140"} width={50} height={50} borderRadius={"8px"} display={"flex"} justifyContent={"center"} alignItems={"center"}>
+                                            <CustomersIcon filled={false} strokeBold />
+                                        </Box>
 
-                    </Grid>
-
-                    <Grid item container spacing={1} mt={"32px"}>
-
-                        <Grid item xs={6} sm={4}>
-                            <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={400} >Alerta Stock</Typography>
-                                <Box sx={{ cursor: "pointer" }}>
-                                    <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >30</Typography>
                                     </Grid>
-                                </Box>
-                            </Box>
-                        </Grid>
 
-                        <Grid item xs={6} sm={4}>
-                            <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Agotados</Typography>
-                                <Box sx={{ cursor: "pointer" }}>
-                                    <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >657</Typography>
+                                    <Grid item container spacing={1} mt={"32px"}>
+
+                                        <Grid item xs={6} sm={4}>
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={400} >Alerta Stock</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >0</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={6} sm={4}>
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Agotados</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.outOfStock)}</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
+
+                                        <Grid item xs={6} sm={4}>
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Vendidos hoy</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.soldToday)}</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
                                     </Grid>
+
                                 </Box>
-                            </Box>
+                            </Grid>
                         </Grid>
-
-
-                        <Grid item xs={6} sm={4}>
-                            <Box padding={0} margin={0}>
-                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Vendidos hoy</Typography>
-                                <Box sx={{ cursor: "pointer" }}>
-                                    <Grid item container alignItems={"center"} >
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >5</Typography>
-                                    </Grid>
-                                </Box>
-                            </Box>
-                        </Grid>
-
-                    </Grid>
-
-                </Box>
-            </Grid>
-        </Grid>
+                    )
+            }
+        </React.Fragment>
     )
 }
 

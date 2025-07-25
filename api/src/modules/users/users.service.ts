@@ -11,6 +11,15 @@ class UsersService extends BaseService {
         new UserIndex({ mongoDatabase, tableName: COLLNAMES.CLIENTS });
     }
 
+
+    async getAllClientsSummary(): Promise<number> {
+        try {
+            const totalClients = await this.collection.countDocuments({});
+            return totalClients;
+        } catch (error: any) {
+            throw error;
+        }
+    }
     /**
      * Registra un nuevo usuario.
      * @param {IClient} userToRegister - El usuario que se va a registrar.

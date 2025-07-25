@@ -176,7 +176,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                             <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#53545C"} fontWeight={400} mb={"8px"}>Fecha De La Orden</Typography>
                             <CustomField name="discount.endDate" fullWidth type="datetime-local" noValidate size="small"
                                 value={
-                                    baseService.dateToDateimeLocal(order?.createdDate || "")
+                                    baseService.dateToDateTimeLocal(order?.createdDate || "")
                                 }
                                 onChange={(e: any) => {
                                     const date = baseService.newDate(e.target.value);

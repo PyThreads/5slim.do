@@ -153,7 +153,7 @@ export const CreateArticleForm = () => {
                                                 <Grid item xs={12}>
                                                     <CustomField name="discount.endDate" placeholder="Precio de Venta" fullWidth type="datetime-local"
                                                         value={
-                                                            baseService.dateToDateimeLocal(values?.discount?.endDate || "")
+                                                            baseService.dateToDateTimeLocal(values?.discount?.endDate || "")
                                                         }
                                                         onChange={(e: any) => {
                                                             const date = baseService.newDate(e.target.value);

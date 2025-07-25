@@ -23,16 +23,15 @@ export default function Orders() {
         page: 1,
         limit: 10
     })
-
+    const [reloadSummary, setReloadSummary] = useState(false);
     const [openModal, setOpenModal] = useState(false);
-
-
     const [result, setResult] = useState<IPaginationResult>()
 
     const getAllOrders = useCallback(async () => {
         const result = await ordersService.getAllOrders(filters)
-        setResult(result)
-    }, [setResult, filters])
+        setResult(result);
+        setReloadSummary(prev => !prev);
+    }, [setResult, filters,setReloadSummary])
 
     useEffect(() => {
         getAllOrders()
@@ -55,7 +54,7 @@ export default function Orders() {
             </Grid>
 
             <Box mt={"23px"}>
-                <SummaryOrders />
+                <SummaryOrders reloadSummary={reloadSummary} />
             </Box>
 
 

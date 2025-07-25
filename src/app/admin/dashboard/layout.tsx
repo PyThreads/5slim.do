@@ -122,7 +122,7 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
         open={mobileOpen}
         onClose={() => setMobileOpen(false)}
         ModalProps={{ keepMounted: true }}
-        sx={{ display: { xs: 'block', sm: 'none' } }}
+        sx={{ display: { xs: 'block', sm: 'block', md: 'block' } }}
       >
         <List>
           {items.map((item, index) => {

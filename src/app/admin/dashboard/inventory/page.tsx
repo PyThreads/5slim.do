@@ -25,11 +25,13 @@ export default function AdminClientes() {
         limit: 10,
     })
     const [result, setResult] = useState<IPaginationResult>()
+    const [reloadSummary, setReloadSummary] = useState(false)
 
     const getAllArticles = useCallback(async () => {
         const result = await articleService.getAllArticles(filters)
-        setResult(result)
-    }, [setResult, filters])
+        setResult(result);
+        setReloadSummary(prev => !prev);
+    }, [setResult, filters,setReloadSummary])
 
     useEffect(() => {
         getAllArticles()
@@ -52,7 +54,7 @@ export default function AdminClientes() {
             </Grid>
 
             <Box mt={"23px"}>
-                <SummaryInventory />
+                <SummaryInventory reload={reloadSummary} />
             </Box>
 
             <Box mt={"23px"} pb={10}>

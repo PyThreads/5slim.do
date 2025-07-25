@@ -14,10 +14,12 @@ class Utils {
 
     public readonly environmentConfig: EnvironmentConfig;
     public readonly uploadFiles: any
+    public readonly dayjs: typeof dayjs
 
     constructor() {
         this.environmentConfig = environmentConfig
         this.uploadFiles = multer({ storage }).any(); // para un solo archivo
+        this.dayjs = dayjs
     }
 
 

@@ -10,24 +10,48 @@ dayjs.extend(timezone);
 
 export class BaseService {
 
-    axiosAdmin : typeof axiosInstance
-    
+    axiosAdmin: typeof axiosInstance
+    dayjs: typeof dayjs
     constructor() {
         this.axiosAdmin = axiosInstance
+        this.dayjs = dayjs
+    }
+
+   
+    decimalNumber = (number: number): string => {
+        return number.toLocaleString('en-US', {
+            minimumFractionDigits: 0,
+            maximumFractionDigits: 0
+        });
     }
 
     transformQuery = (object: any) => {
-
         let str = '';
 
         Object.keys(object).forEach((key) => {
-            if (object[key] !== undefined && object[key] !== null && (Number.isInteger(object[key]) || object[key].length > 0)) {
-                str = str + `${str.length === 0 ? '?' : '&'}${key}=${object[key]}`
+            const value = object[key];
+
+            // Verifica que no sea null o undefined
+            if (value !== undefined && value !== null) {
+                // Si es un objeto Date, lo convierte a ISO string
+                if (value instanceof Date) {
+                    str += `${str.length === 0 ? '?' : '&'}${key}=${value}`;
+                }
+                // Si es un número o string no vacío
+                else if (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) {
+                    str += `${str.length === 0 ? '?' : '&'}${key}=${encodeURIComponent(value)}`;
+                }
+                // Si es un array no vacío
+                else if (Array.isArray(value) && value.length > 0) {
+                    value.forEach(v => {
+                        str += `${str.length === 0 ? '?' : '&'}${key}=${encodeURIComponent(v)}`;
+                    });
+                }
             }
         });
 
-        return str
-    }
+        return str;
+    };
 
     newDate(date?: Date | string): Date {
         const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
@@ -36,9 +60,19 @@ export class BaseService {
             : dayjs().tz(tz).toDate();
     }
 
-    dateToDateimeLocal(date: Date | string | undefined | null): string {
+    dateToDateTimeLocal(date: Date | string | undefined | null): string {
         const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
         return dayjs(date).tz(tz).format("YYYY-MM-DDTHH:mm")
+    }
+
+    dateToLocal(date: Date | string | undefined | null): string {
+        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+        return dayjs(date).tz(tz).format("YYYY-MM-DD")
+    }
+
+    localTimeToDate(date: Date | string | undefined | null): Date {
+        const tz = process.env.NEXT_PUBLIC_TIME_ZONE || "UTC";
+        return dayjs(date).tz(tz).toDate()
     }
 
     /**

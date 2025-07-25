@@ -175,6 +175,13 @@ const validation = (req: Request, res: Response, next: NextFunction) => {
     });
 };
 
+const summaryOrders = ()=>{
+    return [
+        query("from").isString().withMessage("Debe ingresar la fecha incial."),
+        query("to").isString().withMessage("Debe ingresar la fecha final."),
+        validation
+    ]
+}
 
 export const adminRoutesValidations = {
     validateLogin,
@@ -187,6 +194,6 @@ export const adminRoutesValidations = {
     getAllArticles,
     creatOrderValidation,
     paginatOrdersValidation,
-    printOrder
-    
+    printOrder,
+    summaryOrders
 }

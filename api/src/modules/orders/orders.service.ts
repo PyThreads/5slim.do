@@ -1,4 +1,4 @@
-import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IPaginateOrders, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IOrdersSummary, IPaginateOrders, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
@@ -14,6 +14,128 @@ export class OrderService extends BaseService {
         super({ mongoDatabase, tableName: COLLNAMES.ORDER });
         new OrdersIndex({ mongoDatabase, tableName: COLLNAMES.ORDER });
         this.articleService = new ArticleService({ mongoDatabase });
+    }
+
+
+    async ordersSummary(params: { from: Date, to: Date }): Promise<IOrdersSummary> {
+        try {
+
+            const filter = {
+                createdDate: {
+                    $gte: this.utils.dayjs(params.from).startOf("day").toDate(),
+                    $lte: this.utils.dayjs(params.to).endOf("day").toDate()
+                }
+            }
+
+            const pipeline = [
+                {
+                    $facet: {
+
+                        total: [
+                            {
+                                $match: filter
+                            },
+                            {
+                                $group: {
+                                    _id: "$status",
+                                    count: { $sum: 1 },
+                                    total: { $sum: "$total" }
+                                }
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    status: "$_id",
+                                    count: 1,
+                                    total: 1
+                                }
+                            }
+                        ],
+                        totalOrders: [
+                            {
+                                $match: filter
+                            },
+                            {
+                                $group: {
+                                    _id: "_id",
+                                    total: { $sum: 1 }
+                                }
+                            },
+                            {
+                                $project: {
+                                    total: 1
+                                }
+                            }
+                        ],
+                        earnings: [
+                            {
+                                $match: {
+
+                                }
+                            },
+                            {
+                                $match: {
+                                    status: { $ne: IOrderStatus.CANCELLED },
+                                    ...filter
+                                }
+                            },
+                            {
+                                $unwind: "$articles"
+                            },
+                            {
+                                $addFields: {
+                                    gain: {
+                                        $multiply: [
+                                            {
+                                                $subtract: [
+                                                    "$articles.variant.sellingPrice",
+                                                    "$articles.variant.costPrice"
+                                                ]
+                                            },
+                                            "$articles.variant.stock"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalEarnings: { $sum: "$gain" }
+                                }
+                            }
+                        ]
+                    }
+                }
+            ]
+
+            let baseResult: IOrdersSummary = {
+                total: 0,
+                pending: 0,
+                delivered: 0,
+                cancelled: 0,
+                paid: 0,
+                preparingForDelivery: 0,
+                earnings: 0
+            }
+
+            const result: any = await this.collection.aggregate(pipeline).toArray();
+
+            if (result.length > 0) {
+                const resulted = result[0];
+                baseResult.total = resulted.totalOrders.length > 0 ? resulted.totalOrders[0].total : 0;
+                baseResult.pending = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PENDING)?.count || 0 : 0;
+                baseResult.cancelled = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.CANCELLED)?.count || 0 : 0;
+                baseResult.delivered = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.DELIVERED)?.count || 0 : 0;
+                baseResult.preparingForDelivery = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PREPARING_FOR_DELIVERY)?.count || 0 : 0;
+                baseResult.paid = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PAID)?.count || 0 : 0;
+                baseResult.earnings = resulted.earnings.length > 0 ? resulted.earnings[0]?.totalEarnings || 0 : 0
+            }
+
+            return baseResult;
+
+        } catch (error: any) {
+            throw error
+        }
     }
 
 
@@ -101,9 +223,9 @@ export class OrderService extends BaseService {
                 limit: query.limit ? query.limit : 10,
                 collection: COLLNAMES.ORDER,
                 sort: {
-                    _id: -1
+                    createdDate: -1
                 }
-            }) 
+            })
 
 
             return result

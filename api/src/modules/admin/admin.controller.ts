@@ -21,6 +21,67 @@ class Admin {
         this.orderService = new OrderService({ mongoDatabase });
     }
 
+
+    async articlesSummary (req: Request, res: Response) {
+        try {
+
+            const result = await this.articleService.articlesSummary();
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Resumen obtenido de forma exitosa."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al obtener el resumen de los articulos."
+            })
+        }
+    }
+    async ordersSummary(req: Request, res: Response) {
+        try {
+
+            const query = req.query as unknown as {from: Date, to: Date}
+
+            const result = await this.orderService.ordersSummary(query);
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Resumen obtenido de forma exitosa."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al obtener el resumen de las ordenes."
+            })
+        }
+    }
+    async getAllClientsSummary (req: Request, res: Response) {
+        try {
+
+            const result = await this.userService.getAllClientsSummary();
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Resumen obtenido de forma exitosa."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al obtener el resument de los clientes."
+            })
+        }
+    }
+
     async cancelOrder(req: Request, res: Response) {
         try {
             const { type }: { type: CancelOrderType } = req.body

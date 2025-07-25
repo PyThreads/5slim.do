@@ -1,4 +1,4 @@
-import { COLLNAMES, IAdmin, IArticle, IArticleCart, IClient, IPaginateArticles, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, IAdmin, IArticle, IArticleCart, IArticlesSummary, IClient, IOrderStatus, IPaginateArticles, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { ArticlesIndex } from "./articlesIndex";
@@ -9,6 +9,82 @@ class ArticleService extends BaseService {
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: COLLNAMES.ARTICLES });
         new ArticlesIndex({ mongoDatabase, tableName: COLLNAMES.ARTICLES });
+    }
+
+
+    async articlesSummary(): Promise<IArticlesSummary> {
+
+        try {
+
+            const pipeline = [
+                {
+                    $facet: {
+                        total: [
+                            {
+                                $count: "total"
+                            }
+                        ],
+                        outOfStock: [
+                            {
+                                $match: {
+                                    $or: [
+                                        { variants: { $exists: false } },
+                                        { variants: { $size: 0 } },
+                                        {
+                                            variants: {
+                                                $not: { $elemMatch: { stock: { $gt: 0 } } }
+                                            }
+                                        }
+                                    ]
+                                }
+                            },
+                            { $count: "count" }
+                        ]
+                    }
+                }
+            ]
+
+            const resultUpdated: IArticlesSummary = {
+                total: 0,
+                outOfStock: 0,
+                soldToday: 0
+            }
+
+            const soldToday = await this.mongoDatabase.collection(COLLNAMES.ORDER).aggregate([
+                {
+                    $match: {
+                        createdDate: {
+                            $gte: this.utils.dayjs().startOf("day").toDate(),
+                            $lt: this.utils.dayjs().endOf("day").toDate()
+                        },
+                        status: {$ne: IOrderStatus.CANCELLED}
+                    }
+                },
+                { $unwind: "$articles" },
+                {
+                    $group: {
+                        _id: "$articles._id"
+                    }
+                }
+            ]).toArray();
+
+            if (soldToday.length > 0) {
+                resultUpdated.soldToday = soldToday.length;
+            }
+
+            const result = await this.collection.aggregate(pipeline).toArray();
+
+            if (result.length > 0) {
+                resultUpdated.total = result[0]?.total.length > 0 ? result[0].total[0]?.total || 0 : result[0].total;
+                resultUpdated.outOfStock = result[0]?.outOfStock.length > 0 ? result[0].outOfStock[0]?.count || 0 : result[0].outOfStock;
+            }
+
+            return resultUpdated
+
+        } catch (error) {
+            throw error
+        }
+
     }
 
 

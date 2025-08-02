@@ -79,7 +79,6 @@ export default function Orders() {
             >
                 <CreateOrder setOpenModal={() => {
                     setOpenModal(false);
-                    getAllOrders();
                 }
                 } />
             </CustomModal>

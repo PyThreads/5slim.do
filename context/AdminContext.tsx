@@ -82,7 +82,8 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
 
   const value: any = {
     currentAdmin,
-    setNotify
+    setNotify,
+    signOut
   };
 
   return (

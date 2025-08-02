@@ -28,7 +28,7 @@ class UsersService extends BaseService {
     async register({ body, user }: { body: IClient, user: IClient | IAdmin }): Promise<IClient> {
         try {
 
-            const exists = await this.collection.countDocuments({ email: body.email });
+            const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i"} });
 
             body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
 

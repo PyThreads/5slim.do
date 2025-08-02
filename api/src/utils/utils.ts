@@ -22,12 +22,32 @@ class Utils {
         this.dayjs = dayjs
     }
 
+    getDayBound(type: 'startDay' | 'endDay', date: Date | string): Date {
+
+        if (!date) {
+            date = new Date();
+        }
+
+        const tz = environmentConfig.timeZone;
+
+        const base = dayjs.utc(date).tz(tz);
+
+        if (type === 'startDay') {
+            return base.startOf('day').toDate();
+        }
+
+        if (type === 'endDay') {
+            return base.endOf('day').toDate();
+        }
+
+        throw new Error("Invalid type passed. Use 'start' or 'end'.");
+    }
 
     formatAmPmLetters(date: Date): string {
         const tz = environmentConfig.timeZone;
 
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
-        return dayjs(date)
+        return dayjs.utc(date)
             .tz(tz)
             .format("DD MMM YYYY - hh:mm a");
     }
@@ -35,7 +55,7 @@ class Utils {
         const tz = environmentConfig.timeZone;
 
         // Usamos dayjs directamente para formatear en la zona horaria adecuada
-        return dayjs(date)
+        return dayjs.utc(date)
             .tz(tz)
             .format("DD MMM YYYY");
     }
@@ -75,7 +95,7 @@ class Utils {
     }
 
     newDate(date?: Date | string): Date {
-        return date ? dayjs(date).tz(this.environmentConfig.timeZone).toDate() : dayjs().tz(this.environmentConfig.timeZone).toDate();
+        return date ? dayjs.utc(date).tz(this.environmentConfig.timeZone).toDate() : dayjs.utc().tz(this.environmentConfig.timeZone).toDate();
     }
 }
 

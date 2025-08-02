@@ -2,7 +2,7 @@
 import * as React from 'react';
 import Box from '@mui/material/Box';
 import { Poppins, Inter } from 'next/font/google';
-import { Container, Typography, IconButton, Drawer, List, ListItem, ListItemIcon, ListItemText } from '@mui/material';
+import { Container, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, Popover } from '@mui/material';
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from "next/image";
@@ -11,6 +11,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
 import Link from 'next/link';
 import { IAdmin } from '../../../../api/src/interfaces';
+import LogoutIcon from '@mui/icons-material/Logout';
 
 const poppins = Poppins({ subsets: ['latin'], display: 'swap', weight: "400" });
 const inter = Inter({ subsets: ['latin'], display: 'swap', weight: "500" });
@@ -75,8 +76,9 @@ export default function ProtectedAdminDashboard({ children }: Readonly<{ childre
 
 function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
   const pathName = usePathname();
-  const { currentAdmin } = useAdminAuth() as { currentAdmin: IAdmin | null };
+  const { currentAdmin,signOut } = useAdminAuth() as { currentAdmin: IAdmin | null, signOut: () => void };
   const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [hideMenuNames, setHideMenuNames] = React.useState(false);
   const router = useRouter();
 
@@ -148,9 +150,11 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
             </Box>
 
             <Box sx={{ ...style.boxRightUser, width: { xs: "100px", md: "auto" } }}>
-              <Box sx={{ ...style.boxRight, ml: { xs: 6, md: 0 }, mr: 1 }}>
+              <Box sx={{ ...style.boxRight, ml: { xs: 6, md: 0 }, mr: 1 }}
+                onClick={(e: any) => setAnchorEl(e.currentTarget)}
+              >
                 <Typography variant='h2' sx={{ ...style.tyUser, fontSize: { xs: 10, md: 14 } }}>{currentAdmin?.fullName}</Typography>
-                <KeyboardArrowDownIcon />
+                <KeyboardArrowDownIcon sx={{ color: "#000" }} />
               </Box>
               <Box ml={0} mr={1}>
                 <Notification filled={true} />
@@ -179,6 +183,49 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
 
         <Box sx={style.mainLayoutContainer}>{children}</Box>
       </Box>
+
+      <Popover
+        id={Boolean(anchorEl) ? 'simple-popover' : undefined}
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        disableScrollLock
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        disableAutoFocus
+        disableEnforceFocus
+        PaperProps={{
+          sx: {
+            width: anchorEl && (anchorEl?.clientWidth || 0),
+            display: anchorEl ? "block" : "none",
+
+          }
+        }}
+      >
+        <Box p={1} sx={{ paddingLeft: 2, paddingRight: 2 }} width={"100%"}>
+
+          <Typography variant="h6" gutterBottom component="div" fontFamily={"Inter"} color={"#767989"} fontWeight={500}
+            display={"flex"} justifyContent={"space-between"} alignItems={"center"}
+            sx={{ cursor: "pointer",fontSize: { xs: 10, sm: 10, md: 13 } }}
+            onClick={() => {
+              signOut();
+            }}
+          >
+            Cerrar session
+
+            <LogoutIcon sx={{fontSize: { xs: 12, sm: 12, md: 15} }} />
+          </Typography>
+
+
+        </Box>
+      </Popover>
+
     </Box>
   );
 }

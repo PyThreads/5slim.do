@@ -15,6 +15,7 @@ import CustomModal from "../../../../../../components/modals/CustomModal";
 import Image from "next/image";
 import { eventBus } from "../../../../utils/broadcaster";
 import React from "react";
+import { useRouter } from 'next/navigation';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -25,7 +26,7 @@ const inter = Inter({
 export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }) {
 
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
-
+    const router = useRouter()
     const [filtersArticle, setFilersArticles] = useState<string>("")
     const [filtersClient, setFiltersClient] = useState<string>("")
     const [result, setResult] = useState<IPaginationResult>()
@@ -63,13 +64,13 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
         try {
             setLoading(true);
             ordersService.validateNewOrder(order as IOrder)
-            await ordersService.createOrder(order as IOrder);
+            const result = await ordersService.createOrder(order as IOrder);
             setOrder({
                 total: { total: 0, discount: 0, subTotal: 0 },
                 status: IOrderStatus.PENDING,
                 articles: []
             })
-            setOpenModal(false);
+            router.push(`/admin/dashboard/orders/${result._id}`);
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al crear la orden."
             eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })

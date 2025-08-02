@@ -22,8 +22,8 @@ export class OrderService extends BaseService {
 
             const filter = {
                 createdDate: {
-                    $gte: this.utils.dayjs(params.from).startOf("day").toDate(),
-                    $lte: this.utils.dayjs(params.to).endOf("day").toDate()
+                    $gte: this.utils.getDayBound("startDay", params.from),
+                    $lte: this.utils.getDayBound("endDay", params.to)
                 }
             }
 
@@ -56,10 +56,7 @@ export class OrderService extends BaseService {
                                 $match: filter
                             },
                             {
-                                $group: {
-                                    _id: "_id",
-                                    total: { $sum: 1 }
-                                }
+                                $count : "total"
                             },
                             {
                                 $project: {
@@ -68,11 +65,6 @@ export class OrderService extends BaseService {
                             }
                         ],
                         earnings: [
-                            {
-                                $match: {
-
-                                }
-                            },
                             {
                                 $match: {
                                     status: { $ne: IOrderStatus.CANCELLED },
@@ -172,8 +164,8 @@ export class OrderService extends BaseService {
 
             body.total = this.getTotalOrder(body.articles);
 
-            await this.insertOne({ body, user });
-            return body;
+            const result  = await this.insertOne({ body, user });
+            return result as unknown as IOrder;
 
         } catch (error: any) {
             throw error;

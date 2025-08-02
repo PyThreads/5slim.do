@@ -74,61 +74,63 @@ class OrdersService extends BaseService {
         }
 
     async getOrderDetails(query: any): Promise < IOrder | null > {
-            try {
-                const params = this.transformQuery(query)
+        try {
+            
+            const params = this.transformQuery(query)
             const { data: { data } }: { data: { data: IPaginationResult } } = await adminAxios.get("/admin/private/orders" + params)
-        return data.list[0] as unknown as IOrder
+            return data.list[0] as unknown as IOrder
 
-    } catch(error: any) {
-        const message = error?.response?.data?.message || "Ha ocurrido un error al obtener los detalles de la orden."
-        eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
-        return null
-    }
-}
-
-getTotalOrder(articles: IArticleCart[]): ICartTotals {
-    let total = 0;
-    let discount = 0;
-    let subTotal = 0;
-
-    for (const article of articles) {
-        total += article.variant.sellingPrice * article.variant.stock;
-        subTotal += article.variant.sellingPrice * article.variant.stock;
+        } catch(error: any) {
+            const message = error?.response?.data?.message || "Ha ocurrido un error al obtener los detalles de la orden."
+            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            return null
+        }
     }
 
-    return { total, discount, subTotal }
-}
+    getTotalOrder(articles: IArticleCart[]): ICartTotals {
+        let total = 0;
+        let discount = 0;
+        let subTotal = 0;
 
-    async createOrder(order: IOrder) {
-    try {
+        for (const article of articles) {
+            total += article.variant.sellingPrice * article.variant.stock;
+            subTotal += article.variant.sellingPrice * article.variant.stock;
+        }
 
-        this.validateNewOrder(order);
-        await this.axiosAdmin.post("/admin/private/orders/create", order);
-        eventBus.emit("notify", { message: "Orden creado de forma exitosa.", open: true, type: "success", title: "Guardado!" })
-    } catch (error: any) {
-        const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al crear la orden."
-        eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
-        throw error
-    }
-}
-
-validateNewOrder(order: IOrder) {
-    if (!order.client || !order.client._id) {
-        throw new Error("La orden debe tener un cliente.")
+        return { total, discount, subTotal }
     }
 
-    if (!order.paymentType) {
-        throw new Error("La orden debe tener un tipo de pago.")
+    async createOrder(order: IOrder): Promise < IOrder > {
+        try {
+
+            this.validateNewOrder(order);
+            const {data} = await this.axiosAdmin.post("/admin/private/orders/create", order);
+            eventBus.emit("notify", { message: "Orden creada de forma exitosa.", open: true, type: "success", title: "Guardado!" })
+            return data.data as unknown as IOrder
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al crear la orden."
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
     }
 
-    if (!order.articles || order?.articles?.length === 0) {
-        throw new Error("La orden debe tener al menos un artículo.")
-    }
+    validateNewOrder(order: IOrder) {
+        if (!order.client || !order.client._id) {
+            throw new Error("La orden debe tener un cliente.")
+        }
 
-    if (!order?.client?.address) {
-        throw new Error("Por favor agregar una dirección al cliente.")
+        if (!order.paymentType) {
+            throw new Error("La orden debe tener un tipo de pago.")
+        }
+
+        if (!order.articles || order?.articles?.length === 0) {
+            throw new Error("La orden debe tener al menos un artículo.")
+        }
+
+        if (!order?.client?.address) {
+            throw new Error("Por favor agregar una dirección al cliente.")
+        }
     }
-}
 
     async cancelOrder({ orderId, type }: { orderId: number, type: CancelOrderType }): Promise < IOrder > {
     try {

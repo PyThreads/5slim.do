@@ -112,7 +112,7 @@ const clientRegister = () => {
         body('firstName').notEmpty().withMessage('El nombre es requerido.').isString().withMessage('El nombre debe ser texto.').trim(),
         body('lastName').notEmpty().withMessage('El apellido es requerido.').isString().withMessage('El apellido debe ser texto.').trim(),
         body('fullName').optional().isString().withMessage('El nombre completo debe ser texto.').trim(),
-        body('email').notEmpty().withMessage('El correo es requerido.').isEmail().withMessage('Debe ser un correo válido.').trim(),
+        body('email').notEmpty().withMessage('El correo es requerido.').isEmail().withMessage('Debe ser un correo válido.').trim().toLowerCase(),
         body('addresses.*.type').notEmpty().withMessage('El tipo de domicilio es requerido.').isString().trim(),
         body('addresses.*.name').optional().isString().trim(),
         body('addresses.*.address').notEmpty().withMessage('La dirección es requerida.').isString().trim(),

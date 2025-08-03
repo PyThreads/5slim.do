@@ -178,6 +178,17 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
 
                                         <Grid item container spacing={1} mt={"32px"}>
 
+                                             <Grid item xs={6} >
+                                                <Box padding={0} margin={0}>
+                                                    <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={500} >Ventas</Typography>
+                                                    <Box sx={{ cursor: "pointer" }}>
+                                                        <Grid item container alignItems={"center"} >
+                                                             <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >{ordersService.dominicanNumberFormat(orderSummary.totalSold)}</Typography>
+                                                        </Grid>
+                                                    </Box>
+                                                </Box>
+                                            </Grid>
+
                                             <Grid item xs={6}>
                                                 <Box padding={0} margin={0}>
                                                     <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={400} >Ganancias</Typography>
@@ -188,18 +199,6 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                                     </Box>
                                                 </Box>
                                             </Grid>
-
-                                            {/* <Grid item xs={6} >
-                                                <Box padding={0} margin={0}>
-                                                    <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={500} >Agotados</Typography>
-                                                    <Box sx={{ cursor: "pointer" }}>
-                                                        <Grid item container alignItems={"center"} >
-                                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >0</Typography>
-                                                        </Grid>
-                                                    </Box>
-                                                </Box>
-                                            </Grid> */}
-
 
                                         </Grid>
 

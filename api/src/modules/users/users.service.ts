@@ -28,7 +28,7 @@ class UsersService extends BaseService {
     async register({ body, user }: { body: IClient, user: IClient | IAdmin }): Promise<IClient> {
         try {
 
-            const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i"} });
+            const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i" } });
 
             body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
 
@@ -69,6 +69,48 @@ class UsersService extends BaseService {
             const aggregate = [
                 {
                     $match: match
+                },
+                {
+                    $lookup: {
+                        from: "0RDER",
+                        let: { clientId: "$_id" },
+                        pipeline: [
+                            {
+                                $match: {
+                                    $expr: { $eq: ["$client._id", "$$clientId"] }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalOrdenes: { $sum: 1 },
+                                    totalGastado: { $sum: "$total.total" }
+                                }
+                            }
+                        ],
+                        as: "ordenes"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$ordenes",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1,
+                        firstName: 1,
+                        lastName: 1,
+                        fullName: 1,
+                        email: 1,
+                        addresses: 1,
+                        fullClient: 1,
+                        createdDate: 1,
+                        createdBy: 1,
+                        totalOrdenes: {$ifNull :["$ordenes.totalOrdenes", 0]},
+                        totalGastado: {$ifNull :["$ordenes.totalGastado", 0]}
+                    }
                 }
             ];
 

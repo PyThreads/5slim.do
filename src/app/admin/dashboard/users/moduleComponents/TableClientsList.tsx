@@ -2,7 +2,7 @@ import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody,
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
-import { IClient } from "../../../../../../api/src/interfaces";
+import { IPaginatedClient } from "../../../../../../api/src/interfaces";
 import { userService } from "../userService";
 import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
@@ -25,7 +25,7 @@ export default function TableClientsList(
     }
         :
         {
-            rows: IClient[],
+            rows: IPaginatedClient[],
             currentPage: number,
             limit: number
             totalItems: number,
@@ -131,7 +131,7 @@ export default function TableClientsList(
 
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} textAlign={"center"} color={"#2C2D33"} mr={1}>
                                             Ordenes
                                         </Typography>
                                         <SortTableIcon filled />
@@ -170,7 +170,7 @@ export default function TableClientsList(
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
-                            {rows.map((row: IClient) => (
+                            {rows.map((row: IPaginatedClient) => (
                                 <TableRow
                                     onDoubleClick={async () => {
                                         const userFullDetails = await userService.getClientDetails({ _id: row._id });
@@ -210,14 +210,14 @@ export default function TableClientsList(
                                             {row.addresses[0]?.phone || "N/A"}
                                         </Typography>
                                     </TableCell>
-                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                    <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {0}
+                                            {row.totalOrdenes}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {0}
+                                            {userService.dominicanNumberFormat(row.totalGastado)}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>

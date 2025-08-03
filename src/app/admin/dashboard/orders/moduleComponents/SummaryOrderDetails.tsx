@@ -7,7 +7,7 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
     return (
         <Grid container spacing={2}>
 
-            <Grid container item xs={12} sm={9} md={9} spacing={2}>
+            <Grid container item xs={12} sm={12} md={12} lg={9} spacing={2}>
 
                 <Grid item xs={12} sm={6}>
                     <Grid borderRadius={"12px"} padding={"11px 15px"} minHeight={"170px"} margin={0} width={"100%"} bgcolor={"#FFF"} >
@@ -104,7 +104,7 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
                 </Grid>
             </Grid>
 
-            <Grid container item xs={12} sm={3} md={3} spacing={2}>
+            <Grid container item xs={12} sm={6} md={12} lg={3} spacing={2}>
                 <Grid item xs={12}>
                     <Box borderRadius={"12px"} padding={"11px 15px"} minHeight={"170px"} margin={0} width={"100%"} bgcolor={"#FFF"} >
 

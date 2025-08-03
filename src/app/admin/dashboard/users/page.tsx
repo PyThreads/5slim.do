@@ -8,7 +8,7 @@ import TableClientsList from "./moduleComponents/TableClientsList";
 import CustomModal from "../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import CreateClientForm from "./moduleComponents/forms/createClientForm";
-import { IClient, IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IClient, IPaginateClients, IPaginatedClient, IPaginationResult } from "../../../../../api/src/interfaces";
 import { userService } from "./userService";
 
 const inter = Inter({
@@ -19,7 +19,7 @@ const inter = Inter({
 
 export default function AdminClientes() {
     const [open, setOpen] = React.useState(false);
-    const [selectedClient, setSelectedClient] = useState<IClient | null>(null)
+    const [selectedClient, setSelectedClient] = useState<IPaginatedClient | null>(null)
     const [filters, setFilers] = useState<IPaginateClients>({
         page: 1,
         limit: 10,
@@ -56,7 +56,7 @@ export default function AdminClientes() {
 
             <Box mt={"23px"} pb={10}>
                 <TableClientsList
-                    onDoubleClickRow={(client: IClient) => {
+                    onDoubleClickRow={(client: IPaginatedClient) => {
                         setSelectedClient(client)
                         setOpen(true)
                     }}

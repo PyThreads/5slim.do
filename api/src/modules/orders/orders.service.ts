@@ -95,6 +95,26 @@ export class OrderService extends BaseService {
                                     totalEarnings: { $sum: "$gain" }
                                 }
                             }
+                        ],
+                        totalSold: [
+                            {
+                                $match: {
+                                    ...filter,
+                                    status: { $ne: IOrderStatus.CANCELLED }
+                                }
+                            },
+                            {
+                                $group: {
+                                    _id: null,
+                                    totalSold: { $sum: "$total.total" }
+                                }
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    totalSold: 1
+                                }
+                            }
                         ]
                     }
                 }
@@ -107,7 +127,8 @@ export class OrderService extends BaseService {
                 cancelled: 0,
                 paid: 0,
                 preparingForDelivery: 0,
-                earnings: 0
+                earnings: 0,
+                totalSold: 0
             }
 
             const result: any = await this.collection.aggregate(pipeline).toArray();
@@ -121,6 +142,7 @@ export class OrderService extends BaseService {
                 baseResult.preparingForDelivery = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PREPARING_FOR_DELIVERY)?.count || 0 : 0;
                 baseResult.paid = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PAID)?.count || 0 : 0;
                 baseResult.earnings = resulted.earnings.length > 0 ? resulted.earnings[0]?.totalEarnings || 0 : 0
+                baseResult.totalSold = resulted.totalSold.length > 0 ? resulted.totalSold[0]?.totalSold || 0 : 0
             }
 
             return baseResult;

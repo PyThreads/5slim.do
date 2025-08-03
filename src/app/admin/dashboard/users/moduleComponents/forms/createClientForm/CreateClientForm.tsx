@@ -139,7 +139,7 @@ export const CreateArticleForm = ({ onClose }: { onClose: Function }) => {
 
                         <Button
                             variant="contained"
-                            type="submit"
+                            type="button"
                             fullWidth
                             sx={{ ...style.saveButton, ...style.cancelButton }}
                             onClick={() => {

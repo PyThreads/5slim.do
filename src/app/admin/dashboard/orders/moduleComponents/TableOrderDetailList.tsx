@@ -91,7 +91,7 @@ export default function TableOrderDetailList(
                                         <Box display={"flex"} alignItems={"center"}>
                                             <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
                                                 <Image
-                                                    src={row.variant.images.find(item => item.primary)?.url! || "/Image.svg"}
+                                                    src={row.variant.images.find(item => item.primary)?.url! || row.images.find(item => item.primary)?.url!}
                                                     fill
                                                     alt="Image articles list"
                                                     objectFit="contain"

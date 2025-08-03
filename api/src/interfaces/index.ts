@@ -68,7 +68,10 @@ export interface IArticlesVariants {
     sellingPrice: number;
     stock: number;
     status: IArticleStatus;
-    images: IArticleImages[]
+    images: IArticleImages[];
+    source?: string;
+    tracking?: string;
+    available?: boolean;
 }
 
 export interface IOrdersSummary {

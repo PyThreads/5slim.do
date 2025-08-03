@@ -43,7 +43,8 @@ const validationSchemaArticleForm = () => {
       body('categories.*._id').isNumeric().withMessage('La categoría es requerida*.'),
       body('categories.*.description').trim().notEmpty().withMessage('La descripción es requerida*.'),
       body('categories.*.slug').trim().notEmpty().withMessage('El slug es requerido*.'),
-      body('variants').optional().isArray(),body('hasDiscount').optional().isBoolean(),
+      body('variants').optional().isArray(),
+      body('variants.*.stock').isInt({min:0}).toInt().withMessage("Debe ingresar una cantidad de stock mayor o igual a cero."),
       body('discount').custom((value, { req }) => {
         if (req.body.hasDiscount) {
           if (!value || typeof value !== 'object') {
@@ -66,11 +67,12 @@ const validationSchemaArticleForm = () => {
         return true;
       }),
       body('advertisement.type').trim().notEmpty().withMessage('El tipo del monto publicitario es requerido*.'),
-      body('advertisement.value').isNumeric().withMessage('El valor de la publicidad es requerido*.'),
+      body('advertisement.value').trim().notEmpty().withMessage('El valor de la publicidad es requerido*.'),
       body('published').optional().isBoolean(),
       body('shortDescription').trim().notEmpty().withMessage('La descripción es requerida*.'),
       body('tipTap').optional().trim(),
-      body('images').optional().isArray()
+      body('images').optional().isArray(),
+      validation
     ];
 }
 

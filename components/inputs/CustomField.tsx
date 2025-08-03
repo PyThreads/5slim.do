@@ -97,6 +97,7 @@ export const CustomField = ({
   noValidate = false,
   startAdornment,
   endAdornment,
+  styles = {},
   ...props
 }: any) => {
   const formik = useFormikContext();
@@ -134,6 +135,7 @@ export const CustomField = ({
             fontFamily: inter.style.fontFamily,
             color: '#929596',
             backgroundColor: '#EFF1F999',
+            ...styles
           },
           startAdornment: startAdornment ? (
             <Box sx={{ margin: 0, marginRight: '4px' }}>{startAdornment}</Box>

@@ -1,45 +1,46 @@
 import * as React from 'react';
-import Table from '@mui/material/Table';
-import TableBody from '@mui/material/TableBody';
-import TableCell from '@mui/material/TableCell';
-import TableContainer from '@mui/material/TableContainer';
-import TableHead from '@mui/material/TableHead';
-import TableRow from '@mui/material/TableRow';
-import Paper from '@mui/material/Paper';
-import CustomField from '../../../../../../components/inputs/CustomField';
-import { v4 as uuidv4 } from 'uuid';
+import { Box, Grid, Paper, MenuItem, IconButton } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
-import { Box, MenuItem, Typography } from '@mui/material';
+import CustomField, { DefaultSwitch } from '../../../../../../components/inputs/CustomField';
+import { v4 as uuidv4 } from 'uuid';
 import { IArticleImages, IArticleStatus, IArticlesVariants } from '../../../../../../api/src/interfaces';
 import { baseService } from '../../../../utils/baseService';
-import { UploadImageIcon } from '../../../../../../components/icons/Svg';
 import axios from '../../../../../../context/adminAxiosInstance';
 import { eventBus } from '../../../../utils/broadcaster';
 import Image from 'next/image';
 
-export default function TableArticleVariants({ rows = [], onChange }: { rows: IArticlesVariants[], onChange: Function }) {
+export default function TableArticleVariants({
+    rows = [],
+    onChange,
+    mainImage,
+}: {
+    rows: IArticlesVariants[];
+    onChange: Function;
+    mainImage: string | undefined;
+}) {
     const refInput = React.useRef<HTMLInputElement>(null);
     const refInput2 = React.useRef<HTMLInputElement>(null);
+
     const [newOne, setNewOne] = React.useState<Partial<IArticlesVariants>>(() => ({
         _id: uuidv4(),
         costPrice: 0,
         sellingPrice: 0,
         status: IArticleStatus.NEW,
         stock: 1,
-        images: []
+        images: [],
+        source: '',
+        available: false,
+        tracking: '',
     }));
 
     const handleChangeNewOne = (value: any, name: any, row?: IArticlesVariants | null | undefined) => {
-        if (row) {
-            const updatedRow: IArticlesVariants = {
-                ...row,
-                [name]: value
-            };
+        const result = name === 'stock' && (value === '' || value < 0) ? 0 : value;
 
+        if (row) {
+            const updatedRow: IArticlesVariants = { ...row, [name]: result };
             const arr = [...rows];
             const index = arr.findIndex((item) => item._id === updatedRow._id);
-
             if (index !== -1) {
                 arr[index] = updatedRow;
                 onChange([...arr]);
@@ -47,15 +48,11 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
             return;
         }
 
-        setNewOne(prev => ({
-            ...prev,
-            [name]: value
-        }));
-    }
+        setNewOne((prev) => ({ ...prev, [name]: result }));
+    };
 
     const addSelected = () => {
         const arr = [...rows];
-
         for (let i = 1; i <= newOne.stock!; i++) {
             const variant: IArticlesVariants = {
                 _id: uuidv4(),
@@ -63,27 +60,31 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                 sellingPrice: newOne.sellingPrice!,
                 status: IArticleStatus.NEW,
                 stock: 1,
-                images: newOne.images!
+                images: newOne.images!,
+                source: newOne.source!,
+                available: newOne.available!,
+                tracking: newOne.tracking!,
             };
             arr.push(variant);
         }
-
         onChange(arr);
-
         setNewOne({
             _id: uuidv4(),
             costPrice: 0,
             sellingPrice: 0,
             status: IArticleStatus.NEW,
             stock: 1,
-            images: []
+            images: [],
+            source: '',
+            available: false,
+            tracking: ''
         });
-    }
+    };
 
     const removeSelected = (row: IArticlesVariants) => {
         const arr = rows.filter((item) => item._id !== row._id);
         onChange([...arr]);
-    }
+    };
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, isPrimary = false, item?: IArticlesVariants | null) => {
         try {
@@ -95,13 +96,13 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                 formData.append(i, file[i]);
             }
 
-            const { data }: { data: any } = await axios.post("/admin/private/images/upload", formData);
+            const { data }: { data: any } = await axios.post('/admin/private/images/upload', formData);
             let result = data.data as IArticleImages[];
 
             if (isPrimary && result.length > 0) {
                 result = result.map((image, index) => ({
                     ...image,
-                    primary: index === 0
+                    primary: index === 0,
                 }));
             }
 
@@ -110,251 +111,213 @@ export default function TableArticleVariants({ rows = [], onChange }: { rows: IA
                 const index = arr.findIndex((value) => item._id === value._id);
                 if (index !== -1) {
                     const currentImages = arr[index].images || [];
-                    const cleanedImages = currentImages.map(img => ({ ...img, primary: false }));
+                    const cleanedImages = currentImages.map((img) => ({ ...img, primary: false }));
                     const list = [...cleanedImages, ...result];
-
-                    arr[index] = {
-                        ...arr[index],
-                        images: list
-                    };
-
+                    arr[index] = { ...arr[index], images: list };
                     onChange([...arr]);
                 }
                 return;
             }
 
-            const cleanedNewImages = (newOne.images || []).map(img => ({ ...img, primary: false }));
+            const cleanedNewImages = (newOne.images || []).map((img) => ({ ...img, primary: false }));
             const newImageList = [...cleanedNewImages, ...result];
 
             setNewOne({
                 ...newOne,
-                images: newImageList
+                images: newImageList,
             });
-
         } catch (error) {
-            eventBus.emit("notify", {
-                message: "Ha ocurrido un error al subir la imagen.",
+            eventBus.emit('notify', {
+                message: 'Ha ocurrido un error al subir la imagen.',
                 open: true,
-                type: "error",
-                title: "Upss!"
+                type: 'error',
+                title: 'Upss!',
             });
         } finally {
-            if (refInput.current) refInput.current.value = "";
-            if (refInput2.current) refInput2.current.value = "";
+            if (refInput.current) refInput.current.value = '';
+            if (refInput2.current) refInput2.current.value = '';
         }
     };
 
-    return (
-        <Box overflow={"auto"} maxHeight={"70vh"} sx={{
-            overflowX: 'auto',
-            whiteSpace: 'nowrap',
-            scrollbarWidth: 'none',
-            '&::-webkit-scrollbar': {
-                display: 'none',
-            }
-        }}>
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 900 }} size="small" aria-label="a dense table">
-                    <TableBody>
-                        <TableRow>
-                            <TableCell align="right">
+    const renderVariantCard = (variant: IArticlesVariants, isNew = false) => {
+        const imageUrl = variant.images?.find((img) => img.primary)?.url || mainImage;
 
-                                <Box textAlign={"center"}
-                                    component={"label"} htmlFor="upload-image-variant"
-                                >
-                                    <input
-                                        type="file"
-                                        style={{ display: "none" }}
-                                        id="upload-image-variant"
-                                        accept="image/*"
-                                        multiple={false}
-                                        onChange={(e) => handleChange(e, true)}
-                                        ref={refInput}
+        return (
+            <Paper sx={{ p: 2, mb: 2, ...style.hideScroll }} elevation={2} >
+                <Grid container spacing={2}>
+                    <Grid item xs={12} sm={3}>
+                        <Box
+                            component="label"
+                            htmlFor={isNew ? 'upload-image-variant' : 'upload-image-variant-listed' + variant._id}
+                            sx={{
+                                width: '100%',
+                                height: 80,
+                                borderRadius: 2,
+                                bgcolor: '#F4F5FA',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                            }}
+                        >
+                            <input
+                                type="file"
+                                style={{ display: 'none' }}
+                                id={isNew ? 'upload-image-variant' : 'upload-image-variant-listed' + variant._id}
+                                accept="image/*"
+                                multiple={false}
+                                onChange={(e) => handleChange(e, true, isNew ? undefined : variant)}
+                                ref={isNew ? refInput : refInput2}
+                            />
+                            <Image fill src={imageUrl!} alt="img" objectFit="contain" />
+                        </Box>
+                    </Grid>
 
-                                    />
-                                    <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"} justifyContent={"center"} display={"flex"} alignItems={"center"}>
-                                        {
-                                            newOne.images!.length > 0 ? (
-                                                <Image
-                                                    fill
-                                                    key={newOne.images!.find(item => item.primary)?.url!}
-                                                    src={newOne.images!.find(item => item.primary)?.url!}
-                                                    alt="Image articles list"
-                                                    objectFit="contain"
-                                                    style={{ borderRadius: "8px" }}
-                                                />
-
-                                            )
-                                                :
-                                                (
-
-                                                    <UploadImageIcon filled={false} />
-                                                )
-                                        }
-                                    </Box>
-
-                                </Box>
-                            </TableCell>
-                            <TableCell align="right">
-                                <CustomField size={"small"} placeholder="Nombres" fullWidth noValidate select value={newOne.status}
+                    <Grid item xs={12} sm={9}>
+                        <Grid container spacing={1}>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Estado"
+                                    fullWidth
+                                    noValidate
+                                    select
                                     name="status"
-                                    onChange={(e: any) => handleChangeNewOne(e.target.value, "status")}
+                                    value={variant.status || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value, 'status', isNew ? undefined : variant)
+                                    }
                                 >
-
-                                    {Object.entries(IArticleStatus).map((option) => (
-                                        <MenuItem key={option[1]} value={option[1]}>
-                                            {option[1]}
+                                    {Object.entries(IArticleStatus).map(([key, value]) => (
+                                        <MenuItem key={key} value={value}>
+                                            {value}
                                         </MenuItem>
                                     ))}
-                                    <MenuItem>
-
-                                    </MenuItem>
                                 </CustomField>
-                            </TableCell>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Tracking"
+                                    fullWidth
+                                    noValidate
+                                    type="text"
+                                    name="tracking"
+                                    value={variant.tracking || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value || '', 'tracking', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                               <DefaultSwitch label='Disponible' checked={variant.available ? true : false}
+                                setChecked={(value:boolean) => handleChangeNewOne(value, 'available', isNew ? undefined : variant)}
+                                stylesLabel={{ml:1}}
+                               />
+                               
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Url"
+                                    fullWidth
+                                    noValidate
+                                    type="text"
+                                    name="source"
+                                    value={variant.source || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value || '', 'source', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Cantidad"
+                                    fullWidth
+                                    noValidate
+                                    type="number"
+                                    name="stock"
+                                    value={variant.stock || 0}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(Number(e.target.value) || '', 'stock', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Costo"
+                                    fullWidth
+                                    noValidate
+                                    name="costPrice"
+                                    type="number"
+                                    value={variant.costPrice || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(Number(e.target.value) || '', 'costPrice', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Venta"
+                                    fullWidth
+                                    noValidate
+                                    name="sellingPrice"
+                                    type="number"
+                                    value={variant.sellingPrice || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(Number(e.target.value) || '', 'sellingPrice', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Ganancia"
+                                    fullWidth
+                                    noValidate
+                                    disabled
+                                    value={baseService.dominicanNumberFormat(
+                                        Number(variant.sellingPrice || 0) - Number(variant.costPrice || 0)
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} textAlign="right">
+                                {isNew ? (
+                                    <IconButton onClick={addSelected}>
+                                        <AddCircleIcon sx={{ color: '#A3A3A3' }} />
+                                    </IconButton>
+                                ) : (
+                                    <IconButton onClick={() => removeSelected(variant)}>
+                                        <DoNotDisturbOnIcon sx={{ color: '#A3A3A3' }} />
+                                    </IconButton>
+                                )}
+                            </Grid>
+                        </Grid>
+                    </Grid>
+                </Grid>
+            </Paper>
+        );
+    };
 
-                            <TableCell align="right">
-                                <CustomField size={"small"} placeholder="Cantidad" fullWidth noValidate type="number" name="stock" value={newOne.stock} onChange={(e: any) => {
-                                    handleChangeNewOne(Number(e.target.value) || "", "stock")
-                                }} />
-                            </TableCell>
-
-                            <TableCell align="right">
-                                <CustomField size={"small"} placeholder="Costo" fullWidth noValidate name="costPrice" type="number" value={newOne.costPrice} onChange={(e: any) => {
-                                    handleChangeNewOne(Number(e.target.value) || "", "costPrice")
-                                }} />
-                            </TableCell>
-
-                            <TableCell align="right">
-                                <CustomField size={"small"} placeholder="Venta" fullWidth noValidate name="sellingPrice" type="number" value={newOne.sellingPrice} onChange={
-                                    (e: any) => handleChangeNewOne(Number(e.target.value) || "", "sellingPrice")
-                                } />
-                            </TableCell>
-
-                            <TableCell align="right">
-                                <CustomField size={"small"} placeholder="Ganancia" fullWidth noValidate disabled value={
-                                    baseService.dominicanNumberFormat(Number(newOne.sellingPrice || 0) - Number(newOne.costPrice || 0))
-                                } />
-                            </TableCell>
-
-                            <TableCell align="right">
-                                <AddCircleIcon sx={{ cursor: "pointer", color: '#A3A3A3' }} onClick={addSelected} />
-                            </TableCell>
-
-                        </TableRow>
-
-                    </TableBody>
-                </Table>
-
-            </TableContainer>
-
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 900 }} size="small" aria-label="a dense table">
-
-                    <TableHead>
-                        <TableRow>
-                            <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}></Typography></TableCell>
-                            <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}>Estado</Typography></TableCell>
-                            <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"}>Stock</Typography></TableCell>
-                            <TableCell align="left"> <Typography fontFamily={"Inter"} fontSize={"16px"}>Costo</Typography></TableCell>
-                            <TableCell align="left">  <Typography fontFamily={"Inter"} fontSize={"16px"}>Venta</Typography></TableCell>
-                            <TableCell align="left">  <Typography fontFamily={"Inter"} fontSize={"16px"}>Ganancia</Typography></TableCell>
-                            <TableCell align="left"></TableCell>
-                        </TableRow>
-                    </TableHead>
-
-                    <TableBody>
-
-                        {rows.map((row, key) => (
-                            <TableRow
-                                key={key}
-                                sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
-                            >
-
-                                <TableCell align="right">
-
-                                    <Box textAlign={"center"}
-                                        component={"label"} htmlFor={"upload-image-variant-listed" + row._id}
-                                    >
-                                        <input
-                                            type="file"
-                                            style={{ display: "none" }}
-                                            id={"upload-image-variant-listed" + row._id}
-                                            accept="image/*"
-                                            multiple={false}
-                                            onChange={(e) => handleChange(e, true, row)}
-                                            ref={refInput2}
-
-                                        />
-                                        <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"} justifyContent={"center"} display={"flex"} alignItems={"center"}>
-                                            {
-                                                row.images?.length > 0 ? (
-                                                    <Image
-                                                        fill
-                                                        key={newOne.images!.find(item => item.primary)?.url!}
-                                                        src={row.images.find(item => item.primary)?.url!}
-                                                        alt="Image articles list"
-                                                        objectFit="contain"
-                                                        style={{ borderRadius: "8px" }}
-                                                    />
-
-                                                )
-                                                    :
-                                                    (
-
-                                                        <UploadImageIcon filled={false} />
-                                                    )
-                                            }
-                                        </Box>
-
-                                    </Box>
-                                </TableCell>
-
-                                <TableCell align="right">
-                                    <CustomField size={"small"} placeholder="Nombres" fullWidth noValidate select value={row.status}
-                                        onChange={(e: any) => handleChangeNewOne(e.target.value, "status", row)}
-                                    >
-
-                                        {Object.entries(IArticleStatus).map((option) => (
-                                            <MenuItem key={option[1]} value={option[1]}>
-                                                {option[1]}
-                                            </MenuItem>
-                                        ))}
-                                        <MenuItem>
-
-                                        </MenuItem>
-                                    </CustomField>
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CustomField size={"small"} placeholder="Cantidad" fullWidth noValidate type="number" name="stock" value={row.stock} onChange={(e: any) => {
-                                        handleChangeNewOne(Number(e.target.value) || "", "stock", row)
-                                    }} />
-                                </TableCell>
-
-                                <TableCell align="right">
-                                    <CustomField size={"small"} placeholder="Costo" fullWidth noValidate name="costPrice" type="number" value={row.costPrice} onChange={(e: any) => {
-                                        handleChangeNewOne(Number(e.target.value) || "", "costPrice", row)
-                                    }} />
-                                </TableCell>
-
-                                <TableCell align="right">
-                                    <CustomField size={"small"} placeholder="Venta" fullWidth noValidate name="sellingPrice" type="number" value={row.sellingPrice} onChange={
-                                        (e: any) => handleChangeNewOne(Number(e.target.value) || "", "sellingPrice", row)
-                                    } />
-                                </TableCell>
-                                <TableCell align="right">
-                                    <CustomField size={"small"} placeholder="Ganancia" fullWidth noValidate disabled value={
-                                        baseService.dominicanNumberFormat(Number(row.sellingPrice || 0) - Number(row.costPrice || 0))
-                                    } />
-                                </TableCell>
-
-                                <TableCell align="right">
-                                    <DoNotDisturbOnIcon sx={{ cursor: "pointer", color: '#A3A3A3' }} onClick={() => removeSelected(row)} />
-                                </TableCell>
-                            </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
+    return (
+        <Box sx={{ height: "75vh" }}>
+            {renderVariantCard(newOne as IArticlesVariants, true)}
+            {rows.map((row) => <Box key={row._id}>{renderVariantCard(row)}</Box>)}
         </Box>
-    )
+    );
+}
+
+const style = {
+    hideScroll: {
+        overflowY: "scroll",
+        scrollbarWidth: "none", // Firefox
+        msOverflowStyle: "none", // IE 10+
+        "&::-webkit-scrollbar": {
+            display: "none", // Chrome, Safari
+        },
+    }
 }

@@ -13,6 +13,7 @@ import SaveIcon from '@mui/icons-material/Save';
 import CustomModal from "../../../../../../../../components/modals/CustomModal";
 import TableArticleVariants from "../../TableArticleVariants";
 import CloseIcon from '@mui/icons-material/Close';
+import { articleService } from "../../../articleService";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -76,7 +77,7 @@ export const CreateArticleForm = () => {
                                     </Grid>
 
                                     <Grid item xs={12} >
-                                        <CustomField  placeholder="Unidades disponibles" type="number" fullWidth value={values.variants.length} disabled noValidate />
+                                        <CustomField  placeholder="Unidades disponibles" type="number" fullWidth value={articleService.getStockNumber(values)} disabled noValidate />
                                     </Grid>
 
                                     <Grid container item xs={12} spacing={2} >
@@ -263,7 +264,7 @@ export const CreateArticleForm = () => {
                     </Grid>
 
                     <Grid xs={12} mt={2} sx={{width: {xs: 300, md:"100%"}}}>
-                        <TableArticleVariants rows={values.variants} onChange={(list: IArticlesVariants[])=>setFieldValue("variants", list)} />
+                        <TableArticleVariants rows={values.variants} mainImage={values.images.find(item => item.primary)?.url!} onChange={(list: IArticlesVariants[])=>setFieldValue("variants", list)} />
                     </Grid>
 
                 </Grid>

@@ -243,7 +243,12 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                             <Box display={"flex"} mt={1}>
                                                 <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
                                                     <Image
-                                                        src={item.variant.images.find(item => item.primary)?.url! || "/Image.svg"}
+                                                        src={
+                                                            item.variant.images.find(item => item.primary)?.url! 
+                                                            ||
+                                                            item.images.find(item => item.primary)?.url!
+                                                            || "/Image.svg" 
+                                                        }
                                                         fill
                                                         alt="Image articles list"
                                                         objectFit="contain"
@@ -300,7 +305,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                             Agregar Artículos
                                         </Typography>
 
-                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "11px", sm: "13px"} }} textAlign={"center"} color={"#8B8D97"} fontWeight={500} mt={"12px"}>
+                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "11px", sm: "13px" } }} textAlign={"center"} color={"#8B8D97"} fontWeight={500} mt={"12px"}>
                                             Busca y Agrega Artículos a Esta Orden.
                                         </Typography>
                                     </Box>
@@ -422,7 +427,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                     <TableContainer component={Paper} sx={{
                         marginTop: "40px",
                         overflowX: "auto",
-                        width: {xs: 300, md: "100%"}
+                        width: { xs: 300, md: "100%" }
                     }} >
                         <Table size="small" aria-label="a dense table">
 
@@ -439,7 +444,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                             <TableBody>
 
-                                {selectedArticle && selectedArticle.variants.map((row: IArticlesVariants) => (
+                                {selectedArticle && selectedArticle.variants.filter((item: IArticlesVariants) => item.available).map((row: IArticlesVariants) => (
                                     <TableRow
                                         key={row._id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
@@ -478,27 +483,16 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                 component={"label"} htmlFor={"upload-image-variant-listed" + row._id}
                                             >
                                                 <Box width={36} height={36} position={"relative"} bgcolor={"#F4F5FA"} borderRadius={"8px"} justifyContent={"center"} display={"flex"} alignItems={"center"}>
-                                                    {
 
-                                                        row.images?.length > 0 ?
-                                                            (
-                                                                <Image
-                                                                    fill
-                                                                    key={row.images.find(item => item.primary)?.url!}
-                                                                    src={row.images.find(item => item.primary)?.url!}
-                                                                    alt="Image articles list"
-                                                                    objectFit="contain"
-                                                                    style={{ borderRadius: "8px" }}
-                                                                />)
-                                                            :
-                                                            (<Image
-                                                                alt={"5slim.do. logo"}
-                                                                style={{ objectFit: "cover" }}
-                                                                width={46}
-                                                                height={46}
-                                                                src={"/Image.svg"}
-                                                            />)
-                                                    }
+                                                    <Image
+                                                        fill
+                                                        key={row.images.find(item => item.primary)?.url! || selectedArticle.images.find(item => item.primary)?.url!}
+                                                        src={row.images.find(item => item.primary)?.url! || selectedArticle.images.find(item => item.primary)?.url!}
+                                                        alt="Image articles list"
+                                                        objectFit="contain"
+                                                        style={{ borderRadius: "8px" }}
+                                                    />
+
                                                 </Box>
 
                                             </Box>

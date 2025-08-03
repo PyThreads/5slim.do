@@ -30,7 +30,8 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
         cancelled: 0,
         paid: 0,
         preparingForDelivery: 0,
-        earnings: 0
+        earnings: 0,
+        totalSold: 0
     });
 
     const getOrdersSummary = useCallback(async () => {

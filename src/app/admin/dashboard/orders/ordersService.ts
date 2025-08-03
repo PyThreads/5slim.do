@@ -36,7 +36,8 @@ class OrdersService extends BaseService {
                 cancelled: 0,
                 paid: 0,
                 preparingForDelivery: 0,
-                earnings: 0
+                earnings: 0,
+                totalSold: 0
             }
         }
     }

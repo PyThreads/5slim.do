@@ -2,7 +2,7 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
-import { CancelOrderType, IAdmin, IArticleImages, IClient, IPaginateClients, IPaginateOrders } from "../../interfaces";
+import { CancelOrderType, IAdmin, IArticleImages, IClient, IOrderStatus, IPaginateClients, IPaginateOrders } from "../../interfaces";
 import { UsersService } from "../users/users.service";
 import { ArticleService } from "../articles/articles.service";
 import { OrderService } from "../orders/orders.service";
@@ -21,6 +21,27 @@ class Admin {
         this.orderService = new OrderService({ mongoDatabase });
     }
 
+
+    async updateOrderStatus(req: Request, res: Response) {
+        try {
+            const { status }: { status: IOrderStatus } = req.body
+
+            const result = await this.orderService.updateOrderStatus({ orderId: Number(req.params._id), status });
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Se ha actualizado de forma exitosa el estado de la orden."
+            })
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Ha ocurrido un error al actualizar el estado de la orden."
+            })
+        }
+    }
 
     async articlesSummary (req: Request, res: Response) {
         try {

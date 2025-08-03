@@ -31,6 +31,7 @@ class AdminRouter {
         router.get("/orders/print/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
         router.put("/orders/cancel/:_id", adminRoutesValidations.printOrder(), this.adminController.cancelOrder.bind(this.adminController));
         router.get("/orders/summary", adminRoutesValidations.summaryOrders(), this.adminController.ordersSummary.bind(this.adminController));
+        router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));
 
         router.post("/client/register", adminRoutesValidations.clientRegister(), this.adminController.clientRegister.bind(this.adminController));
         router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));

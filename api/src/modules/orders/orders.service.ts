@@ -16,6 +16,23 @@ export class OrderService extends BaseService {
         this.articleService = new ArticleService({ mongoDatabase });
     }
 
+    async updateOrderStatus(params: { orderId: number, status: IOrderStatus }): Promise<IOrder> {
+        try {
+            const { orderId, status } = params;
+
+            if(status === IOrderStatus.CANCELLED) throw new Error("No se puede cambiar al cancelada.")
+
+            const result = await this.collection.findOneAndUpdate(
+                { _id: orderId },
+                { $set: { status } },
+                { returnDocument: "after" }
+            )
+            return result
+        } catch (error) {
+            throw error
+        }
+    }
+
 
     async ordersSummary(params: { from: Date, to: Date }): Promise<IOrdersSummary> {
         try {

@@ -13,7 +13,9 @@ import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import CircularProgress from '@mui/material/CircularProgress';
 import CustomModal from "../../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
+import ReceiptIcon from '@mui/icons-material/Receipt';
 import CheckIcon from '@mui/icons-material/Check';
+import { eventBus } from "../../../../utils/broadcaster";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -26,7 +28,7 @@ export default function AdminClientes() {
     const [order, setOrder] = useState<IOrder | null>(null);
     const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
     const [loading, setLoading] = useState(true);
-    const [printing, setPrinting] = useState(false)
+    const [action, setaction] = useState("")
     const [modalCancel, setModalCancel] = useState(false);
     const [cancelType, setCancelType] = useState<CancelOrderType>(CancelOrderType.RETURN_ITEMS)
     const [canceled, setCanceled] = useState(false);
@@ -48,11 +50,28 @@ export default function AdminClientes() {
     }, [getOrder])
 
     const handlePrint = async () => {
-        setPrinting(true)
+        setaction("Imprimiendo")
         setAnchorEl(null);
         await ordersService.printOrder(order!._id);
-        setPrinting(false)
+        setaction("")
     };
+
+    const handleStatus = async (status: IOrderStatus) => {
+        try {
+
+            if(order!.status === IOrderStatus.DELIVERED){
+                eventBus.emit("notify", { message: "Si la orden se encuentra entregada no se puede modificar el estado, debe cancelar.", open: true, type: "error", title: "Guardado!" })
+                return;
+            }
+            setaction("Cambiando estado")
+            setAnchorEl(null);
+            const orderUpdated = await ordersService.updateOrderStatus({ orderId: order!._id, status });
+            setOrder(orderUpdated);
+
+        } finally {
+            setaction("")
+        }
+    }
 
     const handleCloseCancel = () => {
         setLoadingCancel(true)
@@ -110,10 +129,15 @@ export default function AdminClientes() {
 
                                 <Box>
                                     <Button variant="contained" sx={{ ...style.accionButton }}
-                                        endIcon={printing ? <CircularProgress sx={{ color: "white" }} size={13} /> : <KeyboardArrowDownIcon />}
-                                        onClick={(event) => setAnchorEl(event.currentTarget)}
+                                        endIcon={action ? <CircularProgress sx={{ color: "white" }} size={13} /> : <KeyboardArrowDownIcon />}
+                                        onClick={(event) => {
+                                            if(order!.status === IOrderStatus.CANCELLED){
+                                                return;
+                                            }
+                                            setAnchorEl(event.currentTarget)
+                                        }}
                                     >
-                                        {printing ? "Imprimiendo" : "Acción"}
+                                        {action ? action : "Acción"}
                                     </Button>
 
                                     <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton, ml: 2 }}
@@ -156,13 +180,13 @@ export default function AdminClientes() {
                                 disableEnforceFocus
                                 PaperProps={{
                                     sx: {
-                                        width: anchorEl && (anchorEl?.clientWidth || 0),
                                         display: anchorEl ? "block" : "none",
                                     }
                                 }}
                             >
                                 <Box p={1}>
-                                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer" }} mb={1}
+                                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                    
                                         onClick={handlePrint}
                                     >
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
@@ -170,6 +194,22 @@ export default function AdminClientes() {
                                         </Typography>
                                         <LocalPrintshopIcon fontSize="small" />
                                     </Box>
+
+                                    {
+
+                                        Object.entries(IOrderStatus).filter(item => item[1] !== IOrderStatus.CANCELLED).map(([_, value]) =>
+                                        (
+                                            <Box key={value} display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                onClick={() => handleStatus(value)}
+                                            >
+                                                <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                                    {value}
+                                                </Typography>
+                                                <ReceiptIcon fontSize="small" />
+                                            </Box>
+                                        ))
+                                    }
+
                                 </Box>
                             </Popover>
 

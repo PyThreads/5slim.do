@@ -82,6 +82,7 @@ export interface IOrdersSummary {
     paid: number;
     preparingForDelivery: number;
     earnings: number;
+    totalSold: number;
 }
 
 export interface IArticle {
@@ -266,6 +267,22 @@ export interface IClient {
     updatedBy?: ICreatedBy
     fullClient: string
     updatedDate?: Date
+}
+
+export interface IPaginatedClient {
+    _id: number;
+    firstName: string;
+    lastName: string;
+    fullName: string;
+    email: string;
+    addresses: IClientAddress[];
+    createdDate?: Date
+    createdBy?: ICreatedBy
+    updatedBy?: ICreatedBy
+    fullClient: string
+    updatedDate?: Date
+    totalOrdenes: number;
+    totalGastado: number;
 }
 
 export interface ICreatedBy {

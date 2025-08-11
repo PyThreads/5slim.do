@@ -1,4 +1,4 @@
-import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
@@ -81,7 +81,9 @@ export default function TableClientsList(
             </Grid>
 
             <Grid item xs={12} mt={2}>
-                <TableContainer component={Paper} sx={styles.tableContainer}>
+                {/* Desktop Table */}
+                <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <TableContainer component={Paper} sx={styles.tableContainer}>
                     <Table size="small" aria-label="a dense table" sx={styles.table}>
                         <TableHead sx={{ padding: 0 }}>
                             <TableRow
@@ -237,7 +239,54 @@ export default function TableClientsList(
                         </TableBody>
                     </Table>
 
-                </TableContainer>
+                    </TableContainer>
+                </Box>
+
+                {/* Mobile Cards */}
+                <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                    {rows.map((row: IPaginatedClient) => (
+                        <Card key={row._id} sx={styles.mobileCard} onClick={async () => {
+                            const userFullDetails = await userService.getClientDetails({ _id: row._id });
+                            onDoubleClickRow(userFullDetails);
+                        }}>
+                            <CardContent sx={styles.mobileCardContent}>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                    <Typography variant="h6" sx={styles.mobileCardTitle}>
+                                        {row.fullName}
+                                    </Typography>
+                                    <Checkbox
+                                        checked={checked.some(item => row._id === item)}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            setChecked(checked.some(item => row._id === item) ? checked.filter(item => item !== row._id) : [...checked, row._id]);
+                                        }}
+                                        sx={{ '&.Mui-checked': { color: "#5570F1" } }}
+                                    />
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Email:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.email}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Teléfono:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.addresses[0]?.phone || "N/A"}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Órdenes:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.totalOrdenes}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Total Gastado:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{userService.dominicanNumberFormat(row.totalGastado)}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between">
+                                    <Typography sx={styles.mobileCardLabel}>Cliente desde:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{userService.formatAmPmLetters(row.createdDate!)}</Typography>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    ))}
+                </Box>
 
                 <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
 
@@ -376,5 +425,35 @@ const styles = {
         },
         borderColor: "#53545C",
         color: "#53545C"
+    },
+    mobileCard: {
+        mb: 2,
+        borderRadius: "12px",
+        boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
+        cursor: "pointer",
+        "&:hover": {
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)"
+        }
+    },
+    mobileCardContent: {
+        padding: "16px !important"
+    },
+    mobileCardTitle: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "16px",
+        fontWeight: "600",
+        color: "#2C2D33"
+    },
+    mobileCardLabel: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "14px",
+        fontWeight: "500",
+        color: "#8B8D97"
+    },
+    mobileCardValue: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "14px",
+        fontWeight: "400",
+        color: "#6E7079"
     }
 }

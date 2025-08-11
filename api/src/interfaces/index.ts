@@ -98,6 +98,7 @@ export interface IArticle {
     tipTap: string;
     advertisement?: IAdvertisementArticle
     images: IArticleImages[];
+    stockAlert?: number;
 }
 
 export interface IOrder {
@@ -155,6 +156,7 @@ export interface IPaginateClients {
     _id?: number
     published?: boolean
     hasStock?: boolean
+    lowStock?: boolean
 }
 
 

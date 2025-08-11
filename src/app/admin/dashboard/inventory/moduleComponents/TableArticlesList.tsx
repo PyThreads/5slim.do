@@ -35,7 +35,7 @@ export default function TableArticlesList(
             totalPages: number,
             setFilers: Function
             onDoubleClickRow: Function
-            currentFilter?: { published?: boolean; hasStock?: boolean }
+            currentFilter?: { published?: boolean; hasStock?: boolean; lowStock?: boolean }
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -63,7 +63,7 @@ export default function TableArticlesList(
                                 onFilterChange={(filters) => {
                                     setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
                                 }}
-                                currentFilters={{ published: currentFilter?.published, hasStock: currentFilter?.hasStock }}
+                                currentFilters={{ published: currentFilter?.published, hasStock: currentFilter?.hasStock, lowStock: currentFilter?.lowStock }}
                             />
                         </Grid>
                         

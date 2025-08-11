@@ -80,6 +80,10 @@ export const CreateArticleForm = () => {
                                         <CustomField  placeholder="Unidades disponibles" type="number" fullWidth value={articleService.getStockNumber(values)} disabled noValidate />
                                     </Grid>
 
+                                    <Grid item xs={12} >
+                                        <CustomField name="stockAlert" placeholder="Alerta de stock bajo" type="number" fullWidth value={values.stockAlert || ""} />
+                                    </Grid>
+
                                     <Grid container item xs={12} spacing={2} >
                                         <Grid item xs={6} >
                                             <Typography fontFamily={"Inter"} fontSize={"16px"} color={"#8B8D97"}>Descuento</Typography>

@@ -266,7 +266,7 @@ class ArticleService extends BaseService {
     async getArticles({ query }: { query: any }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, slug, _id, description, published, hasStock } = query;
+            const { page, limit, slug, _id, description, published, hasStock, lowStock } = query;
             const match: Record<string, any> = {};
 
             const aggregate = [
@@ -305,6 +305,39 @@ class ArticleService extends BaseService {
                         }
                     ];
                 }
+            }
+
+            if (lowStock !== undefined && (lowStock === 'true' || lowStock === true)) {
+                aggregate.push({
+                    $addFields: {
+                        totalStock: {
+                            $sum: {
+                                $map: {
+                                    input: "$variants",
+                                    as: "variant",
+                                    in: {
+                                        $cond: {
+                                            if: { $and: [{ $gt: ["$$variant.stock", 0] }, { $ne: ["$$variant.available", false] }] },
+                                            then: "$$variant.stock",
+                                            else: 0
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } as any);
+                aggregate.push({
+                    $match: {
+                        $expr: {
+                            $and: [
+                                { $gt: ["$totalStock", 0] },
+                                { $lte: ["$totalStock", { $ifNull: ["$stockAlert", 0] }] },
+                                { $gt: [{ $ifNull: ["$stockAlert", 0] }, 0] }
+                            ]
+                        }
+                    }
+                } as any);
             }
 
             return await this.paginate({

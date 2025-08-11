@@ -10,15 +10,16 @@ const inter = Inter({
 });
 
 interface FilterPopoverProps {
-    onFilterChange: (filters: { published?: boolean; hasStock?: boolean }) => void;
-    currentFilters?: { published?: boolean; hasStock?: boolean };
+    onFilterChange: (filters: { published?: boolean; hasStock?: boolean; lowStock?: boolean }) => void;
+    currentFilters?: { published?: boolean; hasStock?: boolean; lowStock?: boolean };
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFilters }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [tempFilters, setTempFilters] = useState({
         published: currentFilters?.published,
-        hasStock: currentFilters?.hasStock
+        hasStock: currentFilters?.hasStock,
+        lowStock: currentFilters?.lowStock
     });
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -35,7 +36,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
     };
 
     const handleClear = () => {
-        const clearedFilters = { published: undefined, hasStock: undefined };
+        const clearedFilters = { published: undefined, hasStock: undefined, lowStock: undefined };
         setTempFilters(clearedFilters);
         onFilterChange(clearedFilters);
         handleClose();
@@ -140,6 +141,17 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                             />
                         }
                         label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Sin stock</Typography>}
+                    />
+                    
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={tempFilters.lowStock === true}
+                                onChange={(e) => setTempFilters(prev => ({ ...prev, lowStock: e.target.checked ? true : undefined }))}
+                                sx={{ '&.Mui-checked': { color: "#5570F1" } }}
+                            />
+                        }
+                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Stock bajo</Typography>}
                     />
 
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>

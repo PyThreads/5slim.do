@@ -72,6 +72,7 @@ const validationSchemaArticleForm = () => {
       body('shortDescription').trim().notEmpty().withMessage('La descripción es requerida*.'),
       body('tipTap').optional().trim(),
       body('images').optional().isArray(),
+      body('stockAlert').optional().isInt({min:0}).toInt().withMessage('La alerta de stock debe ser un número mayor o igual a cero.'),
       validation
     ];
 }
@@ -103,6 +104,9 @@ const getAllArticles = () => {
         query("description").optional().isString().withMessage("description debe ser un string"),
         query("slug").optional().isString().withMessage("slug debe tener un formato válido"),
         query("_id").optional().isInt({ min: 1 }).toInt().withMessage("_id debe ser un entero mayor o igual a 1"),
+        query("published").optional().isBoolean().withMessage("published debe ser true o false").toBoolean(),
+        query("hasStock").optional().isBoolean().withMessage("hasStock debe ser true o false").toBoolean(),
+        query("lowStock").optional().isBoolean().withMessage("lowStock debe ser true o false").toBoolean(),
         validation
     ]
 }

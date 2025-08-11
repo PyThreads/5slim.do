@@ -153,6 +153,8 @@ export interface IPaginateClients {
     active?: boolean
     email?: string
     _id?: number
+    published?: boolean
+    hasStock?: boolean
 }
 
 

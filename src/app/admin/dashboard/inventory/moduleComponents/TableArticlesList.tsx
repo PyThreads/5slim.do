@@ -1,11 +1,12 @@
 import { Box, Button, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
-import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
+import { FilterDateIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
 import { IArticle } from "../../../../../../api/src/interfaces";
 import { articleService } from "../articleService";
 import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
+import FilterPopover from "../../../../../../components/inputs/FilterPopover";
 import Image from "next/image";
 
 const inter = Inter({
@@ -22,7 +23,8 @@ export default function TableArticlesList(
         limit,
         totalItems,
         totalPages,
-        onDoubleClickRow
+        onDoubleClickRow,
+        currentFilter
     }
         :
         {
@@ -33,6 +35,7 @@ export default function TableArticlesList(
             totalPages: number,
             setFilers: Function
             onDoubleClickRow: Function
+            currentFilter?: { published?: boolean; hasStock?: boolean }
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -40,42 +43,30 @@ export default function TableArticlesList(
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
 
-            <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"} spacing={1}>
+            <Grid container spacing={2} alignItems="center">
 
-                <Grid item xs={12} md={5} lg={5} >
+                <Grid item xs={12} md={4}>
                     <Typography fontFamily={"Inter"}>Artículos</Typography>
                 </Grid>
 
-                <Grid container item display={"flex"} alignItems={"center"} xs={12} md={12} lg={7} spacing={1}>
+                <Grid item xs={12} md={8}>
+                    <Grid container spacing={1} justifyContent={{ xs: "flex-start", md: "flex-end" }}>
+                        
+                        <Grid item xs={12} sm={6} md={4}>
+                            <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                setFilers((prev: any) => ({ ...prev, description: e.target.value, page: 1 }))
+                            }} />
+                        </Grid>
 
-                    <Grid item width={"250px"} m={1}>
-                    <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setFilers((prev: any) => ({ ...prev, description: e.target.value, page: 1 }))
-                        }} />
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterDateIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
-                        >
-                            Acciones
-                        </Button>
+                        <Grid item xs={6} sm={3} md={2}>
+                            <FilterPopover 
+                                onFilterChange={(filters) => {
+                                    setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
+                                }}
+                                currentFilters={{ published: currentFilter?.published, hasStock: currentFilter?.hasStock }}
+                            />
+                        </Grid>
+                        
                     </Grid>
                 </Grid>
 

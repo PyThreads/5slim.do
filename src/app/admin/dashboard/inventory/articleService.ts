@@ -56,7 +56,9 @@ class ArticleService extends BaseService {
     getStockNumber(article: IArticle): number {
         let stockNumber = 0
         article.variants.forEach(variants => {
-            stockNumber += variants.stock
+            if (variants.available !== false && variants.stock > 0) {
+                stockNumber += variants.stock
+            }
         })
         return stockNumber
     }

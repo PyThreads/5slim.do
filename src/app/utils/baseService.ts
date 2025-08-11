@@ -37,6 +37,10 @@ export class BaseService {
                 if (value instanceof Date) {
                     str += `${str.length === 0 ? '?' : '&'}${key}=${value}`;
                 }
+                // Si es un booleano
+                else if (typeof value === 'boolean') {
+                    str += `${str.length === 0 ? '?' : '&'}${key}=${value}`;
+                }
                 // Si es un número o string no vacío
                 else if (typeof value === 'number' || (typeof value === 'string' && value.trim() !== '')) {
                     str += `${str.length === 0 ? '?' : '&'}${key}=${encodeURIComponent(value)}`;

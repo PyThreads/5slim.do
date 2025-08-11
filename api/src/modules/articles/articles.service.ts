@@ -263,10 +263,10 @@ class ArticleService extends BaseService {
      * @param query: IPaginateArticles    
      * @returns 
      */
-    async getArticles({ query }: { query: IPaginateArticles }): Promise<IPaginationResult> {
+    async getArticles({ query }: { query: any }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, slug, _id, description } = query;
+            const { page, limit, slug, _id, description, published, hasStock } = query;
             const match: Record<string, any> = {};
 
             const aggregate = [
@@ -285,6 +285,26 @@ class ArticleService extends BaseService {
 
             if (slug) {
                 match["slug"] = slug;
+            }
+
+            if (published !== undefined) {
+                match["published"] = published === 'true';
+            }
+
+            if (hasStock !== undefined) {
+                if (hasStock === 'true' || hasStock === true) {
+                    match["variants"] = { $elemMatch: { stock: { $gt: 0 }, available: { $ne: false } } };
+                } else if (hasStock === 'false' || hasStock === false) {
+                    match["$or"] = [
+                        { variants: { $exists: false } },
+                        { variants: { $size: 0 } },
+                        {
+                            variants: {
+                                $not: { $elemMatch: { stock: { $gt: 0 }, available: { $ne: false } } }
+                            }
+                        }
+                    ];
+                }
             }
 
             return await this.paginate({

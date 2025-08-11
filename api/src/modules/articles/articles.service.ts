@@ -39,6 +39,39 @@ class ArticleService extends BaseService {
                                 }
                             },
                             { $count: "count" }
+                        ],
+                        lowStockAlert: [
+                            {
+                                $addFields: {
+                                    totalStock: {
+                                        $sum: {
+                                            $map: {
+                                                input: "$variants",
+                                                as: "variant",
+                                                in: {
+                                                    $cond: {
+                                                        if: { $and: [{ $gt: ["$$variant.stock", 0] }, { $eq: ["$$variant.available", "Disponible"] }] },
+                                                        then: "$$variant.stock",
+                                                        else: 0
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                $match: {
+                                    $expr: {
+                                        $and: [
+                                            { $gt: ["$totalStock", 0] },
+                                            { $lte: ["$totalStock", { $ifNull: ["$stockAlert", 0] }] },
+                                            { $gt: [{ $ifNull: ["$stockAlert", 0] }, 0] }
+                                        ]
+                                    }
+                                }
+                            },
+                            { $count: "count" }
                         ]
                     }
                 }
@@ -47,7 +80,8 @@ class ArticleService extends BaseService {
             const resultUpdated: IArticlesSummary = {
                 total: 0,
                 outOfStock: 0,
-                soldToday: 0
+                soldToday: 0,
+                lowStockAlert: 0
             }
 
             const soldToday = await this.mongoDatabase.collection(COLLNAMES.ORDER).aggregate([
@@ -63,13 +97,23 @@ class ArticleService extends BaseService {
                 { $unwind: "$articles" },
                 {
                     $group: {
-                        _id: "$articles._id"
+                        _id: {
+                            articleId: "$articles._id",
+                            variantId: "$articles.variant._id"
+                        },
+                        totalSold: { $sum: "$articles.variant.stock" }
+                    }
+                },
+                {
+                    $group: {
+                        _id: null,
+                        totalQuantity: { $sum: "$totalSold" }
                     }
                 }
             ]).toArray();
 
-            if (soldToday.length > 0) {
-                resultUpdated.soldToday = soldToday.length;
+            if (soldToday.length > 0 && soldToday[0].totalQuantity) {
+                resultUpdated.soldToday = soldToday[0].totalQuantity;
             }
 
             const result = await this.collection.aggregate(pipeline).toArray();
@@ -77,6 +121,7 @@ class ArticleService extends BaseService {
             if (result.length > 0) {
                 resultUpdated.total = result[0]?.total.length > 0 ? result[0].total[0]?.total || 0 : result[0].total;
                 resultUpdated.outOfStock = result[0]?.outOfStock.length > 0 ? result[0].outOfStock[0]?.count || 0 : result[0].outOfStock;
+                resultUpdated.lowStockAlert = result[0]?.lowStockAlert.length > 0 ? result[0].lowStockAlert[0]?.count || 0 : result[0].lowStockAlert;
             }
 
             return resultUpdated
@@ -293,14 +338,14 @@ class ArticleService extends BaseService {
 
             if (hasStock !== undefined) {
                 if (hasStock === 'true' || hasStock === true) {
-                    match["variants"] = { $elemMatch: { stock: { $gt: 0 }, available: { $ne: false } } };
+                    match["variants"] = { $elemMatch: { stock: { $gt: 0 }, available: "Disponible" } };
                 } else if (hasStock === 'false' || hasStock === false) {
                     match["$or"] = [
                         { variants: { $exists: false } },
                         { variants: { $size: 0 } },
                         {
                             variants: {
-                                $not: { $elemMatch: { stock: { $gt: 0 }, available: { $ne: false } } }
+                                $not: { $elemMatch: { stock: { $gt: 0 }, available: "Disponible" } }
                             }
                         }
                     ];
@@ -317,7 +362,7 @@ class ArticleService extends BaseService {
                                     as: "variant",
                                     in: {
                                         $cond: {
-                                            if: { $and: [{ $gt: ["$$variant.stock", 0] }, { $ne: ["$$variant.available", false] }] },
+                                            if: { $and: [{ $gt: ["$$variant.stock", 0] }, { $eq: ["$$variant.available", "Disponible"] }] },
                                             then: "$$variant.stock",
                                             else: 0
                                         }

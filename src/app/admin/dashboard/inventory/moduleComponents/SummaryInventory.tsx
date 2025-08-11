@@ -13,7 +13,8 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
     const [summary, setSummary] = useState<IArticlesSummary>({
         total: 0,
         outOfStock: 0,
-        soldToday: 0
+        soldToday: 0,
+        lowStockAlert: 0
     });
 
 
@@ -99,7 +100,7 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={400} >Alerta Stock</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >0</Typography>
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.lowStockAlert)}</Typography>
                                                     </Grid>
                                                 </Box>
                                             </Box>

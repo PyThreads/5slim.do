@@ -44,10 +44,15 @@ export default function AdminClientes() {
                 <Typography sx={{ ...style.title }}>Resumen inventario</Typography>
 
                 <Link href="/admin/dashboard/inventory/newArticle">
-                    <Button variant="contained" sx={{ ...style.addButton }}
-                        startIcon={<AddIcon />}
+                    <Button 
+                        variant="contained" 
+                        sx={style.addButton}
+                        startIcon={<AddIcon sx={{ display: { xs: "none", sm: "block" } }} />}
                     >
-                        Agregar Nuevo Artículo
+                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                            Agregar Nuevo Artículo
+                        </Box>
+                        <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
                     </Button>
                 </Link>
 
@@ -88,7 +93,7 @@ const style = {
     },
     addButton: {
         backgroundColor: "#5570F1",
-        fontSize: "14px",
+        fontSize: { xs: 12, sm: 14, md: 16 },
         fontFamily: inter.style.fontFamily,
         height: "36px",
         textTransform: "none",
@@ -99,7 +104,7 @@ const style = {
     },
     title: {
         fontFamily: inter.style.fontFamily,
-        fontSize: 16,
+        fontSize: { xs: 13, sm: 16, md: 16 },
         color: "#45464E",
     }
 }

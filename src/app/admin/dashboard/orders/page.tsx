@@ -31,7 +31,7 @@ export default function Orders() {
         const result = await ordersService.getAllOrders(filters)
         setResult(result);
         setReloadSummary(prev => !prev);
-    }, [setResult, filters,setReloadSummary])
+    }, [setResult, filters, setReloadSummary])
 
     useEffect(() => {
         getAllOrders()
@@ -44,11 +44,16 @@ export default function Orders() {
                 <Typography sx={{ ...style.title }}>Resumen Órdenes</Typography>
 
 
-                <Button variant="contained" sx={{ ...style.addButton }}
-                    startIcon={<AddIcon />}
+                <Button 
+                    variant="contained" 
+                    sx={style.addButton}
+                    startIcon={<AddIcon sx={{ display: { xs: "none", sm: "block" } }} />}
                     onClick={() => setOpenModal(true)}
                 >
-                    Agregar Nueva Orden
+                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                        Agregar Nueva Orden
+                    </Box>
+                    <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
                 </Button>
 
             </Grid>
@@ -77,10 +82,12 @@ export default function Orders() {
                 open={openModal}
                 borderRadius={"12px"}
             >
-                <CreateOrder setOpenModal={() => {
-                    setOpenModal(false);
-                }
-                } />
+                <Grid>
+                    <CreateOrder setOpenModal={() => {
+                        setOpenModal(false);
+                    }
+                    } />
+                </Grid>
             </CustomModal>
 
         </Grid >

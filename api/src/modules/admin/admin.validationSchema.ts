@@ -45,6 +45,8 @@ const validationSchemaArticleForm = () => {
       body('categories.*.slug').trim().notEmpty().withMessage('El slug es requerido*.'),
       body('variants').optional().isArray(),
       body('variants.*.stock').isInt({min:0}).toInt().withMessage("Debe ingresar una cantidad de stock mayor o igual a cero."),
+      body('variants.*.available').optional().isString().withMessage("La disponibilidad debe ser un string válido."),
+      body('variants.*.comment').optional().isString().withMessage("El comentario debe ser un string."),
       body('discount').custom((value, { req }) => {
         if (req.body.hasDiscount) {
           if (!value || typeof value !== 'object') {

@@ -85,11 +85,11 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
         <Box height={"70vh"}
             sx={{
                 ...style.hideScroll,
-                padding: { xs: "24px 16px", md: "28px 24px" }
+                padding: { xs: "24px 16px", md: "28px 24px" },
+                minWidth : "90vw"
             }}
         >
-            <Grid p={0} m={0} height={"90%"}>
-
+            <Grid p={0} m={0} xs={12}>
                 <Grid item container height={10} justifyContent={"space-between"}>
                     <Typography fontFamily={"Poppins"} fontSize={"20px"} fontWeight={600}>Nueva Orden</Typography>
                     <CloseIcon sx={{ backgroundColor: "#FFF2E2", width: 32, height: 32, borderRadius: "8px", cursor: "pointer", padding: "5px", color: "#000" }}
@@ -101,7 +101,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                 <Grid container spacing={2} xs={12} mt={2}>
 
-                    <Grid item xs={12} md={12} lg={6} >
+                    <Grid item xs={12} md={12} lg={6}>
 
                         <Grid xs={12} >
                             <Typography fontFamily={"Poppins"} fontSize={"16px"} color={"#8B8D97"} fontWeight={500}>Detalles De La Orden</Typography>
@@ -244,10 +244,10 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                 <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
                                                     <Image
                                                         src={
-                                                            item.variant.images.find(item => item.primary)?.url! 
+                                                            item.variant.images.find(item => item.primary)?.url!
                                                             ||
                                                             item.images.find(item => item.primary)?.url!
-                                                            || "/Image.svg" 
+                                                            || "/Image.svg"
                                                         }
                                                         fill
                                                         alt="Image articles list"
@@ -257,7 +257,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                 </Box>
                                                 <Box ml={"14px"} width={"100%"} position={"relative"} height={"49px"}>
 
-                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} position={"absolute"} top={0}>
+                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} top={0}>
                                                         <Tooltip title={item.description} placement="top" arrow>
                                                             <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "10px", md: "12px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
                                                         </Tooltip>
@@ -275,7 +275,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                         </Typography>
                                                     </Box>
 
-                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} position={"absolute"} bottom={0}>
+                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} bottom={0}>
                                                         <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={400}>{baseService.dominicanNumberFormat(item.variant.sellingPrice)}</Typography>
                                                         <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={500} sx={{ cursor: "pointer" }}>{item.variant.stock}</Typography>
                                                     </Box>
@@ -379,7 +379,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                 <Box sx={{ height: 100, paddingLeft: 1, paddingRight: 1 }}>
                     {
                         resultArticles?.list.map((item: IArticle) => (
-                            <Box display={"flex"} key={item._id} borderBottom={"1px solid #00000007"} paddingBottom={"12px"} mt={1}>
+                            <Box display={"flex"} key={item._id} borderBottom={"1px solid #00000007"} paddingBottom={"12px"} mt={1} >
                                 <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
                                     <Image
                                         src={item.images.find(item => item.primary)?.url!}
@@ -394,7 +394,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                         <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "12px", md: "14px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
                                     </Tooltip>
 
-                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} position={"absolute"} bottom={0}>
+                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} bottom={0} >
                                         <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={400}>{baseService.dominicanNumberFormat(item.variants?.length > 0 ? item.variants[0].sellingPrice : 0)}</Typography>
                                         <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#5570F1"} fontWeight={500} sx={{ cursor: "pointer" }}
                                             onClick={() => {
@@ -435,6 +435,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                 <TableRow>
                                     <TableCell></TableCell>
                                     <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Estado</Typography></TableCell>
+                                    <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Disponibilidad</Typography></TableCell>
                                     <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Stock</Typography></TableCell>
                                     <TableCell align="left"> <Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Costo</Typography></TableCell>
                                     <TableCell align="left">  <Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Venta</Typography></TableCell>
@@ -449,6 +450,10 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                         key={row._id}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         onDoubleClick={() => {
+                                            if (row.available !== "Disponible") {
+                                                eventBus.emit("notify", { message: "Esta variante no está disponible para venta.", open: true, type: "error", title: "Error!", delay: 2000 })
+                                                return
+                                            }
 
                                             const currentClickedArticle: any = { ...selectedArticle };
 
@@ -500,6 +505,18 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                                         <TableCell align="center">
                                             {row.status}
+                                        </TableCell>
+
+                                        <TableCell align="center">
+                                            <Typography
+                                                sx={{
+                                                    color: row.available === "Disponible" ? "#519C66" : row.available === "Encargado" ? "#FF9800" : "#CC5F5F",
+                                                    fontWeight: 500,
+                                                    fontSize: "12px"
+                                                }}
+                                            >
+                                                {row.available || "No disponible"}
+                                            </Typography>
                                         </TableCell>
 
                                         <TableCell align="center">

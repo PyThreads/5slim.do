@@ -41,11 +41,16 @@ export default function AdminClientes() {
 
                 <Typography sx={{ ...style.title }}>Resumen Clientes</Typography>
 
-                <Button variant="contained" sx={{ ...style.addButton }}
-                    startIcon={<AddIcon />}
+                <Button 
+                    variant="contained" 
+                    sx={style.addButton}
+                    startIcon={<AddIcon sx={{ display: { xs: "none", sm: "block" } }} />}
                     onClick={() => setOpen(true)}
                 >
-                    Agregar Nuevo Cliente
+                    <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                        Agregar Nuevo Cliente
+                    </Box>
+                    <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
                 </Button>
 
             </Grid>
@@ -116,7 +121,7 @@ const style = {
     },
     addButton: {
         backgroundColor: "#5570F1",
-        fontSize: "14px",
+        fontSize: { xs: 12, sm: 14, md: 16 },
         fontFamily: inter.style.fontFamily,
         height: "36px",
         textTransform: "none",

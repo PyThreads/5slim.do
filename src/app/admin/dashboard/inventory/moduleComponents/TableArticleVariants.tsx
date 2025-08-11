@@ -4,7 +4,7 @@ import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import CustomField, { DefaultSwitch } from '../../../../../../components/inputs/CustomField';
 import { v4 as uuidv4 } from 'uuid';
-import { IArticleImages, IArticleStatus, IArticlesVariants } from '../../../../../../api/src/interfaces';
+import { IArticleImages, IArticleStatus, IArticlesVariants, IArticleAvailability } from '../../../../../../api/src/interfaces';
 import { baseService } from '../../../../utils/baseService';
 import axios from '../../../../../../context/adminAxiosInstance';
 import { eventBus } from '../../../../utils/broadcaster';
@@ -30,7 +30,8 @@ export default function TableArticleVariants({
         stock: 1,
         images: [],
         source: '',
-        available: false,
+        available: IArticleAvailability.AVAILABLE,
+        comment: '',
         tracking: '',
     }));
 
@@ -63,6 +64,7 @@ export default function TableArticleVariants({
                 images: newOne.images!,
                 source: newOne.source!,
                 available: newOne.available!,
+                comment: newOne.comment!,
                 tracking: newOne.tracking!,
             };
             arr.push(variant);
@@ -76,7 +78,8 @@ export default function TableArticleVariants({
             stock: 1,
             images: [],
             source: '',
-            available: false,
+            available: IArticleAvailability.AVAILABLE,
+            comment: '',
             tracking: ''
         });
     };
@@ -170,7 +173,7 @@ export default function TableArticleVariants({
                                 onChange={(e) => handleChange(e, true, isNew ? undefined : variant)}
                                 ref={isNew ? refInput : refInput2}
                             />
-                            <Image fill src={imageUrl!} alt="img" objectFit="contain" />
+                            {imageUrl && <Image fill src={imageUrl} alt="img" objectFit="contain" />}
                         </Box>
                     </Grid>
 
@@ -211,11 +214,38 @@ export default function TableArticleVariants({
                                 />
                             </Grid>
                             <Grid item xs={6}>
-                               <DefaultSwitch label='Disponible' checked={variant.available ? true : false}
-                                setChecked={(value:boolean) => handleChangeNewOne(value, 'available', isNew ? undefined : variant)}
-                                stylesLabel={{ml:1}}
-                               />
-                               
+                                <CustomField
+                                    size="small"
+                                    label="Disponibilidad"
+                                    fullWidth
+                                    noValidate
+                                    select
+                                    name="available"
+                                    value={variant.available || IArticleAvailability.AVAILABLE}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value, 'available', isNew ? undefined : variant)
+                                    }
+                                >
+                                    {Object.entries(IArticleAvailability).map(([key, value]) => (
+                                        <MenuItem key={key} value={value}>
+                                            {value}
+                                        </MenuItem>
+                                    ))}
+                                </CustomField>
+                            </Grid>
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Comentario"
+                                    fullWidth
+                                    noValidate
+                                    type="text"
+                                    name="comment"
+                                    value={variant.comment || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value || '', 'comment', isNew ? undefined : variant)
+                                    }
+                                />
                             </Grid>
                             <Grid item xs={6}>
                                 <CustomField

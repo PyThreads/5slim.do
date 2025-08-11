@@ -2,6 +2,7 @@ export interface IArticlesSummary {
     total: number;
     outOfStock: number;
     soldToday: number;
+    lowStockAlert: number;
 }
 export interface IPaginateOrders {
     page: number
@@ -21,6 +22,12 @@ export enum IArticleStatus {
     USED = "Usado",
     USED_LIKE_NEW = "Usado Como Nuevo",
     REFURBISHED = "Reparado"
+}
+
+export enum IArticleAvailability {
+    AVAILABLE = "Disponible",
+    NOT_AVAILABLE = "No disponible",
+    ORDERED = "Encargado"
 }
 
 export enum IPaymentType {
@@ -71,7 +78,8 @@ export interface IArticlesVariants {
     images: IArticleImages[];
     source?: string;
     tracking?: string;
-    available?: boolean;
+    available?: string;
+    comment?: string;
 }
 
 export interface IOrdersSummary {

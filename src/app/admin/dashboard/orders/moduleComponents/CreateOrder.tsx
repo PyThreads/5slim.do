@@ -195,7 +195,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                             >
 
                                 {
-                                    Object.entries(IOrderStatus).map(([_, value]) =>
+                                    [IOrderStatus.PENDING, IOrderStatus.PAID, IOrderStatus.PREPARING_FOR_DELIVERY].map((value) =>
                                     (
                                         <MenuItem key={value} value={value}>
                                             {value}

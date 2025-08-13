@@ -107,6 +107,7 @@ export interface IArticle {
     advertisement?: IAdvertisementArticle
     images: IArticleImages[];
     stockAlert?: number;
+    totalOrders?: number;
 }
 
 export interface IOrder {
@@ -165,6 +166,8 @@ export interface IPaginateClients {
     published?: boolean
     hasStock?: boolean
     lowStock?: boolean
+    hasOrderedVariants?: boolean
+    sortByOrders?: string
 }
 
 
@@ -308,6 +311,7 @@ export interface IAdmin {
     fullName: string
     email: string,
     token?: string
+    profilePicture?: string
 }
 
 export interface IUserAddress {

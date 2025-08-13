@@ -1,4 +1,4 @@
-import { Box, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
+import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Typography } from "@mui/material";
 import { SortTableIcon } from "../../../../../../components/icons/Svg";
 import { Inter } from "next/font/google";
 import { baseService } from "../../../../utils/baseService";
@@ -33,7 +33,9 @@ export default function TableOrderDetailList(
             </Grid>
 
             <Grid item xs={12} mt={2}>
-                <TableContainer component={Paper} sx={styles.tableContainer}>
+                {/* Desktop Table */}
+                <Box sx={{ display: { xs: 'none', md: 'block' } }}>
+                    <TableContainer component={Paper} sx={styles.tableContainer}>
                     <Table size="small" aria-label="a dense table" sx={styles.table}>
                         <TableHead sx={{ padding: 0 }}>
                             <TableRow
@@ -148,10 +150,54 @@ export default function TableOrderDetailList(
 
 
                     </Table>
+                    </TableContainer>
+                </Box>
 
-                </TableContainer>
-
-
+                {/* Mobile Cards */}
+                <Box sx={{ display: { xs: 'block', md: 'none' } }}>
+                    {order.articles.map((row: IArticleCart) => (
+                        <Card key={row.variant._id} sx={styles.mobileCard}>
+                            <CardContent sx={styles.mobileCardContent}>
+                                <Box display="flex" alignItems="center" mb={2}>
+                                    <Box height={49} width={49} minWidth={49} borderRadius="8px" border="1px solid #00000007" boxShadow="0px 0px 4px #F1F3F9" position="relative" mr={2}>
+                                        <Image
+                                            src={row.variant.images.find(item => item.primary)?.url! || row.images.find(item => item.primary)?.url!}
+                                            fill
+                                            alt="Image articles list"
+                                            objectFit="contain"
+                                            style={{ borderRadius: "8px" }}
+                                        />
+                                    </Box>
+                                    <Typography sx={styles.mobileCardTitle}>
+                                        {row.description}
+                                    </Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Precio Unidad:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{baseService.dominicanNumberFormat(row.variant.sellingPrice)}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Unidades:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.variant.stock}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between">
+                                    <Typography sx={styles.mobileCardLabel}>Total:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{baseService.dominicanNumberFormat(row.variant.sellingPrice * row.variant.stock)}</Typography>
+                                </Box>
+                            </CardContent>
+                        </Card>
+                    ))}
+                    
+                    {/* Mobile Total Card */}
+                    <Card sx={{ ...styles.mobileCard, backgroundColor: '#F8F9FF', border: '1px solid #5570F1' }}>
+                        <CardContent sx={styles.mobileCardContent}>
+                            <Box display="flex" justifyContent="space-between">
+                                <Typography sx={{ ...styles.mobileCardLabel, fontWeight: 600, color: '#2C2D33' }}>Total General:</Typography>
+                                <Typography sx={{ ...styles.mobileCardValue, fontWeight: 600, color: '#2C2D33' }}>{baseService.dominicanNumberFormat(order.total.total)}</Typography>
+                            </Box>
+                        </CardContent>
+                    </Card>
+                </Box>
             </Grid>
 
         </Box >
@@ -199,5 +245,32 @@ const styles = {
         },
         borderColor: "#53545C",
         color: "#53545C"
+    },
+    mobileCard: {
+        mb: 2,
+        borderRadius: "12px",
+        boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)"
+    },
+    mobileCardContent: {
+        padding: "16px !important"
+    },
+    mobileCardTitle: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "14px",
+        fontWeight: "600",
+        color: "#2C2D33",
+        flex: 1
+    },
+    mobileCardLabel: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "14px",
+        fontWeight: "500",
+        color: "#8B8D97"
+    },
+    mobileCardValue: {
+        fontFamily: inter.style.fontFamily,
+        fontSize: "14px",
+        fontWeight: "400",
+        color: "#6E7079"
     }
 }

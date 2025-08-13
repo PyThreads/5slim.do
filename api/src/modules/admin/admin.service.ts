@@ -144,6 +144,34 @@ class AdminService extends BaseService {
     }
 
 
+    async updateProfile({ adminId, name, lastName, email, profilePicture }: { adminId: number, name: string, lastName: string, email: string, profilePicture?: string }) {
+        try {
+            const updateData: any = {
+                firstName: name,
+                lastName,
+                fullName: `${name} ${lastName}`,
+                email,
+                profilePicture: profilePicture || ""
+            };
+
+            const result = await this.collection.findOneAndUpdate(
+                { _id: adminId },
+                { $set: updateData },
+                { returnDocument: "after" }
+            );
+
+            if (!result) {
+                throw new Error("No se pudo actualizar el perfil.");
+            }
+
+            delete result.password;
+            return result;
+
+        } catch (error: any) {
+            throw new Error(error?.message || "Ha ocurrido un error al actualizar el perfil.");
+        }
+    }
+
     generateHtmlNotifyPaymentValidation({ clientName, orderId }: { clientName: string, orderId: number }) {
         return `
         <!DOCTYPE html>

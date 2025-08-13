@@ -42,7 +42,6 @@ export default function NotifySubscribed() {
             handleOpen();
 
         } catch (error) {
-            console.log(error)
         } finally {
 
         }

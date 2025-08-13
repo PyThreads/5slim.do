@@ -6,12 +6,13 @@ import { Container, Typography, Drawer, List, ListItem, ListItemIcon, ListItemTe
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon, Notification, HomeSecondTopBar } from '../../../../components/icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon } from '../../../../components/icons/Svg';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
 import Link from 'next/link';
 import { IAdmin } from '../../../../api/src/interfaces';
 import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
 
 const poppins = Poppins({ subsets: ['latin'], display: 'swap', weight: "400" });
 const inter = Inter({ subsets: ['latin'], display: 'swap', weight: "500" });
@@ -90,7 +91,7 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
 
   const currentItem: any = mainPath?.child.find((child) =>
     child.isDynamic ? child.match?.(pathName) : child.path === pathName
-  );
+  ) || (pathName === '/admin/dashboard/profile' ? { title: 'Mi Perfil', order: 1, path: '/admin/dashboard/profile' } : null);
 
   return (
     <Box sx={style.boxLayout}>
@@ -117,6 +118,19 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
             );
           })}
         </Box>
+        
+        <Box sx={{ mt: 'auto', mb: 2 }}>
+          <Box
+            sx={{
+              ...style.li,
+              backgroundColor: pathName === '/admin/dashboard/profile' ? "#5570F1" : "transparent"
+            }}
+            onClick={() => router.push('/admin/dashboard/profile')}
+          >
+            <ProfileIcon filled={pathName === '/admin/dashboard/profile'} />
+            {!hideMenuNames && <Typography sx={{ ...style.menuText, pr: 1.70, color: pathName === '/admin/dashboard/profile' ? "#FFFFFF" : "#45464E" }}>Perfil</Typography>}
+          </Box>
+        </Box>
       </Box>
 
       <Drawer
@@ -135,6 +149,10 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
               </ListItem>
             );
           })}
+          <ListItem onClick={() => { router.push('/admin/dashboard/profile'); setMobileOpen(false); }}>
+            <ListItemIcon><ProfileIcon filled={false} /></ListItemIcon>
+            <ListItemText primary="Perfil" />
+          </ListItem>
         </List>
       </Drawer>
 
@@ -159,14 +177,21 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
               <Box ml={0} mr={1}>
                 <Notification filled={true} />
               </Box>
-              <Image alt="Profile" width={32} height={32} src="/profile.png" style={{ objectFit: "contain" }} />
+              <Box width={32} height={32} position="relative" borderRadius="50%" overflow="hidden">
+                <Image 
+                  alt="Profile" 
+                  fill 
+                  src={currentAdmin?.profilePicture || "/profile.png"} 
+                  style={{ objectFit: "cover" }} 
+                />
+              </Box>
             </Box>
           </Container>
         </Box>
 
         <Container sx={style.topBarSecondBar}>
           <HomeSecondTopBar filled={true} />
-          {mainPath && currentItem && (() => {
+          {(mainPath && currentItem && (() => {
             const breadcrumbItems = mainPath.child
               .filter((child: any) => child.order <= currentItem.order!)
               .sort((a: any, b: any) => a.order - b.order);
@@ -178,7 +203,14 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
                 </Typography>
               </React.Fragment>
             ));
-          })()}
+          })()) || (pathName === '/admin/dashboard/profile' && (
+            <React.Fragment>
+              <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
+              <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
+                <Link href="/admin/dashboard/profile">Mi Perfil</Link>
+              </Typography>
+            </React.Fragment>
+          ))}
         </Container>
 
         <Box sx={style.mainLayoutContainer}>{children}</Box>
@@ -209,6 +241,17 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
         }}
       >
         <Box p={1} sx={{ paddingLeft: 2, paddingRight: 2 }} width={"100%"}>
+          <Typography variant="h6" gutterBottom component="div" fontFamily={"Inter"} color={"#767989"} fontWeight={500}
+            display={"flex"} justifyContent={"space-between"} alignItems={"center"}
+            sx={{ cursor: "pointer", fontSize: { xs: 10, sm: 10, md: 13 }, mb: 1 }}
+            onClick={() => {
+              router.push('/admin/dashboard/profile');
+              setAnchorEl(null);
+            }}
+          >
+            Perfil
+            <PersonIcon sx={{fontSize: { xs: 12, sm: 12, md: 15} }} />
+          </Typography>
 
           <Typography variant="h6" gutterBottom component="div" fontFamily={"Inter"} color={"#767989"} fontWeight={500}
             display={"flex"} justifyContent={"space-between"} alignItems={"center"}
@@ -217,12 +260,9 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
               signOut();
             }}
           >
-            Cerrar session
-
+            Cerrar sesión
             <LogoutIcon sx={{fontSize: { xs: 12, sm: 12, md: 15} }} />
           </Typography>
-
-
         </Box>
       </Popover>
 

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Button, Popover, Box, FormControlLabel, Checkbox, Typography, Divider } from "@mui/material";
+import { Button, Popover, Box, FormControlLabel, Checkbox, Typography, Divider, Select, MenuItem, FormControl } from "@mui/material";
 import { FilterIcon } from "../icons/Svg";
 import { Inter } from "next/font/google";
 
@@ -10,16 +10,17 @@ const inter = Inter({
 });
 
 interface FilterPopoverProps {
-    onFilterChange: (filters: { published?: boolean; hasStock?: boolean; lowStock?: boolean }) => void;
-    currentFilters?: { published?: boolean; hasStock?: boolean; lowStock?: boolean };
+    onFilterChange: (filters: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string }) => void;
+    currentFilters?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string };
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFilters }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
     const [tempFilters, setTempFilters] = useState({
-        published: currentFilters?.published,
         hasStock: currentFilters?.hasStock,
-        lowStock: currentFilters?.lowStock
+        lowStock: currentFilters?.lowStock,
+        hasOrderedVariants: currentFilters?.hasOrderedVariants,
+        sortByOrders: currentFilters?.sortByOrders
     });
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -30,16 +31,18 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
         setAnchorEl(null);
     };
 
-    const handleApply = () => {
-        onFilterChange(tempFilters);
-        handleClose();
-    };
+
 
     const handleClear = () => {
-        const clearedFilters = { published: undefined, hasStock: undefined, lowStock: undefined };
+        const clearedFilters = { hasStock: undefined, lowStock: undefined, hasOrderedVariants: undefined, sortByOrders: undefined };
         setTempFilters(clearedFilters);
         onFilterChange(clearedFilters);
         handleClose();
+    };
+
+    const handleFilterChange = (newFilters: any) => {
+        setTempFilters(newFilters);
+        onFilterChange(newFilters);
     };
 
     const open = Boolean(anchorEl);
@@ -89,33 +92,6 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                 }}
             >
                 <Box>
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
-                        Estado de publicación
-                    </Typography>
-                    
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={tempFilters.published === true}
-                                onChange={(e) => setTempFilters(prev => ({ ...prev, published: e.target.checked ? true : undefined }))}
-                                sx={{ '&.Mui-checked': { color: "#5570F1" } }}
-                            />
-                        }
-                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Solo publicados</Typography>}
-                    />
-                    
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={tempFilters.published === false}
-                                onChange={(e) => setTempFilters(prev => ({ ...prev, published: e.target.checked ? false : undefined }))}
-                                sx={{ '&.Mui-checked': { color: "#5570F1" } }}
-                            />
-                        }
-                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Solo no publicados</Typography>}
-                    />
-
-                    <Divider sx={{ my: 2 }} />
 
                     <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
                         Disponibilidad
@@ -125,7 +101,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                         control={
                             <Checkbox
                                 checked={tempFilters.hasStock === true}
-                                onChange={(e) => setTempFilters(prev => ({ ...prev, hasStock: e.target.checked ? true : undefined }))}
+                                onChange={(e) => {
+                                    const newFilters = { ...tempFilters, hasStock: e.target.checked ? true : undefined };
+                                    handleFilterChange(newFilters);
+                                }}
                                 sx={{ '&.Mui-checked': { color: "#5570F1" } }}
                             />
                         }
@@ -136,7 +115,10 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                         control={
                             <Checkbox
                                 checked={tempFilters.hasStock === false}
-                                onChange={(e) => setTempFilters(prev => ({ ...prev, hasStock: e.target.checked ? false : undefined }))}
+                                onChange={(e) => {
+                                    const newFilters = { ...tempFilters, hasStock: e.target.checked ? false : undefined };
+                                    handleFilterChange(newFilters);
+                                }}
                                 sx={{ '&.Mui-checked': { color: "#5570F1" } }}
                             />
                         }
@@ -147,14 +129,65 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                         control={
                             <Checkbox
                                 checked={tempFilters.lowStock === true}
-                                onChange={(e) => setTempFilters(prev => ({ ...prev, lowStock: e.target.checked ? true : undefined }))}
+                                onChange={(e) => {
+                                    const newFilters = { ...tempFilters, lowStock: e.target.checked ? true : undefined };
+                                    handleFilterChange(newFilters);
+                                }}
                                 sx={{ '&.Mui-checked': { color: "#5570F1" } }}
                             />
                         }
-                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Stock bajo</Typography>}
+                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Alerta stock</Typography>}
                     />
 
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, mt: 3 }}>
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                        Variantes encargadas
+                    </Typography>
+                    
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={tempFilters.hasOrderedVariants === true}
+                                onChange={(e) => {
+                                    const newFilters = { ...tempFilters, hasOrderedVariants: e.target.checked ? true : undefined };
+                                    handleFilterChange(newFilters);
+                                }}
+                                sx={{ '&.Mui-checked': { color: "#5570F1" } }}
+                            />
+                        }
+                        label={<Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '12px', color: '#6E7079' }}>Con variantes encargadas</Typography>}
+                    />
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                        Ordenar por ventas
+                    </Typography>
+                    
+                    <FormControl fullWidth size="small">
+                        <Select
+                            value={tempFilters.sortByOrders || ''}
+                            onChange={(e) => {
+                                const newFilters = { ...tempFilters, sortByOrders: e.target.value || undefined };
+                                handleFilterChange(newFilters);
+                            }}
+                            displayEmpty
+                            sx={{
+                                fontSize: '12px',
+                                fontFamily: inter.style.fontFamily,
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#CFD3D4'
+                                }
+                            }}
+                        >
+                            <MenuItem value="" sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>Sin ordenar</MenuItem>
+                            <MenuItem value="desc" sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>Más vendido primero</MenuItem>
+                            <MenuItem value="asc" sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>Menos vendido primero</MenuItem>
+                        </Select>
+                    </FormControl>
+
+                    <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                         <Button
                             variant="outlined"
                             size="small"
@@ -169,21 +202,6 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                             }}
                         >
                             Limpiar
-                        </Button>
-                        <Button
-                            variant="contained"
-                            size="small"
-                            onClick={handleApply}
-                            fullWidth
-                            sx={{
-                                fontSize: "12px",
-                                fontFamily: inter.style.fontFamily,
-                                textTransform: "none",
-                                backgroundColor: "#5570F1",
-                                "&:hover": { backgroundColor: "#5570F1" }
-                            }}
-                        >
-                            Aplicar filtro
                         </Button>
                     </Box>
                 </Box>

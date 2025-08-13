@@ -25,6 +25,7 @@ class AdminRouter {
 
         //PRIVATE ROUTES
         router.get("/me", this.adminController.me.bind(this.adminController));
+        router.put("/profile", this.adminController.updateProfile.bind(this.adminController));
 
         router.post("/orders/create", adminRoutesValidations.creatOrderValidation(), this.adminController.createOrder.bind(this.adminController));
         router.get("/orders", adminRoutesValidations.paginatOrdersValidation(), this.adminController.getAllOrders.bind(this.adminController));
@@ -32,6 +33,7 @@ class AdminRouter {
         router.put("/orders/cancel/:_id", adminRoutesValidations.printOrder(), this.adminController.cancelOrder.bind(this.adminController));
         router.get("/orders/summary", adminRoutesValidations.summaryOrders(), this.adminController.ordersSummary.bind(this.adminController));
         router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));
+        router.put("/orders/bulk-status", this.adminController.bulkUpdateOrderStatus.bind(this.adminController));
 
         router.post("/client/register", adminRoutesValidations.clientRegister(), this.adminController.clientRegister.bind(this.adminController));
         router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));

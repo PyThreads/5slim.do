@@ -146,7 +146,15 @@ export default function TableArticleVariants({
         const imageUrl = variant.images?.find((img) => img.primary)?.url || mainImage;
 
         return (
-            <Paper sx={{ p: 2, mb: 2, ...style.hideScroll }} elevation={2} >
+            <Paper sx={{ 
+                p: 2, 
+                mb: 2, 
+                ...style.hideScroll,
+                ...(isNew ? {
+                    border: '2px solid #5570F1',
+                    backgroundColor: '#F8F9FF'
+                } : {})
+            }} elevation={2} >
                 <Grid container spacing={2}>
                     <Grid item xs={12} sm={3}>
                         <Box
@@ -233,20 +241,7 @@ export default function TableArticleVariants({
                                     ))}
                                 </CustomField>
                             </Grid>
-                            <Grid item xs={6}>
-                                <CustomField
-                                    size="small"
-                                    label="Comentario"
-                                    fullWidth
-                                    noValidate
-                                    type="text"
-                                    name="comment"
-                                    value={variant.comment || ""}
-                                    onChange={(e: any) =>
-                                        handleChangeNewOne(e.target.value || '', 'comment', isNew ? undefined : variant)
-                                    }
-                                />
-                            </Grid>
+
                             <Grid item xs={6}>
                                 <CustomField
                                     size="small"
@@ -313,6 +308,21 @@ export default function TableArticleVariants({
                                     value={baseService.dominicanNumberFormat(
                                         Number(variant.sellingPrice || 0) - Number(variant.costPrice || 0)
                                     )}
+                                />
+                            </Grid>
+                            <Grid item xs={12}>
+                                <CustomField
+                                    size="small"
+                                    label="Comentario"
+                                    fullWidth
+                                    noValidate
+                                    multiline
+                                    rows={4}
+                                    name="comment"
+                                    value={variant.comment || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value || '', 'comment', isNew ? undefined : variant)
+                                    }
                                 />
                             </Grid>
                             <Grid item xs={12} textAlign="right">

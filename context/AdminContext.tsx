@@ -80,8 +80,23 @@ export function AdminProvider({ children }: Readonly<{ children: React.ReactNode
   }, [])
 
 
+  const refreshAdmin = async () => {
+    try {
+      const accessToken: string | null = localStorage.getItem("TKN-5SL-M0");
+      if (accessToken) {
+        const user = await whoAmI(accessToken);
+        setCurrentAdmin(user);
+        return user;
+      }
+    } catch (error) {
+      console.error('Error refreshing admin:', error);
+    }
+  };
+
   const value: any = {
     currentAdmin,
+    setCurrentAdmin,
+    refreshAdmin,
     setNotify,
     signOut
   };

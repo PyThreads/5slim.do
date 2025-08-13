@@ -311,7 +311,7 @@ class ArticleService extends BaseService {
     async getArticles({ query }: { query: any }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, slug, _id, description, published, hasStock, lowStock } = query;
+            const { page, limit, slug, _id, description, published, hasStock, lowStock, hasOrderedVariants, sortByOrders } = query;
             const match: Record<string, any> = {};
 
             const aggregate = [
@@ -385,10 +385,48 @@ class ArticleService extends BaseService {
                 } as any);
             }
 
-            return await this.paginate({
-                query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.ARTICLES, sort: {
-                    _id: -1
+            if (hasOrderedVariants !== undefined && (hasOrderedVariants === 'true' || hasOrderedVariants === true)) {
+                match["variants"] = { $elemMatch: { available: "Encargado" } };
+            }
+
+            // Add lookup to count total orders for each article
+            aggregate.push({
+                $lookup: {
+                    from: "0RDER",
+                    let: { articleId: "$_id" },
+                    pipeline: [
+                        { $unwind: "$articles" },
+                        { $match: { $expr: { $eq: ["$articles._id", "$$articleId"] } } },
+                        { $group: { _id: null, count: { $sum: 1 } } }
+                    ],
+                    as: "orderCount"
                 }
+            } as any);
+
+            aggregate.push({
+                $addFields: {
+                    totalOrders: {
+                        $ifNull: [{ $arrayElemAt: ["$orderCount.count", 0] }, 0]
+                    }
+                }
+            } as any);
+
+            aggregate.push({
+                $project: {
+                    orderCount: 0
+                }
+            } as any);
+
+            // Determine sort order
+            let sort: any = { _id: -1 }; // default sort
+            if (sortByOrders === 'desc') {
+                sort = { totalOrders: -1, _id: -1 }; // most sold first
+            } else if (sortByOrders === 'asc') {
+                sort = { totalOrders: 1, _id: -1 }; // least sold first
+            }
+
+            return await this.paginate({
+                query: aggregate, page: page ? page : 1, limit: limit ? limit : 10, collection: COLLNAMES.ARTICLES, sort
             });
 
         } catch (error: any) {

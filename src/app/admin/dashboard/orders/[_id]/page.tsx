@@ -107,27 +107,31 @@ export default function AdminClientes() {
                     :
                     (
                         <Grid>
-                            <Grid container justifyContent={"space-between"} alignItems={"center"}>
+                            <Grid container justifyContent={"space-between"} alignItems={{ xs: "flex-start", sm: "center" }} spacing={{ xs: 2, sm: 0 }}>
 
-                                <Box sx={{ display: "flex" }}>
-                                    <Box sx={{ display: "flex" }}>
-                                        <Typography fontFamily={"Inter"} color={"#45464E"}
-                                            sx={{ fontSize: { xs: "9px", sm: "16px" } }}
-                                        >
-                                            Orden Número
-                                        </Typography>
-                                        <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5}
-                                            sx={{ fontSize: { xs: "12px", sm: "16px" } }}
-                                        > #{order?._id}</Typography>
+                                <Grid item xs={12} sm="auto">
+                                    <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1, sm: 3 } }}>
+                                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"}
+                                                sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}
+                                            >
+                                                Orden Número
+                                            </Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5}
+                                                sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 600 }}
+                                            > #{order?._id}</Typography>
+                                        </Box>
+
+                                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}>Fecha</Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5} sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 400 }}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
+                                        </Box>
                                     </Box>
+                                </Grid>
 
-                                    <Box sx={{ display: "flex" }} ml={3}>
-                                        <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "9px", sm: "16px" } }}>Fecha</Typography>
-                                        <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5} sx={{ fontSize: { xs: "9px", sm: "16px" } }}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
-                                    </Box>
-                                </Box>
+                                <Grid item xs={12} sm="auto">
 
-                                <Box>
+                                    <Box sx={{ display: 'flex', flexDirection: { xs: 'column', sm: 'row' }, gap: { xs: 1, sm: 2 }, width: { xs: '100%', sm: 'auto' } }}>
                                     <Button variant="contained" sx={{ ...style.accionButton }}
                                         endIcon={action ? <CircularProgress sx={{ color: "white" }} size={13} /> : <KeyboardArrowDownIcon />}
                                         onClick={(event) => {
@@ -140,7 +144,7 @@ export default function AdminClientes() {
                                         {action ? action : "Acción"}
                                     </Button>
 
-                                    <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton, ml: 2 }}
+                                    <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton }}
                                         onClick={() => {
                                             if (order?.status === IOrderStatus.CANCELLED) {
                                                 return
@@ -150,7 +154,8 @@ export default function AdminClientes() {
                                     >
                                         Cancelar Orden
                                     </Button>
-                                </Box>
+                                    </Box>
+                                </Grid>
 
                             </Grid>
 
@@ -305,9 +310,10 @@ export default function AdminClientes() {
 const style = {
     accionButton: {
         backgroundColor: "#1C1D22",
-        fontSize: { xs: 12, sm: 14 },
+        fontSize: { xs: 14, sm: 14 },
         fontFamily: inter.style.fontFamily,
-        height: { xs: 20, sm: 36 },
+        height: { xs: 44, sm: 36 },
+        minWidth: { xs: '100%', sm: 'auto' },
         textTransform: "none",
         borderRadius: "12px",
         "&:hover": {

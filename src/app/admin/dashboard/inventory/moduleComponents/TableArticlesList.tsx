@@ -35,7 +35,7 @@ export default function TableArticlesList(
             totalPages: number,
             setFilers: Function
             onDoubleClickRow: Function
-            currentFilter?: { published?: boolean; hasStock?: boolean; lowStock?: boolean }
+            currentFilter?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string }
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -63,7 +63,7 @@ export default function TableArticlesList(
                                 onFilterChange={(filters) => {
                                     setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
                                 }}
-                                currentFilters={{ published: currentFilter?.published, hasStock: currentFilter?.hasStock, lowStock: currentFilter?.lowStock }}
+                                currentFilters={{ hasStock: currentFilter?.hasStock, lowStock: currentFilter?.lowStock, hasOrderedVariants: currentFilter?.hasOrderedVariants, sortByOrders: currentFilter?.sortByOrders }}
                             />
                         </Grid>
                         
@@ -189,7 +189,7 @@ export default function TableArticlesList(
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {0}
+                                            {row.totalOrders || 0}
                                         </Typography>
                                     </TableCell>
 
@@ -247,7 +247,7 @@ export default function TableArticlesList(
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Total Órdenes:</Typography>
-                                    <Typography sx={styles.mobileCardValue}>0</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.totalOrders || 0}</Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between">
                                     <Typography sx={styles.mobileCardLabel}>Estado:</Typography>

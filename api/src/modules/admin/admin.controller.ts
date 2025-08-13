@@ -43,6 +43,29 @@ class Admin {
         }
     }
 
+    async bulkUpdateOrderStatus(req: Request, res: Response) {
+        try {
+            const { orderIds, status }: { orderIds: number[], status: IOrderStatus } = req.body;
+
+            for (const orderId of orderIds) {
+                await this.orderService.updateOrderStatus({ orderId, status });
+            }
+
+            return res.status(200).json({
+                success: true,
+                data: null,
+                message: `Se han actualizado ${orderIds.length} órdenes a ${status}.`
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Ha ocurrido un error al actualizar las órdenes."
+            });
+        }
+    }
+
     async articlesSummary (req: Request, res: Response) {
         try {
 
@@ -373,7 +396,10 @@ class Admin {
     async me(req: Request, res: Response) {
         try {
 
-            const user = await this.adminService.collection.findOne({ _id: res.locals.admin._id })
+            const user = await this.adminService.collection.findOne(
+                { _id: res.locals.admin._id },
+                { projection: { password: 0 } } // Exclude password but include all other fields
+            )
 
             res.status(200).json({
                 success: true,
@@ -437,6 +463,34 @@ class Admin {
                 message: error?.message || "Ha ocurrido un error al enviar el código."
             })
 
+        }
+    }
+
+    async updateProfile(req: Request, res: Response) {
+        try {
+            const { name, lastName, email, profilePicture }: { name: string, lastName: string, email: string, profilePicture?: string } = req.body;
+            const adminId = res.locals.admin._id;
+
+            const updatedAdmin = await this.adminService.updateProfile({ 
+                adminId, 
+                name, 
+                lastName, 
+                email, 
+                profilePicture 
+            });
+
+            res.status(200).json({
+                success: true,
+                data: updatedAdmin,
+                message: "Perfil actualizado de forma exitosa."
+            })
+
+        } catch (error: any) {
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Ha ocurrido un error al actualizar el perfil."
+            })
         }
     }
 

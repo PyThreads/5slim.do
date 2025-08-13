@@ -74,6 +74,7 @@ export default function Orders() {
                     limit={filters.limit}
                     totalItems={result?.totalItems || 0}
                     totalPages={result?.totalPages || 0}
+                    onOrdersUpdated={getAllOrders}
                 />
             </Box>
 

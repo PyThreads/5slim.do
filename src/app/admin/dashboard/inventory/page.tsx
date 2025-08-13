@@ -73,7 +73,7 @@ export default function AdminClientes() {
                     limit={filters.limit}
                     totalItems={result?.totalItems || 0}
                     totalPages={result?.totalPages || 0}
-                    currentFilter={{ published: filters.published, hasStock: filters.hasStock, lowStock: filters.lowStock }}
+                    currentFilter={{ hasStock: filters.hasStock, lowStock: filters.lowStock, hasOrderedVariants: filters.hasOrderedVariants, sortByOrders: filters.sortByOrders }}
                 />
             </Box>
 

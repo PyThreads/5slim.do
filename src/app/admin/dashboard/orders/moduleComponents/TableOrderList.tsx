@@ -1,4 +1,4 @@
-import { Box, Button, Card, CardContent, Checkbox, Grid, MenuItem, Paper, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Checkbox, Grid, MenuItem, Paper, Popover, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { Inter } from "next/font/google";
@@ -6,7 +6,7 @@ import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
 import { ordersService } from "../ordersService";
 import { baseService } from "../../../../utils/baseService";
-import { IOrder } from "../../../../../../api/src/interfaces";
+import { IOrder, IOrderStatus } from "../../../../../../api/src/interfaces";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -22,7 +22,8 @@ export default function TableOrderList(
         limit,
         totalItems,
         totalPages,
-        onDoubleClickRow
+        onDoubleClickRow,
+        onOrdersUpdated
     }
         :
         {
@@ -33,9 +34,27 @@ export default function TableOrderList(
             totalPages: number,
             setFilers: Function
             onDoubleClickRow: Function
+            onOrdersUpdated?: Function
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
+    const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+
+    const handleMarkAsDelivered = async () => {
+        if (checked.length === 0) return;
+        
+        try {
+            await ordersService.bulkUpdateOrderStatus({ 
+                orderIds: checked, 
+                status: IOrderStatus.DELIVERED 
+            });
+            setChecked([]);
+            setAnchorEl(null);
+            if (onOrdersUpdated) onOrdersUpdated();
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
 
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
@@ -71,8 +90,12 @@ export default function TableOrderList(
                     </Grid>
 
                     <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
+                        <Button 
+                            variant="outlined" 
+                            sx={{ ...styles.btnAdd }}
                             endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
+                            onClick={(e) => setAnchorEl(e.currentTarget)}
+                            disabled={checked.length === 0}
                         >
                             Acciones
                         </Button>
@@ -343,6 +366,49 @@ export default function TableOrderList(
 
 
             </Grid>
+
+            <Popover
+                open={Boolean(anchorEl)}
+                anchorEl={anchorEl}
+                onClose={() => setAnchorEl(null)}
+                anchorOrigin={{
+                    vertical: 'bottom',
+                    horizontal: 'left',
+                }}
+                transformOrigin={{
+                    vertical: 'top',
+                    horizontal: 'left',
+                }}
+                sx={{
+                    '& .MuiPopover-paper': {
+                        borderRadius: '8px',
+                        padding: '8px',
+                        minWidth: '180px',
+                        boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)'
+                    }
+                }}
+            >
+                <Box>
+                    <Button
+                        fullWidth
+                        variant="text"
+                        onClick={handleMarkAsDelivered}
+                        sx={{
+                            justifyContent: 'flex-start',
+                            textTransform: 'none',
+                            fontSize: '14px',
+                            fontFamily: inter.style.fontFamily,
+                            color: '#2C2D33',
+                            padding: '8px 12px',
+                            '&:hover': {
+                                backgroundColor: '#F5F5F5'
+                            }
+                        }}
+                    >
+                        Marcar como entregado ({checked.length})
+                    </Button>
+                </Box>
+            </Popover>
 
         </Box >
     )

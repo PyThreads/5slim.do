@@ -147,11 +147,22 @@ class OrdersService extends BaseService {
 
     async updateOrderStatus({ orderId, status }: { orderId: number, status: IOrderStatus }): Promise<IOrder> {
         try {
-            const { data } = await this.axiosAdmin.put(`/admin/private/orders/status/${orderId}`, { status });4
+            const { data } = await this.axiosAdmin.put(`/admin/private/orders/status/${orderId}`, { status });
             eventBus.emit("notify", { message: "Estado de la orden actualizado de forma exitosa.", open: true, type: "success", title: "Guardado!" })
             return data.data as IOrder
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al actualizar el estado de la orden."
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
+    async bulkUpdateOrderStatus({ orderIds, status }: { orderIds: number[], status: IOrderStatus }): Promise<void> {
+        try {
+            await this.axiosAdmin.put(`/admin/private/orders/bulk-status`, { orderIds, status });
+            eventBus.emit("notify", { message: `${orderIds.length} órdenes actualizadas a ${status}.`, open: true, type: "success", title: "Actualizado!" })
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || "Ha ocurrido un error al actualizar las órdenes."
             eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
             throw error
         }

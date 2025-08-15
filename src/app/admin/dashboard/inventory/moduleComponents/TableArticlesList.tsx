@@ -58,7 +58,7 @@ export default function TableArticlesList(
                             }} />
                         </Grid>
 
-                        <Grid item xs={6} sm={3} md={2}>
+                        <Grid item xs={12} sm={6} md={2}>
                             <FilterPopover 
                                 onFilterChange={(filters) => {
                                     setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
@@ -98,7 +98,7 @@ export default function TableArticlesList(
 
                                 <TableCell align="center" />
 
-                                <TableCell >
+                                <TableCell width="30%">
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Descripción
@@ -107,8 +107,8 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
+                                <TableCell align="center">
+                                    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Stock
                                         </Typography>
@@ -116,8 +116,26 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
+                                <TableCell align="center">
+                                    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Ordenado
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell align="center">
+                                    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Alerta Stock
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell align="center">
+                                    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Total Ordenes
                                         </Typography>
@@ -125,8 +143,8 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell >
-                                    <Box display={"flex"} alignItems={"center"}>
+                                <TableCell align="center">
+                                    <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Estado
                                         </Typography>
@@ -181,21 +199,37 @@ export default function TableArticlesList(
                                             {row.description}
                                         </Typography>
                                     </TableCell>
-                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                    <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
                                             {articleService.getStockNumber(row)}
                                         </Typography>
                                     </TableCell>
 
-                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                    <TableCell align="center" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                            {articleService.getOrderedStockNumber(row)}
+                                        </Typography>
+                                    </TableCell>
+
+                                    <TableCell align="center" sx={styles.tableCellBody}>
+                                        {articleService.isLowStock(row) && (
+                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#CC5F5F"} fontSize={"12px"}
+                                                borderRadius={"8px"} bgcolor={"#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"} mx={"auto"}
+                                            >
+                                                Ordenar pronto
+                                            </Typography>
+                                        )}
+                                    </TableCell>
+
+                                    <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
                                             {row.totalOrders || 0}
                                         </Typography>
                                     </TableCell>
 
-                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                    <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#519C66"} fontSize={"12px"}
-                                            borderRadius={"8px"} bgcolor={true ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"}
+                                            borderRadius={"8px"} bgcolor={true ? "#32936F29" : "#FBE3E3"} width={"fit-content"} padding={"4px 4px"} textAlign={"center"} mx={"auto"}
                                         >
                                             {row.published ? "Publicado" : "No publicado"}
                                         </Typography>
@@ -245,6 +279,25 @@ export default function TableArticlesList(
                                     <Typography sx={styles.mobileCardLabel}>Stock:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{articleService.getStockNumber(row)}</Typography>
                                 </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Ordenado:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{articleService.getOrderedStockNumber(row)}</Typography>
+                                </Box>
+                                {articleService.isLowStock(row) && (
+                                    <Box display="flex" justifyContent="space-between" mb={1}>
+                                        <Typography sx={styles.mobileCardLabel}>Alerta Stock:</Typography>
+                                        <Typography sx={{
+                                            ...styles.mobileCardValue,
+                                            color: "#CC5F5F",
+                                            backgroundColor: "#FBE3E3",
+                                            padding: "4px 8px",
+                                            borderRadius: "8px",
+                                            fontSize: "12px"
+                                        }}>
+                                            Ordenar pronto
+                                        </Typography>
+                                    </Box>
+                                )}
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Total Órdenes:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{row.totalOrders || 0}</Typography>

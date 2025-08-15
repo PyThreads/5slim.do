@@ -52,6 +52,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
             <Button 
                 variant="outlined" 
                 onClick={handleClick}
+                fullWidth
                 sx={{
                     fontSize: "14px",
                     fontFamily: inter.style.fontFamily,
@@ -63,7 +64,9 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                         backgroundColor: "transparent",
                     },
                     borderColor: "#53545C",
-                    color: "#53545C"
+                    color: "#53545C",
+                    minWidth: { xs: '100%', sm: 'auto' },
+                    width: '100%'
                 }}
                 startIcon={<FilterIcon filled />}
             >

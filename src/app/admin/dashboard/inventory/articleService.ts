@@ -63,6 +63,31 @@ class ArticleService extends BaseService {
         })
         return stockNumber
     }
+
+    getOrderedStockNumber(article: IArticle): number {
+        let orderedStock = 0
+        article.variants.forEach(variants => {
+            if (variants.available === "Encargado" && variants.stock > 0) {
+                orderedStock += variants.stock
+            }
+        })
+        return orderedStock
+    }
+
+    isLowStock(article: IArticle): boolean {
+        // Calculate total available stock (same logic as backend)
+        const totalStock = article.variants.reduce((sum, variant) => {
+            if (variant.stock > 0 && variant.available === "Disponible") {
+                return sum + variant.stock
+            }
+            return sum
+        }, 0)
+        
+        const stockAlert = article.stockAlert || 0
+        
+        // Same logic as backend: totalStock > 0 && totalStock <= stockAlert && stockAlert > 0
+        return totalStock > 0 && totalStock <= stockAlert && stockAlert > 0
+    }
 }
 
 export const articleService = new ArticleService()

@@ -306,7 +306,7 @@ export interface ICreatedBy {
 }
 export interface IAdmin {
     _id: number;
-    name: string;
+    firstName: string;
     lastName: string
     fullName: string
     email: string,

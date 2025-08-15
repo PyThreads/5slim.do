@@ -144,12 +144,12 @@ class AdminService extends BaseService {
     }
 
 
-    async updateProfile({ adminId, name, lastName, email, profilePicture }: { adminId: number, name: string, lastName: string, email: string, profilePicture?: string }) {
+    async updateProfile({ adminId, firstName, lastName, email, profilePicture }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string }) {
         try {
             const updateData: any = {
-                firstName: name,
+                firstName: firstName,
                 lastName,
-                fullName: `${name} ${lastName}`,
+                fullName: `${firstName} ${lastName}`,
                 email,
                 profilePicture: profilePicture || ""
             };

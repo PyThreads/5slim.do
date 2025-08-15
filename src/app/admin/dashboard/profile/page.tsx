@@ -23,7 +23,7 @@ export default function ProfilePage() {
     const refInput = useRef<HTMLInputElement>(null);
     
     const [formData, setFormData] = useState({
-        name: "",
+        firstName: "",
         lastName: "",
         email: "",
         profilePicture: ""
@@ -33,11 +33,11 @@ export default function ProfilePage() {
     useEffect(() => {
         if (currentAdmin) {
             // Handle both possible field names
-            const firstName = currentAdmin.name || "";
+            const firstName = currentAdmin.firstName ||  "";
             const lastName = currentAdmin.lastName || "";
             
             setFormData({
-                name: firstName,
+                firstName: firstName,
                 lastName: lastName,
                 email: currentAdmin.email || "",
                 profilePicture: currentAdmin.profilePicture || ""
@@ -191,8 +191,8 @@ export default function ProfilePage() {
                                     label="Nombre"
                                     fullWidth
                                     size="small"
-                                    value={formData.name}
-                                    onChange={(e: any) => handleInputChange('name', e.target.value)}
+                                    value={formData.firstName}
+                                    onChange={(e: any) => handleInputChange('firstName', e.target.value)}
                                 />
                             </Grid>
                             <Grid item xs={12} sm={6}>

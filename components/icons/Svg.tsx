@@ -620,3 +620,48 @@ export const ProfileIcon: FC<MiIconoProps> = ({ filled }) => {
         </svg>
     );
 };
+
+export const EmployeesIcon: FC<MiIconoProps> = ({ filled }) => {
+    return (
+        <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M20 31.2068C22.689 31.2068 24.842 31.7658 24.842 33.9988C24.842 36.2318 22.71 36.8068 20 36.8068C17.31 36.8068 15.158 36.2528 15.158 34.0188C15.158 31.7848 17.289 31.2068 20 31.2068Z"
+                stroke={filled ? "#FFFFFF" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M20 28.0198C17.578 28.0198 15.614 26.0568 15.614 23.6348C15.614 21.2128 17.578 19.2498 20 19.2498C22.421 19.2498 24.385 21.2128 24.385 23.6348C24.394 26.0478 22.444 28.0108 20.031 28.0198H20Z"
+                stroke={filled ? "#99A9F7" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill={filled ? "#99A9F7" : "transparent"}
+            />
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M36 31.2068C38.689 31.2068 40.842 31.7658 40.842 33.9988C40.842 36.2318 38.71 36.8068 36 36.8068C33.31 36.8068 31.158 36.2528 31.158 34.0188C31.158 31.7848 33.289 31.2068 36 31.2068Z"
+                stroke={filled ? "#FFFFFF" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M36 28.0198C33.578 28.0198 31.614 26.0568 31.614 23.6348C31.614 21.2128 33.578 19.2498 36 19.2498C38.421 19.2498 40.385 21.2128 40.385 23.6348C40.394 26.0478 38.444 28.0108 36.031 28.0198H36Z"
+                stroke={filled ? "#99A9F7" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill={filled ? "#99A9F7" : "transparent"}
+            />
+        </svg>
+    );
+};

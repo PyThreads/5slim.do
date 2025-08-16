@@ -6,7 +6,7 @@ import { Container, Typography, Drawer, List, ListItem, ListItemIcon, ListItemTe
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon } from '../../../../components/icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon } from '../../../../components/icons/Svg';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
 import Link from 'next/link';
@@ -47,6 +47,14 @@ const items = [
     href: "/admin/dashboard/users",
     child: [
       { path: "/admin/dashboard/users", title: "Clientes", order: 1 }
+    ]
+  },
+  {
+    name: "Empleados",
+    icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
+    href: "/admin/dashboard/employees",
+    child: [
+      { path: "/admin/dashboard/employees", title: "Empleados", order: 1 }
     ]
   },
   {

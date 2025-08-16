@@ -12,11 +12,15 @@ class ArticleService extends BaseService {
     }
 
 
-    async articlesSummary(): Promise<IArticlesSummary> {
+    async articlesSummary(ownerId?: number): Promise<IArticlesSummary> {
 
         try {
+            const matchStage = ownerId ? { ownerId } : {};
 
             const pipeline = [
+                {
+                    $match: matchStage
+                },
                 {
                     $facet: {
                         total: [
@@ -84,14 +88,22 @@ class ArticleService extends BaseService {
                 lowStockAlert: 0
             }
 
+            const orderMatch: any = {
+                createdDate: {
+                 $gte: this.utils.getDayBound("startDay", this.utils.newDate()),
+                 $lte: this.utils.getDayBound("endDay", this.utils.newDate())
+                }
+            };
+            if (ownerId) orderMatch.ownerId = ownerId;
+
             const soldToday = await this.mongoDatabase.collection(COLLNAMES.ORDER).aggregate([
                 {
                     $match: {
+                        ...orderMatch,
                         createdDate: {
-                            $gte: this.utils.dayjs().startOf("day").toDate(),
-                            $lt: this.utils.dayjs().endOf("day").toDate()
-                        },
-                        status: {$ne: IOrderStatus.CANCELLED}
+                            $gte: this.utils.getDayBound("startDay", this.utils.newDate()),
+                            $lte: this.utils.getDayBound("endDay", this.utils.newDate())
+                        }
                     }
                 },
                 { $unwind: "$articles" },
@@ -101,7 +113,7 @@ class ArticleService extends BaseService {
                             articleId: "$articles._id",
                             variantId: "$articles.variant._id"
                         },
-                        totalSold: { $sum: "$articles.variant.stock" }
+                        totalSold: { $sum: 1 }
                     }
                 },
                 {
@@ -133,7 +145,7 @@ class ArticleService extends BaseService {
     }
 
 
-    async unsetToOrder({ articles }: { articles: IArticleCart[] }): Promise<void> {
+    async unsetToOrder({ articles,ownerId }: { articles: IArticleCart[],ownerId: number }): Promise<void> {
         try {
 
             let message = "";
@@ -145,6 +157,7 @@ class ArticleService extends BaseService {
                 const isValid = await this.collection.count(
                     {
                         _id: article._id,
+                        ownerId: ownerId,
                         variants: {
                             $elemMatch: {
                                 _id: article.variant._id,
@@ -163,6 +176,7 @@ class ArticleService extends BaseService {
                     arrPromises.push(await this.collection.updateOne(
                         {
                             _id: article._id,
+                            ownerId: ownerId,
                             variants: {
                                 $elemMatch: {
                                     _id: article.variant._id,
@@ -192,7 +206,7 @@ class ArticleService extends BaseService {
         }
     }
 
-    async setToOrder({ articles }: { articles: IArticleCart[] }): Promise<void> {
+    async setToOrder({ articles, user }: { articles: IArticleCart[], user: IAdmin }): Promise<void> {
         try {
             let arrPromises = [];
 
@@ -200,7 +214,8 @@ class ArticleService extends BaseService {
 
                 const exists = await this.collection.count(
                     {
-                        "variants._id": article.variant._id
+                        "variants._id": article.variant._id,
+                        ownerId: user.ownerId
                     }
                 );
 
@@ -209,6 +224,7 @@ class ArticleService extends BaseService {
                     arrPromises.push(await this.collection.updateOne(
                         {
                             _id: article._id,
+                            ownerId: user.ownerId,
                             variants: {
                                 $elemMatch: {
                                     _id: article.variant._id
@@ -229,7 +245,10 @@ class ArticleService extends BaseService {
                 } else {
 
                     arrPromises.push(await this.collection.updateOne(
-                        { _id: article._id },
+                        {
+                            _id: article._id,
+                            ownerId: user.ownerId
+                        },
                         {
                             $push: {
                                 variants: {
@@ -255,7 +274,7 @@ class ArticleService extends BaseService {
     }
 
 
-    async register({ body, user }: { body: IArticle, user: IClient | IAdmin }): Promise<IArticle> {
+    async register({ body, user }: { body: IArticle, user: IAdmin }): Promise<IArticle> {
         try {
 
             body.slug = await this.getArticleSlug(body.description);
@@ -292,10 +311,10 @@ class ArticleService extends BaseService {
         }
     }
 
-    async updateArticle({ _id, user, body }: { _id: number, body: IClient, user: IClient | IAdmin }) {
+    async updateArticle({ _id, user, body }: { _id: number, body: IClient, user: IAdmin }) {
         try {
 
-            const filter = { _id }
+            const filter = { _id ,ownerId: user.ownerId}
             await this.updateOne({ filter, body, user });
             return body
         } catch (error: any) {
@@ -308,11 +327,15 @@ class ArticleService extends BaseService {
      * @param query: IPaginateArticles    
      * @returns 
      */
-    async getArticles({ query }: { query: any }): Promise<IPaginationResult> {
+    async getArticles({ query, ownerId }: { query: any, ownerId?: number }): Promise<IPaginationResult> {
         try {
 
             const { page, limit, slug, _id, description, published, hasStock, lowStock, hasOrderedVariants, sortByOrders } = query;
             const match: Record<string, any> = {};
+
+            if (ownerId) {
+                match["ownerId"] = ownerId;
+            }
 
             const aggregate = [
                 {

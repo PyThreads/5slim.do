@@ -5,7 +5,7 @@ import { Poppins } from 'next/font/google';
 import { Typography } from '@mui/material';
 import { useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, ShoppingBagIcon } from '../icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon } from '../icons/Svg';
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -32,8 +32,13 @@ const items = [
     },
     {
         name: "",
+        icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
+        href: "/admin/dashboard/employees"
+    },
+    {
+        name: "",
         icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
-        href: "/admin/dashboard/users"
+        href: "/admin/dashboard/inventory"
     }
 ]
 

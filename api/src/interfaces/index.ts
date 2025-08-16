@@ -108,6 +108,7 @@ export interface IArticle {
     images: IArticleImages[];
     stockAlert?: number;
     totalOrders?: number;
+    ownerId: number
 }
 
 export interface IOrder {
@@ -122,6 +123,7 @@ export interface IOrder {
     createdBy: ICreatedBy
     updatedBy?: ICreatedBy
     comment?: string
+    ownerId: number
 }
 
 export interface IClientOrder {
@@ -282,6 +284,7 @@ export interface IClient {
     updatedBy?: ICreatedBy
     fullClient: string
     updatedDate?: Date
+    ownerId: number
 }
 
 export interface IPaginatedClient {
@@ -298,12 +301,18 @@ export interface IPaginatedClient {
     updatedDate?: Date
     totalOrdenes: number;
     totalGastado: number;
+    ownerId: number
 }
 
 export interface ICreatedBy {
     _id: number;
     fullName: string;
 }
+export enum IUserType {
+    CLIENTE = "Cliente",
+    EMPLEADO = "Empleado"
+}
+
 export interface IAdmin {
     _id: number;
     firstName: string;
@@ -312,6 +321,8 @@ export interface IAdmin {
     email: string,
     token?: string
     profilePicture?: string
+    userType: IUserType
+    ownerId: number
 }
 
 export interface IUserAddress {

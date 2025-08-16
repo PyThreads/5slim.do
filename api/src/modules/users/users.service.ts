@@ -12,9 +12,10 @@ class UsersService extends BaseService {
     }
 
 
-    async getAllClientsSummary(): Promise<number> {
+    async getAllClientsSummary(user: IAdmin): Promise<number> {
         try {
-            const totalClients = await this.collection.countDocuments({});
+            const filter = {ownerId: user.ownerId}
+            const totalClients = await this.collection.countDocuments(filter);
             return totalClients;
         } catch (error: any) {
             throw error;
@@ -30,12 +31,12 @@ class UsersService extends BaseService {
 
             const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i" } });
 
-            body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
-
             if (exists) {
                 throw new Error("Existe una cuenta con el correo: " + body.email);
             }
-
+            
+            body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
+            
             await this.insertOne({ body, user });
             return body
 
@@ -60,11 +61,15 @@ class UsersService extends BaseService {
      * @param query: IPaginateClients    
      * @returns 
      */
-    async getAllClients({ query }: { query: IPaginateClients }): Promise<IPaginationResult> {
+    async getAllClients({ query, ownerId }: { query: IPaginateClients, ownerId?: number }): Promise<IPaginationResult> {
         try {
 
             const { page, limit, fullName, active, email, _id } = query;
             const match: Record<string, any> = {};
+
+            if (ownerId) {
+                match["ownerId"] = ownerId;
+            }
 
             const aggregate = [
                 {

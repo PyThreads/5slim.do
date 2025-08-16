@@ -20,7 +20,7 @@ class AdminService extends BaseService {
                 throw new Error("No existe un administrador con el correo: " + username);
             }
 
-            const passwordMatch = await this.validateTempCode({ identifier: username,code: password,type: EnumTypeTempCode.START_SESSION,used: false });
+            const passwordMatch = await this.validateTempCode({ identifier: username, code: password, type: EnumTypeTempCode.START_SESSION, used: false });
 
             if (!passwordMatch) {
                 throw new Error("La clave no coincide por favor verifique e intente de nuevo o solicite una nueva.");
@@ -36,10 +36,10 @@ class AdminService extends BaseService {
         }
     }
 
-    async sendEmailCode({email}: { email: string }): Promise<void> {
+    async sendEmailCode({ email }: { email: string }): Promise<void> {
         try {
 
-            const filter = {email: {$regex: this.diacriticSensitive(email), $options: "i"}};
+            const filter = { email: { $regex: this.diacriticSensitive(email), $options: "i" } };
             const queryExistsUser = await this.collection.countDocuments(filter);
 
             if (!queryExistsUser) {
@@ -144,18 +144,18 @@ class AdminService extends BaseService {
     }
 
 
-    async updateProfile({ adminId, firstName, lastName, email, profilePicture }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string }) {
+    async updateProfile({ adminId, firstName, lastName, email, profilePicture, user }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string, user: IAdmin }) {
         try {
             const updateData: any = {
                 firstName: firstName,
                 lastName,
-                fullName: `${firstName} ${lastName}`,
+                fullName: `${firstName.trim()} ${lastName.trim()}`,
                 email,
                 profilePicture: profilePicture || ""
             };
 
             const result = await this.collection.findOneAndUpdate(
-                { _id: adminId },
+                { _id: adminId, ownerId: user.ownerId },
                 { $set: updateData },
                 { returnDocument: "after" }
             );

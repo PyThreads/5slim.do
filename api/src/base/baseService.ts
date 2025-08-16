@@ -223,7 +223,11 @@ class BaseService {
 
             const user = jwt.verify(token, this.JWT_SECRET_KEY) as IUser;
             const userOnDb = await this.mongoDatabase.collection("ADMIN").findOne({ _id: user._id });
-            res.locals.admin = userOnDb; // Asigna el usuario decodificado a req.user
+            
+            // Add ownerId logic based on user type
+            const ownerId = userOnDb.userType === 'Empleado' ? userOnDb.ownerId : userOnDb._id;
+            
+            res.locals.admin = { ...userOnDb, ownerId };
             next();
         } catch (error: any) {
             res.status(401).json({
@@ -251,6 +255,7 @@ class BaseService {
         try {
             let object = { ...body };
             object._id = await this.getSequence();
+            object.ownerId = user.ownerId;
             object.createdDate = body.createdDate ? this.utils.newDate(body.createdDate) : this.utils.newDate();
             object.createdBy = {
                 _id: user._id,

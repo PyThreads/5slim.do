@@ -68,8 +68,8 @@ class Admin {
 
     async articlesSummary (req: Request, res: Response) {
         try {
-
-            const result = await this.articleService.articlesSummary();
+            const admin: IAdmin = res.locals.admin;
+            const result = await this.articleService.articlesSummary(admin.ownerId);
 
             return res.status(200).json({
                 success: true,
@@ -87,9 +87,8 @@ class Admin {
     }
     async ordersSummary(req: Request, res: Response) {
         try {
-
-            const query = req.query as unknown as {from: Date, to: Date}
-
+            const query = req.query as unknown as {from: Date, to: Date,user: IAdmin}
+            query.user = res.locals.admin
             const result = await this.orderService.ordersSummary(query);
 
             return res.status(200).json({
@@ -108,8 +107,8 @@ class Admin {
     }
     async getAllClientsSummary (req: Request, res: Response) {
         try {
-
-            const result = await this.userService.getAllClientsSummary();
+            const admin: IAdmin = res.locals.admin;
+            const result = await this.userService.getAllClientsSummary(admin);
 
             return res.status(200).json({
                 success: true,
@@ -151,7 +150,7 @@ class Admin {
     async printOrder(req: Request, res: Response) {
         try {
 
-            const result = await this.orderService.printOrder({_id: Number(req.params._id)});
+            const result = await this.orderService.printOrder({_id: Number(req.params._id),ownerId: res.locals.admin.ownerId});
             return res.status(200).json({
                 success: true,
                 data: result,
@@ -169,8 +168,9 @@ class Admin {
 
     async getAllOrders (req: Request, res: Response) {
         try {
-
-            const result = await this.orderService.getAllOrders({query: req.query as unknown as IPaginateOrders});
+            const admin: IAdmin = res.locals.admin;
+            const query = req.query as unknown as IPaginateOrders;
+            const result = await this.orderService.getAllOrders({query, ownerId: admin.ownerId});
 
             return res.status(200).json({
                 success: true,
@@ -189,8 +189,9 @@ class Admin {
 
     async createOrder (req: Request, res: Response) {
         try {
-
-            const result =  await this.orderService.createOrder({body: req.body, user: res.locals.admin})
+            const admin: IAdmin = res.locals.admin;
+            req.body.ownerId = admin.ownerId;
+            const result =  await this.orderService.createOrder({body: req.body, user: admin})
 
             return res.status(200).json({
                 success: true,
@@ -232,9 +233,9 @@ class Admin {
 
     async getArticles (req: Request, res: Response) {
         try {
-
-            
-            const result =  await this.articleService.getArticles({query: req.query as unknown as IPaginateClients})
+            const admin: IAdmin = res.locals.admin;
+            const query = req.query as unknown as IPaginateClients;
+            const result =  await this.articleService.getArticles({query, ownerId: admin.ownerId})
 
             return res.status(200).json({
                 success: true,
@@ -372,10 +373,10 @@ class Admin {
 
     async getAllClients(req: Request, res: Response) {
         try {
-
             const query = req.query as unknown as IPaginateClients
+            const admin: IAdmin = res.locals.admin;
 
-            const result = await this.userService.getAllClients({ query })
+            const result = await this.userService.getAllClients({ query, ownerId: admin.ownerId })
 
             res.status(200).json({
                 success: true,
@@ -476,7 +477,8 @@ class Admin {
                 firstName,
                 lastName, 
                 email, 
-                profilePicture 
+                profilePicture ,
+                user: res.locals.admin
             });
 
             res.status(200).json({

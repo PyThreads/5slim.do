@@ -20,7 +20,7 @@ export class OrderService extends BaseService {
         try {
             const { orderId, status } = params;
 
-            if(status === IOrderStatus.CANCELLED) throw new Error("No se puede cambiar al cancelada.")
+            if (status === IOrderStatus.CANCELLED) throw new Error("No se puede cambiar al cancelada.")
 
             const result = await this.collection.findOneAndUpdate(
                 { _id: orderId },
@@ -34,16 +34,16 @@ export class OrderService extends BaseService {
     }
 
 
-    async ordersSummary(params: { from: Date, to: Date }): Promise<IOrdersSummary> {
+    async ordersSummary(params: { from: Date, to: Date,user: IAdmin }): Promise<IOrdersSummary> {
         try {
-
-            const filter = {
+            const filter: any = {
                 createdDate: {
                     $gte: this.utils.getDayBound("startDay", params.from),
                     $lte: this.utils.getDayBound("endDay", params.to)
-                }
-            }
-
+                },
+                ownerId: params.user.ownerId
+            };
+   
             const pipeline = [
                 {
                     $facet: {
@@ -73,7 +73,7 @@ export class OrderService extends BaseService {
                                 $match: filter
                             },
                             {
-                                $count : "total"
+                                $count: "total"
                             },
                             {
                                 $project: {
@@ -170,13 +170,13 @@ export class OrderService extends BaseService {
     }
 
 
-    async cancelOrder({ orderId, type, user }: { orderId: number, user: IAdmin | IClient, type: CancelOrderType }): Promise<IOrder> {
+    async cancelOrder({ orderId, type, user }: { orderId: number, user: IAdmin, type: CancelOrderType }): Promise<IOrder> {
         try {
 
-            const updated: IOrder = await this.updateOne({ filter: { _id: orderId }, body: { status: IOrderStatus.CANCELLED, cancelType: type }, user });
+            const updated: IOrder = await this.updateOne({ filter: { _id: orderId, ownerId: user.ownerId }, body: { status: IOrderStatus.CANCELLED, cancelType: type }, user });
 
             if (type === CancelOrderType.RETURN_ITEMS) {
-                await this.articleService.setToOrder({ articles: updated.articles });
+                await this.articleService.setToOrder({ articles: updated.articles, user });
             }
 
             return updated;
@@ -186,9 +186,9 @@ export class OrderService extends BaseService {
         }
     }
 
-    async printOrder({ _id }: { _id: number }): Promise<any> {
+    async printOrder({ _id,ownerId }: { _id: number,ownerId: number }): Promise<any> {
         try {
-            const order = await this.collection.findOne({ _id });
+            const order = await this.collection.findOne({ _id,ownerId });
             const html = invoiceCreated({ order });
             return await generarFacturaPDF({ html });
         } catch (error: any) {
@@ -199,11 +199,11 @@ export class OrderService extends BaseService {
     async createOrder({ body, user }: { body: IOrder, user: IClient | IAdmin }): Promise<IOrder> {
         try {
 
-            await this.articleService.unsetToOrder({ articles: body.articles });
+            await this.articleService.unsetToOrder({ articles: body.articles, ownerId: user.ownerId });
 
             body.total = this.getTotalOrder(body.articles);
 
-            const result  = await this.insertOne({ body, user });
+            const result = await this.insertOne({ body, user });
             return result as unknown as IOrder;
 
         } catch (error: any) {
@@ -225,10 +225,12 @@ export class OrderService extends BaseService {
     }
 
 
-    async getAllOrders({ query }: { query: IPaginateOrders }): Promise<IPaginationResult> {
+    async getAllOrders({ query, ownerId }: { query: IPaginateOrders, ownerId: number }): Promise<IPaginationResult> {
         try {
 
-            const match: any = {};
+            const match: any = {
+                ownerId
+            };
 
             if (query.fullClient) {
                 match["client.fullClient"] = { $regex: this.diacriticSensitive(query.fullClient), $options: "i" };

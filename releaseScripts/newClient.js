@@ -13,11 +13,11 @@ if (result.hasNext()) {
 db.getCollection("ADMIN").insertOne(
     {
         "_id" : idSet,
-        "firstName" : "Deivi",
-        "lastName" : "Roque",
-        "fullName" : "Lucia Figuereo",
-        "email" : "contacttojosereyes@gmail.com",
-        "profilePicture" : "https://imagedelivery.net/CX38V24nwkmn2S2w867q4w/e35c2985-cd64-4673-200b-886744a59f00/public",
+        "firstName" : "",
+        "lastName" : "",
+        "fullName" : "",
+        "email" : "",
+        "profilePicture" : "",
         "userType" : "Cliente",
         "ownerId" : idSet
     }

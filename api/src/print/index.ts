@@ -38,3 +38,26 @@ export async function generarFacturaPDF({
 
   return base64PDF;
 }
+
+export async function generarLabelPDF({ html }: { html: string }): Promise<string> {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+
+  const page = await browser.newPage();
+  await page.setViewport({ width: 384, height: 288 }); // 4in x 3in at 96 DPI
+  await page.setContent(html, { waitUntil: 'load' });
+
+  const pdfBuffer = await page.pdf({
+    width: '4in',
+    height: '3in',
+    printBackground: true,
+    margin: { top: 0, bottom: 0, left: 0, right: 0 },
+  });
+
+  await browser.close();
+
+  const base64PDF = Buffer.from(pdfBuffer).toString("base64");
+  return base64PDF;
+}

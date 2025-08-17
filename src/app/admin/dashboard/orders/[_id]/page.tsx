@@ -10,6 +10,7 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import SplashScreen from "../../../../providers/SplashScreen";
 import SummaryOrderDetails from "../moduleComponents/SummaryOrderDetails";
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
+import LocalShippingIcon from '@mui/icons-material/LocalShipping';
 import CircularProgress from '@mui/material/CircularProgress';
 import CustomModal from "../../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
@@ -49,10 +50,10 @@ export default function AdminClientes() {
         getOrder()
     }, [getOrder])
 
-    const handlePrint = async () => {
+    const handlePrint = async (label=false) => {
         setaction("Imprimiendo")
         setAnchorEl(null);
-        await ordersService.printOrder(order!._id);
+        label ? await ordersService.printOrderLabel(order!._id) : await ordersService.printOrder(order!._id);
         setaction("")
     };
 
@@ -192,12 +193,22 @@ export default function AdminClientes() {
                                 <Box p={1}>
                                     <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
                                     
-                                        onClick={handlePrint}
+                                        onClick={()=>handlePrint()}
                                     >
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                            Imprimir
+                                            Imprimir factura
                                         </Typography>
                                         <LocalPrintshopIcon fontSize="small" />
+                                    </Box>
+
+                                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                    
+                                        onClick={()=>handlePrint(true)}
+                                    >
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                            Imprimir label
+                                        </Typography>
+                                        <LocalShippingIcon fontSize="small" />
                                     </Box>
 
                                     {

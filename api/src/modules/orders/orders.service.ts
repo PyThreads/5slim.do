@@ -3,8 +3,9 @@ import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
 import { ArticleService } from "../articles/articles.service";
-import { generarFacturaPDF } from "../../print";
+import { generarFacturaPDF, generarLabelPDF } from "../../print";
 import { invoiceCreated } from "../../print/invoice/invoice.created";
+import { invoiceLabel } from "../../print/invoice/invoice.label";
 
 export class OrderService extends BaseService {
 
@@ -191,6 +192,16 @@ export class OrderService extends BaseService {
             const order = await this.collection.findOne({ _id,ownerId });
             const html = invoiceCreated({ order });
             return await generarFacturaPDF({ html });
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    async printOrderLabel({ _id, ownerId }: { _id: number, ownerId: number }): Promise<any> {
+        try {
+            const order = await this.collection.findOne({ _id, ownerId });
+            const html = await invoiceLabel({ order });
+            return await generarLabelPDF({ html });
         } catch (error: any) {
             throw error;
         }

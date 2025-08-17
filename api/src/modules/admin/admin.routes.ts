@@ -31,6 +31,7 @@ class AdminRouter {
         router.post("/orders/create", adminRoutesValidations.creatOrderValidation(), this.adminController.createOrder.bind(this.adminController));
         router.get("/orders", adminRoutesValidations.paginatOrdersValidation(), this.adminController.getAllOrders.bind(this.adminController));
         router.get("/orders/print/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
+        router.get("/orders/print-label/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrderLabel.bind(this.adminController));
         router.put("/orders/cancel/:_id", adminRoutesValidations.printOrder(), this.adminController.cancelOrder.bind(this.adminController));
         router.get("/orders/summary", adminRoutesValidations.summaryOrders(), this.adminController.ordersSummary.bind(this.adminController));
         router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));

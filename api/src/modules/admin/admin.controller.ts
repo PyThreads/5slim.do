@@ -166,6 +166,24 @@ class Admin {
         }
     }
 
+    async printOrderLabel(req: Request, res: Response) {
+        try {
+            const result = await this.orderService.printOrderLabel({_id: Number(req.params._id), ownerId: res.locals.admin.ownerId});
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Se ha imprimido de forma exitosa la etiqueta de la orden."
+            })
+
+        } catch (_) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al imprimir la etiqueta de la orden."
+            })
+        }
+    }
+
     async getAllOrders (req: Request, res: Response) {
         try {
             const admin: IAdmin = res.locals.admin;

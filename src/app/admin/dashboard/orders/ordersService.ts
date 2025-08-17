@@ -57,6 +57,21 @@ class OrdersService extends BaseService {
         }
     }
 
+    async printOrderLabel(_id: number): Promise<void> {
+        try {
+            const { data: { data } }: any = await adminAxios.get("/admin/private/orders/print-label/" + _id)
+            const byteCharacters = atob(data);
+            const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
+            const byteArray = new Uint8Array(byteNumbers);
+            const blob = new Blob([byteArray], { type: 'application/pdf' });
+            const blobUrl = URL.createObjectURL(blob);
+            window.open(blobUrl, '_blank');
+        } catch (error: any) {
+            const message = "Ha ocurrido un error al imprimir la etiqueta."
+            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+        }
+    }
+
     async getAllOrders(query: any): Promise<IPaginationResult> {
         try {
             const params = this.transformQuery(query)

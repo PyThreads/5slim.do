@@ -1,10 +1,10 @@
-import { IArticleCart, IOrder } from "../../interfaces"
+import { IOrder } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
 export const invoiceLabel = async ({ order }: { order: IOrder }) => {
 
-    const result = await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || ''},${order.client.address?.map?.lng || ''}&navigate=yes`, { errorCorrectionLevel: 'H' })
+    const result = await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || ''},${order.client.address?.map?.lng || ''}&navigate=yes`, { errorCorrectionLevel: 'H', })
 
 
     return `
@@ -57,7 +57,6 @@ export const invoiceLabel = async ({ order }: { order: IOrder }) => {
             display: flex;
             justify-content: center;
             align-items: center;
-            border-bottom: 1px solid #ddd;
             padding-bottom: 6px;
         }
 
@@ -203,7 +202,10 @@ export const invoiceLabel = async ({ order }: { order: IOrder }) => {
         .icon-payment { background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>') no-repeat center; background-size: contain; }
     </style>
 </head>
-<body>
+<body style="position:relative">
+
+    <img src="${result}" style="position:absolute;top: 5px;right:5px; width:115px;height:115px" alt="Logo de la empresa">
+    
     <div class="label-container">
         <!-- Header Section -->
         <div class="header-section">
@@ -244,7 +246,7 @@ export const invoiceLabel = async ({ order }: { order: IOrder }) => {
             
             <div class="location-section">
                 <div class="location-qr-container">
-                    <img src="${result}" width="65" height="65" alt="Logo de la empresa">
+                    
                 </div>
   
             </div>

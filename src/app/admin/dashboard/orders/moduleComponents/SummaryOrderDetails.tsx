@@ -43,7 +43,7 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
                                     <Typography fontFamily={"Inter"} color={"#8B8D97"} fontSize={"12px"} fontWeight={300} >Contacto</Typography>
                                     <Box >
                                         <Grid item container alignItems={"center"} >
-                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px"}}} fontWeight={500} >{order.client.address.phone}</Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px"}}} fontWeight={500} >{order.client.address?.phone || order.client.phone || 'N/A'}</Typography>
                                         </Grid>
                                     </Box>
                                 </Box>
@@ -74,7 +74,7 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
                             <Grid xs={12} >
                                 <Box bgcolor={"#ffcc9140"} width={36} height={36} borderRadius={"8px"} display={"flex"} justifyContent={"center"} alignItems={"center"} sx={{ cursor: "pointer" }}
                                     onClick={() => {
-                                        if (order.client.address.isMap) {
+                                        if (order.client.address?.isMap) {
                                             window.open(order.client.address.map?.url, "_blank")
                                         }
                                     }
@@ -93,7 +93,7 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
                                     <Typography fontFamily={"Inter"} color={"#8B8D97"} fontSize={"12px"} fontWeight={300} >Dirección</Typography>
                                     <Box >
                                         <Grid item container alignItems={"center"} >
-                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >{baseService.fullAddress(order.client.address)}</Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >{order.client.address ? baseService.fullAddress(order.client.address) : 'N/A'}</Typography>
                                         </Grid>
                                     </Box>
                                 </Box>

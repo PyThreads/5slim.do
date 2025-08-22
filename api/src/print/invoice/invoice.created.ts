@@ -122,8 +122,8 @@ export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string })
         <div class="section-title">Información del Cliente</div>
         <div class="cliente-info">
             <p><strong>Nombre: </strong> ${order.client.fullName}</p>
-            <p><strong>Dirección: </strong>${utils.fullAddress(order.client.address)}.</p>
-            <p><strong>Teléfono: </strong>${order.client.address.phone}</p>
+            <p><strong>Dirección: </strong>${order.client.address ? utils.fullAddress(order.client.address) : 'N/A'}.</p>
+            <p><strong>Teléfono: </strong>${order.client.address?.phone || order.client.phone || 'N/A'}</p>
             <p><strong>Email: </strong>${order.client.email}</p>
         </div>
 

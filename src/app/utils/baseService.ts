@@ -107,7 +107,11 @@ export class BaseService {
         return formatter.format(number);
     }
 
-    fullAddress(address: IClientAddress): string {
+    fullAddress(address?: IClientAddress): string {
+        if (!address) {
+            return "N/A";
+        }
+
         let add = "";
 
         if (address.address) {
@@ -130,7 +134,7 @@ export class BaseService {
             add = `${add}, ${address.country}`;
         }
 
-        return add + ".";
+        return add ? add + "." : "N/A";
     }
 }
 

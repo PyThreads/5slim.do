@@ -83,9 +83,9 @@ export default function TableOrderDetailList(
                             </TableRow>
                         </TableHead>
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
-                            {order.articles.map((row: IArticleCart) => (
+                            {order.articles.map((row: IArticleCart, index: number) => (
                                 <TableRow
-                                    key={row.variant._id}
+                                    key={`${row.variant._id}-${index}`}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
 
                                 >
@@ -129,7 +129,7 @@ export default function TableOrderDetailList(
                                 </TableRow>
                             ))}
 
-                            <TableRow>
+                            <TableRow key="total-row">
                                 <TableCell align="left" sx={styles.tableCellBody} />
                                 <TableCell align="left" sx={styles.tableCellBody} />
                                 <TableCell align="left" sx={styles.tableCellBody}>
@@ -155,8 +155,8 @@ export default function TableOrderDetailList(
 
                 {/* Mobile Cards */}
                 <Box sx={{ display: { xs: 'block', md: 'none' } }}>
-                    {order.articles.map((row: IArticleCart) => (
-                        <Card key={row.variant._id} sx={styles.mobileCard}>
+                    {order.articles.map((row: IArticleCart, index: number) => (
+                        <Card key={`mobile-${row.variant._id}-${index}`} sx={styles.mobileCard}>
                             <CardContent sx={styles.mobileCardContent}>
                                 <Box display="flex" alignItems="center" mb={2}>
                                     <Box height={49} width={49} minWidth={49} borderRadius="8px" border="1px solid #00000007" boxShadow="0px 0px 4px #F1F3F9" position="relative" mr={2}>

@@ -252,16 +252,17 @@ export default function AdminClientes() {
                                         <LabelIcon fontSize="small" />
                                     </Box>
 
+                                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                        onClick={handleOpenCommentModal}
+                                    >
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                            Agregar comentario
+                                        </Typography>
+                                        <CommentIcon fontSize="small" />
+                                    </Box>
+
                                     {order!.status !== IOrderStatus.CANCELLED && (
                                         <>
-                                            <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
-                                                onClick={handleOpenCommentModal}
-                                            >
-                                                <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                                    Agregar comentario
-                                                </Typography>
-                                                <CommentIcon fontSize="small" />
-                                            </Box>
 
                                             {[IOrderStatus.PAID, IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order!.status) && (
                                                 <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}

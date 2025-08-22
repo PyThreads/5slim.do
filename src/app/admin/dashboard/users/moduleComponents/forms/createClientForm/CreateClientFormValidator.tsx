@@ -5,6 +5,7 @@ export const initialValuesClientForm = {
     lastName: "",
     fullName: "",
     email: "",
+    phone: "",
     addresses: [
     ],
 
@@ -15,18 +16,19 @@ export const validationSchemaClientForm = Yup.object().shape({
     lastName: Yup.string().required('El apellido es requerido*.').trim(),
     fullName: Yup.string().trim(),
     email: Yup.string().required('El correo es requerido*.').trim(),
+    phone: Yup.string().required('El teléfono es requerido*.').trim(),
     addresses: Yup.array().of(
         Yup.object().shape({
-            type: Yup.string().required('El tipo de domicilio es requerido*.').trim(),
+            type: Yup.string().trim(),
             name: Yup.string(),
-            address: Yup.string().required('La dirección es requerida*.').trim(),
-            city: Yup.string().required('La ciudad es requerida*.').trim(),
-            county: Yup.string().required('El municipio es requerido*.').trim(),
-            childCounty: Yup.string().required('El sector es requerido*.').trim(),
-            phone: Yup.string().required('El teléfono es requerido*.').trim(),
+            address: Yup.string().trim(),
+            city: Yup.string().trim(),
+            county: Yup.string().trim(),
+            childCounty: Yup.string().trim(),
+            phone: Yup.string().trim(),
             isMap: Yup.boolean(),
             map: Yup.object(),
-            default: Yup.boolean().required('El domicilio es requerido*.'),
+            default: Yup.boolean(),
             country: Yup.string().trim()
         })
     )})

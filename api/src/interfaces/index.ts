@@ -132,7 +132,8 @@ export interface IClientOrder {
     fullName: string;
     fullClient: string;
     email: string;
-    address: IClientAddress
+    phone: string;
+    address?: IClientAddress
     createdDate: Date;
 }
 
@@ -279,6 +280,7 @@ export interface IClient {
     lastName: string;
     fullName: string;
     email: string;
+    phone: string;
     addresses: IClientAddress[];
     createdDate?: Date
     createdBy?: ICreatedBy
@@ -294,6 +296,7 @@ export interface IPaginatedClient {
     lastName: string;
     fullName: string;
     email: string;
+    phone: string;
     addresses: IClientAddress[];
     createdDate?: Date
     createdBy?: ICreatedBy

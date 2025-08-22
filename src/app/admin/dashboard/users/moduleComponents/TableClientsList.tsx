@@ -209,7 +209,7 @@ export default function TableClientsList(
                                     </TableCell>
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.addresses[0]?.phone || "N/A"}
+                                            {row.phone || (row.addresses.length > 0 ? row.addresses[0].phone : "N/A")}
                                         </Typography>
                                     </TableCell>
                                     <TableCell align="center" sx={styles.tableCellBody}>
@@ -269,7 +269,7 @@ export default function TableClientsList(
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Teléfono:</Typography>
-                                    <Typography sx={styles.mobileCardValue}>{row.addresses[0]?.phone || "N/A"}</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.phone || "N/A"}</Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Órdenes:</Typography>

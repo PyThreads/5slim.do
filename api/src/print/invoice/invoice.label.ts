@@ -4,7 +4,7 @@ import QRCode from "qrcode";
 
 export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: string }) => {
 
-    const result = await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || ''},${order.client.address?.map?.lng || ''}&navigate=yes`, { errorCorrectionLevel: 'H', })
+    const result = order.client.address ? await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || '18.4861'},${order.client.address?.map?.lng || '-69.9312'}&navigate=yes`, { errorCorrectionLevel: 'H', }) : null
 
 
     return `
@@ -204,7 +204,7 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
 </head>
 <body style="position:relative">
 
-    <img src="${result}" style="position:absolute;top: 5px;right:5px; width:115px;height:115px" alt="Logo de la empresa">
+    ${order.client.address ? `<img src="${result}" style="position:absolute;top: 5px;right:5px; width:115px;height:115px" alt="QR Code">` : `<div style="position:absolute;top: 5px;right:5px; width:115px;height:115px; display:flex; align-items:center; justify-content:center; background:#f0f0f0; border:2px dashed #ccc; font-size:12px; font-weight:bold; color:#666; text-align:center;">NO<br>DIRECCIÓN</div>`}
     
     <div class="label-container">
         <!-- Header Section -->
@@ -230,12 +230,12 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
                 <div class="info-row">
                     <span class="icon icon-phone"></span>
                     <span class="info-label">Tel:</span>
-                    <span class="info-value">${order.client.address?.phone || 'N/A'}</span>
+                    <span class="info-value">${order.client.phone || order.client.address?.phone || 'N/A'}</span>
                 </div>
                 <div class="info-row">
                     <span class="icon icon-location"></span>
                     <span class="info-label">Dirección:</span>
-                    <span class="info-value">${utils.fullAddress(order.client.address)}</span>
+                    <span class="info-value">${order.client.address ? utils.fullAddress(order.client.address) : 'N/A'}</span>
                 </div>
                 <div class="info-row">
                     <span class="icon icon-payment"></span>

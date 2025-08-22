@@ -114,6 +114,7 @@ export const CustomField = ({
     <>
       <TextField
         {...fieldProps}
+        value={fieldProps.value || props.value || ''}
         size="medium"
         name={name}
         sx={{

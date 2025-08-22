@@ -68,7 +68,11 @@ class Utils {
         return formatter.format(number);
     }
 
-    fullAddress(address: IClientAddress): string {
+    fullAddress(address?: IClientAddress): string {
+        if (!address) {
+            return "N/A";
+        }
+
         let add = "";
 
         if (address.address) {
@@ -91,7 +95,7 @@ class Utils {
             add = `${add}, ${address.country}`;
         }
 
-        return add + ".";
+        return add ? add + "." : "N/A";
     }
 
     newDate(date?: Date | string): Date {

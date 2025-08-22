@@ -140,7 +140,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                                     setOrder({
                                         ...order, client: {
-                                            _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, address: newValue.addresses.find(address => address.default)!, email: newValue.email,
+                                            _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, phone: newValue.phone, address: newValue.addresses.find(address => address.default), email: newValue.email,
                                             createdDate: newValue.createdDate!
                                         }
                                     })
@@ -445,9 +445,9 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                             <TableBody>
 
-                                {selectedArticle && selectedArticle.variants.filter((item: IArticlesVariants) => item.available).map((row: IArticlesVariants) => (
+                                {selectedArticle && selectedArticle.variants.filter((item: IArticlesVariants) => item.available).map((row: IArticlesVariants, index: number) => (
                                     <TableRow
-                                        key={row._id}
+                                        key={`${row._id}-${index}`}
                                         sx={{ '&:last-child td, &:last-child th': { border: 0 } }}
                                         onDoubleClick={() => {
                                             if (row.available !== "Disponible") {

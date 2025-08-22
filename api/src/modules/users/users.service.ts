@@ -35,7 +35,7 @@ class UsersService extends BaseService {
                 throw new Error("Existe una cuenta con el correo: " + body.email);
             }
             
-            body.fullClient = `${body.fullName} ${body.email} ${body.addresses.length > 0 ? body.addresses.map((a: any) => a.phone + " ") : ''}`.trim();
+            body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
             
             await this.insertOne({ body, user });
             return body
@@ -48,6 +48,7 @@ class UsersService extends BaseService {
     async updateClient({ _id, user, body }: { _id: number, body: IClient, user: IClient | IAdmin }) {
         try {
 
+            body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
             const filter = { _id }
             await this.updateOne({ filter, body, user });
             return body
@@ -109,6 +110,7 @@ class UsersService extends BaseService {
                         lastName: 1,
                         fullName: 1,
                         email: 1,
+                        phone: 1,
                         addresses: 1,
                         fullClient: 1,
                         createdDate: 1,

@@ -143,9 +143,7 @@ class OrdersService extends BaseService {
             throw new Error("La orden debe tener al menos un artículo.")
         }
 
-        if (!order?.client?.address) {
-            throw new Error("Por favor agregar una dirección al cliente.")
-        }
+
     }
 
     async cancelOrder({ orderId, type }: { orderId: number, type: CancelOrderType }): Promise<IOrder> {

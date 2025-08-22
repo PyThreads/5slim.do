@@ -8,6 +8,7 @@ import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
 import FilterPopover from "../../../../../../components/inputs/FilterPopover";
 import Image from "next/image";
+import Link from "next/link";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -195,9 +196,23 @@ export default function TableArticlesList(
 
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"} ml={1}>
-                                            {row.description}
-                                        </Typography>
+                                        <Link href={`/admin/dashboard/inventory/newArticle/${row._id}`} target="_blank" style={{ textDecoration: 'none' }}>
+                                            <Typography 
+                                                fontFamily={"Inter"} 
+                                                fontWeight={"400"} 
+                                                color={"#5570F1"} 
+                                                fontSize={"12px"} 
+                                                ml={1}
+                                                sx={{ 
+                                                    cursor: 'pointer',
+                                                    '&:hover': {
+                                                        textDecoration: 'underline'
+                                                    }
+                                                }}
+                                            >
+                                                {row.description}
+                                            </Typography>
+                                        </Link>
                                     </TableCell>
                                     <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>

@@ -59,7 +59,7 @@ export const CreateArticleForm = () => {
                                 <Grid container item xs={12} sm={6} spacing={2}>
 
                                     <Grid item xs={12} >
-                                        <CustomField name="description" placeholder="Nombre del articulo" fullWidth value={values.description} />
+                                        <CustomField name="description" label="Descripción" placeholder="Nombre del articulo" fullWidth value={values.description} />
                                     </Grid>
 
                                     <Grid item xs={12} >
@@ -77,11 +77,22 @@ export const CreateArticleForm = () => {
                                     </Grid>
 
                                     <Grid item xs={12} >
-                                        <CustomField  placeholder="Unidades disponibles" type="number" fullWidth value={articleService.getStockNumber(values)} disabled noValidate />
+                                        <CustomField label="Unidades" placeholder="Unidades disponibles" type="number" fullWidth value={articleService.getStockNumber(values)} disabled noValidate />
                                     </Grid>
 
                                     <Grid item xs={12} >
-                                        <CustomField name="stockAlert" placeholder="Alerta de stock bajo" type="number" fullWidth value={values.stockAlert || ""} />
+                                        <CustomField 
+                                            name="stockAlert" 
+                                            label="Stock Alert" 
+                                            placeholder="Alerta de stock bajo" 
+                                            type="number" 
+                                            fullWidth 
+                                            value={values.stockAlert || 0} 
+                                            onChange={(e: any) => {
+                                                const value = e.target.value;
+                                                setFieldValue("stockAlert", value === "" ? 0 : Number(value));
+                                            }}
+                                        />
                                     </Grid>
 
                                     <Grid container item xs={12} spacing={2} >
@@ -119,7 +130,7 @@ export const CreateArticleForm = () => {
                                         values.hasDiscount &&
                                         <Grid container item xs={12} spacing={2}>
                                             <Grid item xs={6} >
-                                                <CustomField select name="discount.type" placeholder="Nombres" fullWidth
+                                                <CustomField select name="discount.type" label="Tipo de Descuento" placeholder="Nombres" fullWidth
                                                     onChange={(e: any) => setFieldValue("discount.type", e.target.value)}
                                                     value={values?.discount?.type || ""}>
                                                     {Object.entries(IDiscountType).map((option) => (
@@ -130,7 +141,7 @@ export const CreateArticleForm = () => {
                                                 </CustomField>
                                             </Grid>
                                             <Grid item xs={6} >
-                                                <CustomField name="discount.value" placeholder="Valor del descuento" type="number" fullWidth value={values?.discount?.value || ""} />
+                                                <CustomField name="discount.value" label="Valor del Descuento" placeholder="Valor del descuento" type="number" fullWidth value={values?.discount?.value || ""} />
                                             </Grid>
 
 
@@ -156,7 +167,7 @@ export const CreateArticleForm = () => {
                                             {
                                                 values?.discount?.hasExpiration &&
                                                 <Grid item xs={12}>
-                                                    <CustomField name="discount.endDate" placeholder="Precio de Venta" fullWidth type="datetime-local"
+                                                    <CustomField name="discount.endDate" label="Fecha de Expiración" placeholder="Precio de Venta" fullWidth type="datetime-local"
                                                         value={
                                                             baseService.dateToDateTimeLocal(values?.discount?.endDate || "")
                                                         }
@@ -178,7 +189,7 @@ export const CreateArticleForm = () => {
                                 <Grid item xs={12} sm={6} >
 
                                     <Grid item xs={12} >
-                                        <CustomField name="shortDescription" placeholder="Descripción corta" fullWidth value={values.shortDescription} multiline rows={8} />
+                                        <CustomField name="shortDescription" label="Descripción Corta" placeholder="Descripción corta" fullWidth value={values.shortDescription} multiline rows={8} />
                                     </Grid>
 
                                     <Grid item xs={12} mt={2} >
@@ -196,7 +207,7 @@ export const CreateArticleForm = () => {
                                             </Grid>
 
                                             <Grid item xs={6} >
-                                                <CustomField name="advertisement.value" placeholder="Valor de la publicidad" fullWidth value={values?.advertisement?.value} />
+                                                <CustomField name="advertisement.value" label="Valor de Publicidad" placeholder="Valor de la publicidad" fullWidth value={values?.advertisement?.value} />
                                             </Grid>
                                         </Grid>
                                     </Grid>

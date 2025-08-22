@@ -36,6 +36,7 @@ class AdminRouter {
         router.get("/orders/summary", adminRoutesValidations.summaryOrders(), this.adminController.ordersSummary.bind(this.adminController));
         router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));
         router.put("/orders/bulk-status", this.adminController.bulkUpdateOrderStatus.bind(this.adminController));
+        router.put("/orders/:orderId/comment", this.adminController.updateOrderComment.bind(this.adminController));
 
         router.post("/client/register", adminRoutesValidations.clientRegister(), this.adminController.clientRegister.bind(this.adminController));
         router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));
@@ -49,6 +50,11 @@ class AdminRouter {
         router.put("/articles/update/:_id", adminRoutesValidations.validationSchemaArticleForm(), this.adminController.updateArticle.bind(this.adminController));
         router.get("/articles", adminRoutesValidations.getAllArticles(), this.adminController.getArticles.bind(this.adminController));
         router.get("/articles/summary", this.adminController.articlesSummary.bind(this.adminController));
+        
+        router.post("/articles/:articleId/variants", this.adminController.addVariant.bind(this.adminController));
+        router.put("/articles/:articleId/variants/:variantId", this.adminController.updateVariant.bind(this.adminController));
+        router.delete("/articles/:articleId/variants/:variantId", this.adminController.deleteVariant.bind(this.adminController));
+        router.get("/articles/:articleId/variants", this.adminController.getVariants.bind(this.adminController));
 
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", createEmployeesRoutes({mongoDatabase}));

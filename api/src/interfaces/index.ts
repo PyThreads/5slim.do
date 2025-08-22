@@ -41,7 +41,8 @@ export enum IOrderStatus {
     DELIVERED = "Entregado",
     CANCELLED = "Cancelada",
     PAID = "Pagado",
-    PREPARING_FOR_DELIVERY = "Preparando para entrega"
+    PREPARING_FOR_DELIVERY = "Preparando para entrega",
+    SENT = "Enviado"
 }
 
 export interface ICategory {
@@ -321,6 +322,8 @@ export interface IAdmin {
     email: string,
     token?: string
     profilePicture?: string
+    logo?: string
+    ownerLogo?: string
     userType: IUserType
     ownerId: number
 }

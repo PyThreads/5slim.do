@@ -20,13 +20,16 @@ export default function ProfilePage() {
     const { currentAdmin, setCurrentAdmin, refreshAdmin } = useAdminAuth() as { currentAdmin: IAdmin | null, setCurrentAdmin: (admin: IAdmin) => void, refreshAdmin: () => Promise<void> };
     const [loading, setLoading] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
+    const [uploadingLogo, setUploadingLogo] = useState(false);
     const refInput = useRef<HTMLInputElement>(null);
+    const refLogoInput = useRef<HTMLInputElement>(null);
     
     const [formData, setFormData] = useState({
         firstName: "",
         lastName: "",
         email: "",
-        profilePicture: ""
+        profilePicture: "",
+        logo: ""
     });
 
     // Update form data when currentAdmin changes
@@ -40,7 +43,8 @@ export default function ProfilePage() {
                 firstName: firstName,
                 lastName: lastName,
                 email: currentAdmin.email || "",
-                profilePicture: currentAdmin.profilePicture || ""
+                profilePicture: currentAdmin.profilePicture || "",
+                logo: currentAdmin.logo || ""
             });
         }
     }, [currentAdmin]);
@@ -92,6 +96,53 @@ export default function ProfilePage() {
             if (refInput.current) refInput.current.value = '';
         }
     };
+
+    const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        try {
+            const file = e.target.files;
+            if (!file || file.length === 0) return;
+
+            setUploadingLogo(true);
+            const formDataUpload = new FormData();
+            formDataUpload.append('0', file[0]);
+
+            const { data } = await axios.post('/admin/private/images/upload', formDataUpload);
+            const logoUrl = data.data[0]?.url;
+            
+            if (logoUrl) {
+                setFormData(prev => ({ ...prev, logo: logoUrl }));
+                // Update current admin in context immediately
+                // Auto-save profile after logo upload
+                const updatedFormData = { ...formData, logo: logoUrl };
+                await axios.put('/admin/private/profile', updatedFormData);
+                await refreshAdmin();
+                
+                // Update current admin in context after refresh
+                if (currentAdmin) {
+                    setCurrentAdmin({ ...currentAdmin, logo: logoUrl });
+                }
+                
+                eventBus.emit('notify', {
+                    message: 'Logo subido y guardado exitosamente.',
+                    open: true,
+                    type: 'success',
+                    title: 'Éxito!'
+                });
+            }
+        } catch (error) {
+            eventBus.emit('notify', {
+                message: 'Error al subir el logo.',
+                open: true,
+                type: 'error',
+                title: 'Error!'
+            });
+        } finally {
+            setUploadingLogo(false);
+            if (refLogoInput.current) refLogoInput.current.value = '';
+        }
+    };
+
+    const canManageLogo = currentAdmin?.userType === 'Cliente' || currentAdmin?._id === currentAdmin?.ownerId;
 
     const handleSubmit = async () => {
         try {
@@ -182,6 +233,68 @@ export default function ProfilePage() {
                                 Haz clic para cambiar tu foto de perfil
                             </Typography>
                         </Box>
+                        
+                        {canManageLogo && (
+                            <Box mt={3}>
+                                <Typography fontSize="16px" fontWeight={600} color="#45464E" mb={2} textAlign="center">
+                                    Logo del Negocio
+                                </Typography>
+                                <Box
+                                    component="label"
+                                    htmlFor="logo-upload"
+                                    sx={{
+                                        width: 120,
+                                        height: 80,
+                                        borderRadius: "8px",
+                                        bgcolor: "#F4F5FA",
+                                        position: "relative",
+                                        overflow: "hidden",
+                                        display: "flex",
+                                        alignItems: "center",
+                                        justifyContent: "center",
+                                        cursor: "pointer",
+                                        border: "2px dashed #5570F1",
+                                        "&:hover": {
+                                            bgcolor: "#F8F9FF"
+                                        },
+                                        mx: "auto"
+                                    }}
+                                >
+                                    <input
+                                        type="file"
+                                        style={{ display: 'none' }}
+                                        id="logo-upload"
+                                        accept="image/*"
+                                        onChange={handleLogoUpload}
+                                        ref={refLogoInput}
+                                    />
+                                    {formData.logo ? (
+                                        <Image
+                                            fill
+                                            src={formData.logo}
+                                            alt="Logo"
+                                            style={{ objectFit: "contain" }}
+                                        />
+                                    ) : (
+                                        <Box display="flex" flexDirection="column" alignItems="center">
+                                            {uploadingLogo ? (
+                                                <CircularProgress size={24} />
+                                            ) : (
+                                                <>
+                                                    <UploadImageIcon filled={false} />
+                                                    <Typography fontSize="12px" color="#5570F1" mt={1}>
+                                                        Subir logo
+                                                    </Typography>
+                                                </>
+                                            )}
+                                        </Box>
+                                    )}
+                                </Box>
+                                <Typography fontSize="12px" color="#8B8D97" mt={1} textAlign="center">
+                                    Logo para sidebar y facturas
+                                </Typography>
+                            </Box>
+                        )}
                     </Grid>
 
                     <Grid item xs={12} md={8}>

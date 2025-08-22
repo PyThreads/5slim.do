@@ -2,7 +2,7 @@ import { IOrder } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
-export const invoiceLabel = async ({ order }: { order: IOrder }) => {
+export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: string }) => {
 
     const result = await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || ''},${order.client.address?.map?.lng || ''}&navigate=yes`, { errorCorrectionLevel: 'H', })
 
@@ -210,7 +210,7 @@ export const invoiceLabel = async ({ order }: { order: IOrder }) => {
         <!-- Header Section -->
         <div class="header-section">
             <div class="center-logo">
-                <img src="https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75" alt="Logo de la empresa">
+                <img src="${logo}" alt="Logo de la empresa">
             </div>
         </div>
 
@@ -240,7 +240,7 @@ export const invoiceLabel = async ({ order }: { order: IOrder }) => {
                 <div class="info-row">
                     <span class="icon icon-payment"></span>
                     <span class="info-label">Pago:</span>
-                    <span class="info-value">${order.paymentType}</span>
+                    <span class="info-value">${order.paymentType}${order.paymentType === 'Efectivo' ? ` <strong>${utils.dominicanNumberFormat(order.total.total)}</strong>` : ''}</span>
                 </div>
             </div>
             

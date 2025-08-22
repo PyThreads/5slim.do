@@ -1,7 +1,7 @@
 import { IArticleCart, IOrder } from "../../interfaces"
 import { utils } from "../../utils"
 
-export const invoiceCreated = ({ order }: { order: IOrder }) => {
+export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string }) => {
     return `
     
         <!DOCTYPE html>
@@ -109,7 +109,7 @@ export const invoiceCreated = ({ order }: { order: IOrder }) => {
 
         <!-- Encabezado -->
         <div class="header">
-            <img class="logo" src="https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75" alt="Logo" />
+            <img class="logo" src="${logo}" alt="Logo" />
             <div class="info">
             <h1>FACTURA</h1>
             <p>Número: <strong>#${order._id}</strong></p>

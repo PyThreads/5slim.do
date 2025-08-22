@@ -1,6 +1,6 @@
 "use client"
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Button, Checkbox, Grid, Popover, Typography } from "@mui/material"
+import { Box, Button, Checkbox, Grid, Popover, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
 import { Inter } from "next/font/google"
 import TableOrderDetailList from "../moduleComponents/TableOrderDetailList";
 import { CancelOrderType, IOrder, IOrderStatus } from "../../../../../../api/src/interfaces";
@@ -11,12 +11,19 @@ import SplashScreen from "../../../../providers/SplashScreen";
 import SummaryOrderDetails from "../moduleComponents/SummaryOrderDetails";
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import LocalShippingIcon from '@mui/icons-material/LocalShipping';
+import LabelIcon from '@mui/icons-material/Label';
 import CircularProgress from '@mui/material/CircularProgress';
 import CustomModal from "../../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import CheckIcon from '@mui/icons-material/Check';
+import CommentIcon from '@mui/icons-material/Comment';
+import PendingIcon from '@mui/icons-material/Pending';
+import PaidIcon from '@mui/icons-material/Paid';
+import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
+import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import { eventBus } from "../../../../utils/broadcaster";
+import CustomField from "../../../../../../components/inputs/CustomField";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -34,6 +41,8 @@ export default function AdminClientes() {
     const [cancelType, setCancelType] = useState<CancelOrderType>(CancelOrderType.RETURN_ITEMS)
     const [canceled, setCanceled] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
+    const [commentModal, setCommentModal] = useState(false);
+    const [comment, setComment] = useState('');
     const params = useParams();
 
     if (!params._id) {
@@ -97,6 +106,40 @@ export default function AdminClientes() {
         }
     }
 
+    const handleOpenCommentModal = () => {
+        setComment(order?.comment || '');
+        setCommentModal(true);
+        setAnchorEl(null);
+    };
+
+    const handleSaveComment = async () => {
+        try {
+            await ordersService.updateComment({ orderId: order!._id, comment });
+            setOrder(prev => prev ? {...prev, comment} : null);
+            setCommentModal(false);
+            setComment('');
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
+    const getStatusIcon = (status: IOrderStatus) => {
+        switch (status) {
+            case IOrderStatus.PENDING:
+                return <PendingIcon fontSize="small" />;
+            case IOrderStatus.PAID:
+                return <PaidIcon fontSize="small" />;
+            case IOrderStatus.PREPARING_FOR_DELIVERY:
+                return <LocalShippingOutlinedIcon fontSize="small" />;
+            case IOrderStatus.SENT:
+                return <LocalShippingIcon fontSize="small" />;
+            case IOrderStatus.DELIVERED:
+                return <CheckCircleIcon fontSize="small" />;
+            default:
+                return <ReceiptIcon fontSize="small" />;
+        }
+    };
+
     return (
         <React.Fragment>
             {
@@ -136,9 +179,6 @@ export default function AdminClientes() {
                                     <Button variant="contained" sx={{ ...style.accionButton }}
                                         endIcon={action ? <CircularProgress sx={{ color: "white" }} size={13} /> : <KeyboardArrowDownIcon />}
                                         onClick={(event) => {
-                                            if(order!.status === IOrderStatus.CANCELLED){
-                                                return;
-                                            }
                                             setAnchorEl(event.currentTarget)
                                         }}
                                     >
@@ -187,6 +227,7 @@ export default function AdminClientes() {
                                 PaperProps={{
                                     sx: {
                                         display: anchorEl ? "block" : "none",
+                                        minWidth: "220px"
                                     }
                                 }}
                             >
@@ -208,23 +249,46 @@ export default function AdminClientes() {
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
                                             Imprimir label
                                         </Typography>
-                                        <LocalShippingIcon fontSize="small" />
+                                        <LabelIcon fontSize="small" />
                                     </Box>
 
-                                    {
-
-                                        Object.entries(IOrderStatus).filter(item => item[1] !== IOrderStatus.CANCELLED).map(([_, value]) =>
-                                        (
-                                            <Box key={value} display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
-                                                onClick={() => handleStatus(value)}
+                                    {order!.status !== IOrderStatus.CANCELLED && (
+                                        <>
+                                            <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                onClick={handleOpenCommentModal}
                                             >
                                                 <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                                    {value}
+                                                    Agregar comentario
                                                 </Typography>
-                                                <ReceiptIcon fontSize="small" />
+                                                <CommentIcon fontSize="small" />
                                             </Box>
-                                        ))
-                                    }
+
+                                            {[IOrderStatus.PAID, IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order!.status) && (
+                                                <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                    onClick={() => handleStatus(IOrderStatus.SENT)}
+                                                >
+                                                    <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                                        Marcar como enviado
+                                                    </Typography>
+                                                    <LocalShippingOutlinedIcon fontSize="small" />
+                                                </Box>
+                                            )}
+
+                                            {
+                                                Object.entries(IOrderStatus).filter(item => item[1] !== IOrderStatus.CANCELLED && item[1] !== IOrderStatus.SENT).map(([_, value]) =>
+                                                (
+                                                    <Box key={value} display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                        onClick={() => handleStatus(value)}
+                                                    >
+                                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                                            {value}
+                                                        </Typography>
+                                                        {getStatusIcon(value)}
+                                                    </Box>
+                                                ))
+                                            }
+                                        </>
+                                    )}
 
                                 </Box>
                             </Popover>
@@ -314,6 +378,73 @@ export default function AdminClientes() {
 
                 </Grid>
             </CustomModal>
+
+            <Dialog 
+                open={commentModal} 
+                onClose={() => setCommentModal(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: '12px',
+                        p: 0
+                    }
+                }}
+            >
+                <Box sx={{ position: 'relative', p: 3 }}>
+                    <CloseIcon 
+                        sx={{ 
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            cursor: 'pointer',
+                            color: '#6E7079',
+                            '&:hover': {
+                                color: '#45464E'
+                            }
+                        }}
+                        onClick={() => {
+                            setCommentModal(false);
+                            setComment('');
+                        }}
+                    />
+                    <Typography sx={{ 
+                        fontFamily: 'Inter', 
+                        fontSize: '18px', 
+                        fontWeight: 600, 
+                        color: '#45464E',
+                        mb: 2,
+                        pr: 4
+                    }}>
+                        {order?.comment ? 'Editar comentario' : 'Agregar comentario'}
+                    </Typography>
+                    <CustomField
+                        fullWidth
+                        multiline
+                        rows={4}
+                        label="Comentario"
+                        placeholder="Escribe un comentario..."
+                        value={comment}
+                        onChange={(e: any) => setComment(e.target.value)}
+                    />
+                    <Button 
+                        onClick={handleSaveComment}
+                        variant="contained"
+                        fullWidth
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            backgroundColor: '#5570F1',
+                            mt: 2,
+                            py: 1.5
+                        }}
+                    >
+                        Guardar
+                    </Button>
+                </Box>
+            </Dialog>
         </React.Fragment>
     )
 }

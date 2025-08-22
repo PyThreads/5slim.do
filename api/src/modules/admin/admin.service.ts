@@ -26,6 +26,14 @@ class AdminService extends BaseService {
                 throw new Error("La clave no coincide por favor verifique e intente de nuevo o solicite una nueva.");
             }
 
+            // Si es cliente, obtener el logo del owner
+            if (user.userType === 'Cliente' && user.ownerId !== user._id) {
+                const owner = await this.collection.findOne({ _id: user.ownerId });
+                if (owner && owner.logo) {
+                    user.ownerLogo = owner.logo;
+                }
+            }
+
             delete user.password
             user.token = this.generateToken(user);
 
@@ -144,7 +152,7 @@ class AdminService extends BaseService {
     }
 
 
-    async updateProfile({ adminId, firstName, lastName, email, profilePicture, user }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string, user: IAdmin }) {
+    async updateProfile({ adminId, firstName, lastName, email, profilePicture, logo, user }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, user: IAdmin }) {
         try {
             const updateData: any = {
                 firstName: firstName,
@@ -153,6 +161,11 @@ class AdminService extends BaseService {
                 email,
                 profilePicture: profilePicture || ""
             };
+
+            // Solo owners y clientes pueden actualizar el logo
+            if ((user.userType === 'Cliente' || user._id === user.ownerId) && logo !== undefined) {
+                updateData.logo = logo;
+            }
 
             const result = await this.collection.findOneAndUpdate(
                 { _id: adminId, ownerId: user.ownerId },

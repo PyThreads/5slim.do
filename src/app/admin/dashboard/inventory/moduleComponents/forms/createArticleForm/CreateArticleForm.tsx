@@ -25,6 +25,27 @@ export const CreateArticleForm = () => {
     const { values, setValues, setFieldValue }: { values: IArticle, setValues: any, setFieldValue: any } = useFormikContext<IArticle>();
     const [advanced, setAdvanced] = React.useState(values.tipTap ? true : false);
     const [openModalVariantes, setOpenModalVariantes] = React.useState(false);
+    const [variants, setVariants] = React.useState<IArticlesVariants[]>([]);
+    const [loadingVariants, setLoadingVariants] = React.useState(false);
+
+    const loadVariants = async () => {
+        if (!values._id) return;
+        try {
+            const variants = await articleService.getVariants(values._id);
+            setVariants(variants);
+        } catch (error) {
+            console.error('Error loading variants:', error);
+        }
+    };
+
+    const handleOpenVariantsModal = async () => {
+        if (values._id) {
+            setLoadingVariants(true);
+            await loadVariants();
+            setLoadingVariants(false);
+        }
+        setOpenModalVariantes(true);
+    };
 
     return (
         <React.Fragment>
@@ -37,7 +58,8 @@ export const CreateArticleForm = () => {
 
                         <Button variant="contained" type="button" sx={{ ...style.addButton }}
                             startIcon={<BackupTableIcon />}
-                            onClick={() => setOpenModalVariantes(true)}
+                            onClick={handleOpenVariantsModal}
+                            disabled={!values._id}
                         >
                             Variantes
                         </Button>
@@ -279,7 +301,12 @@ export const CreateArticleForm = () => {
                     </Grid>
 
                     <Grid xs={12} mt={2} sx={{width: {xs: 300, md:"100%"}}}>
-                        <TableArticleVariants rows={values.variants} mainImage={values.images.find(item => item.primary)?.url!} onChange={(list: IArticlesVariants[])=>setFieldValue("variants", list)} />
+                        <TableArticleVariants 
+                            rows={variants} 
+                            mainImage={values.images.find(item => item.primary)?.url!} 
+                            onChange={setVariants}
+                            articleId={values._id || ''}
+                        />
                     </Grid>
 
                 </Grid>

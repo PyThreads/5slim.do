@@ -1,6 +1,8 @@
-import { Box, Button, Card, CardContent, Checkbox, Grid, MenuItem, Paper, Popover, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
+import { Box, Button, Card, CardContent, Checkbox, Grid, Link, MenuItem, Paper, Popover, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
 import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
+import LabelIcon from '@mui/icons-material/Label';
 import { Inter } from "next/font/google";
 import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
@@ -40,6 +42,7 @@ export default function TableOrderList(
     const [checked, setChecked] = useState<number[]>([]);
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
 
+
     const handleMarkAsDelivered = async () => {
         if (checked.length === 0) return;
         
@@ -55,6 +58,50 @@ export default function TableOrderList(
             // Error is handled in the service
         }
     };
+
+    const handleMarkAsSent = async () => {
+        if (checked.length === 0) return;
+        
+        try {
+            await ordersService.bulkUpdateOrderStatus({ 
+                orderIds: checked, 
+                status: IOrderStatus.SENT 
+            });
+            setChecked([]);
+            setAnchorEl(null);
+            if (onOrdersUpdated) onOrdersUpdated();
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
+    const handlePrintOrders = async () => {
+        if (checked.length === 0) return;
+        
+        try {
+            for (const orderId of checked) {
+                await ordersService.printOrder(orderId);
+            }
+            setAnchorEl(null);
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
+    const handlePrintLabels = async () => {
+        if (checked.length === 0) return;
+        
+        try {
+            for (const orderId of checked) {
+                await ordersService.printOrderLabel(orderId);
+            }
+            setAnchorEl(null);
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
+
 
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
@@ -131,6 +178,15 @@ export default function TableOrderList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Nº
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell >
+                                    <Box display={"flex"} alignItems={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Nombre del cliente
                                         </Typography>
                                         <SortTableIcon filled />
@@ -141,6 +197,15 @@ export default function TableOrderList(
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Fecha de orden
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell >
+                                    <Box display={"flex"} alignItems={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Tipo de pago
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -179,9 +244,6 @@ export default function TableOrderList(
                         <TableBody sx={{ borderBottom: "1px solid #E1E2E9" }}>
                             {rows.map((row: IOrder) => (
                                 <TableRow
-                                    onDoubleClick={async () => {
-                                        onDoubleClickRow(row)
-                                    }}
                                     key={row._id}
                                     sx={{ '&:last-child td, &:last-child th': { border: 0 }, padding: "0px !important" }}
 
@@ -202,6 +264,18 @@ export default function TableOrderList(
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Link 
+                                            href={`/admin/dashboard/orders/${row._id}`}
+                                            target="_blank"
+                                            sx={{ textDecoration: 'none', color: '#5570F1', '&:hover': { textDecoration: 'underline' } }}
+                                        >
+                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#5570F1"} fontSize={"14px"}>
+                                                {row._id}
+                                            </Typography>
+                                        </Link>
+                                    </TableCell>
+
+                                    <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
                                             {row.client.fullName}
                                         </Typography>
@@ -213,6 +287,13 @@ export default function TableOrderList(
                                             {ordersService.formatAmPmLetters(row.createdDate)}
                                         </Typography>
                                     </TableCell>
+
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                            {row.paymentType}
+                                        </Typography>
+                                    </TableCell>
+
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
                                             {row.articles.length}
@@ -243,7 +324,7 @@ export default function TableOrderList(
                 {/* Mobile Cards */}
                 <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                     {rows.map((row: IOrder) => (
-                        <Card key={row._id} sx={styles.mobileCard} onClick={() => onDoubleClickRow(row)}>
+                        <Card key={row._id} sx={styles.mobileCard}>
                             <CardContent sx={styles.mobileCardContent}>
                                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                     <Typography variant="h6" sx={styles.mobileCardTitle}>
@@ -259,8 +340,22 @@ export default function TableOrderList(
                                     />
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Nº:</Typography>
+                                    <Link 
+                                        href={`/admin/dashboard/orders/${row._id}`}
+                                        target="_blank"
+                                        sx={{ textDecoration: 'none', color: '#5570F1', '&:hover': { textDecoration: 'underline' } }}
+                                    >
+                                        <Typography sx={styles.mobileCardValue} color="#5570F1">{row._id}</Typography>
+                                    </Link>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Fecha:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{ordersService.formatAmPmLetters(row.createdDate)}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Tipo de pago:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.paymentType}</Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Artículos:</Typography>
@@ -382,33 +477,83 @@ export default function TableOrderList(
                 sx={{
                     '& .MuiPopover-paper': {
                         borderRadius: '8px',
-                        padding: '8px',
-                        minWidth: '180px',
+                        padding: '16px',
+                        minWidth: '220px',
                         boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.1)'
                     }
                 }}
             >
-                <Box>
-                    <Button
-                        fullWidth
-                        variant="text"
-                        onClick={handleMarkAsDelivered}
-                        sx={{
-                            justifyContent: 'flex-start',
-                            textTransform: 'none',
-                            fontSize: '14px',
-                            fontFamily: inter.style.fontFamily,
-                            color: '#2C2D33',
-                            padding: '8px 12px',
-                            '&:hover': {
-                                backgroundColor: '#F5F5F5'
-                            }
-                        }}
+                <Box p={1}>
+                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                        onClick={handlePrintOrders}
                     >
-                        Marcar como entregado ({checked.length})
-                    </Button>
+                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                            Imprimir facturas ({checked.length})
+                        </Typography>
+                        <LocalPrintshopIcon fontSize="small" />
+                    </Box>
+
+                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                        onClick={handlePrintLabels}
+                    >
+                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                            Imprimir labels ({checked.length})
+                        </Typography>
+                        <LabelIcon fontSize="small" />
+                    </Box>
+
+                    {(() => {
+                        const selectedOrders = rows.filter(order => checked.includes(order._id));
+                        const allCancelled = selectedOrders.every(order => order.status === IOrderStatus.CANCELLED);
+                        
+                        if (!allCancelled) {
+                            return (
+                                <>
+                                    {(() => {
+                                        const canMarkAsDelivered = selectedOrders.some(order => order.status !== IOrderStatus.DELIVERED);
+                                        
+                                        if (canMarkAsDelivered) {
+                                            return (
+                                                <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                    onClick={handleMarkAsDelivered}
+                                                >
+                                                    <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                                        Marcar como entregado ({checked.length})
+                                                    </Typography>
+                                                </Box>
+                                            );
+                                        }
+                                        return null;
+                                    })()}
+
+                                    {(() => {
+                                        const canMarkAsSent = selectedOrders.every(order => 
+                                            [IOrderStatus.PAID, IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order.status)
+                                        );
+                                        
+                                        if (canMarkAsSent) {
+                                            return (
+                                                <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                                                    onClick={handleMarkAsSent}
+                                                >
+                                                    <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                                                        Marcar como enviado ({checked.length})
+                                                    </Typography>
+                                                </Box>
+                                            );
+                                        }
+                                        return null;
+                                    })()
+                                    }
+                                </>
+                            );
+                        }
+                        return null;
+                    })()}
                 </Box>
             </Popover>
+
+
 
         </Box >
     )

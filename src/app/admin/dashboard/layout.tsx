@@ -105,7 +105,25 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
     <Box sx={style.boxLayout}>
 
       <Box sx={style.sidebar}>
-        <Image alt="Logo" width={38} height={38} src="/flash-lines.png" style={{ marginLeft: "auto", marginRight: "auto" }} />
+        <Image 
+          key={currentAdmin?.logo || currentAdmin?.ownerLogo || '/flash-lines.png'}
+          alt="Logo" 
+          width={38} 
+          height={38} 
+          src={(() => {
+            // Si es cliente, usar el logo del owner
+            if (currentAdmin?.userType === 'Cliente' && currentAdmin?.ownerLogo) {
+              return currentAdmin.ownerLogo;
+            }
+            // Si es owner o cliente con logo propio
+            if (currentAdmin?.logo) {
+              return currentAdmin.logo;
+            }
+            // Logo por defecto
+            return "/flash-lines.png";
+          })()} 
+          style={{ marginLeft: "auto", marginRight: "auto", objectFit: 'contain' }} 
+        />
         <Box sx={style.boxLi} >
           {items.map((item, key) => {
             const isActive = item.child.some((child) =>

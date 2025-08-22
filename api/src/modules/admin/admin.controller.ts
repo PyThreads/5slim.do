@@ -2,7 +2,7 @@
 import { Request, Response } from "express"
 import { AdminService } from "./admin.service";
 import { Db } from "mongodb";
-import { CancelOrderType, IAdmin, IArticleImages, IClient, IOrderStatus, IPaginateClients, IPaginateOrders } from "../../interfaces";
+import { CancelOrderType, IAdmin, IArticleImages, IClient, IOrderStatus, IPaginateClients, IPaginateOrders, IArticlesVariants } from "../../interfaces";
 import { UsersService } from "../users/users.service";
 import { ArticleService } from "../articles/articles.service";
 import { OrderService } from "../orders/orders.service";
@@ -62,6 +62,29 @@ class Admin {
                 success: false,
                 data: null,
                 message: error.message || "Ha ocurrido un error al actualizar las órdenes."
+            });
+        }
+    }
+
+    async updateOrderComment(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const orderId = Number(req.params.orderId);
+            const { comment }: { comment: string } = req.body;
+
+            const result = await this.orderService.updateComment({ orderId, comment, ownerId: admin.ownerId });
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Comentario actualizado exitosamente."
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al actualizar el comentario."
             });
         }
     }
@@ -292,6 +315,114 @@ class Admin {
         }
     }
 
+    async addVariant(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const articleId = Number(req.params.articleId);
+            const variant = req.body;
+
+            const result = await this.articleService.addVariant({
+                articleId,
+                variant,
+                ownerId: admin.ownerId
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Variante agregada exitosamente"
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al agregar variante"
+            });
+        }
+    }
+
+    async updateVariant(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const articleId = Number(req.params.articleId);
+            const variantId = req.params.variantId;
+            const variant = req.body;
+
+            const result = await this.articleService.updateVariant({
+                articleId,
+                variantId,
+                variant,
+                ownerId: admin.ownerId
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Variante actualizada exitosamente"
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al actualizar variante"
+            });
+        }
+    }
+
+    async deleteVariant(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const articleId = Number(req.params.articleId);
+            const variantId = req.params.variantId;
+
+            await this.articleService.deleteVariant({
+                articleId,
+                variantId,
+                ownerId: admin.ownerId
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: null,
+                message: "Variante eliminada exitosamente"
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al eliminar variante"
+            });
+        }
+    }
+
+    async getVariants(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const articleId = Number(req.params.articleId);
+
+            const variants = await this.articleService.getVariants({
+                articleId,
+                ownerId: admin.ownerId
+            });
+
+            return res.status(200).json({
+                success: true,
+                data: variants,
+                message: "Variantes obtenidas exitosamente"
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al obtener variantes"
+            });
+        }
+    }
+
     async deleteImage (req: Request, res: Response) {
         try {
 
@@ -487,7 +618,7 @@ class Admin {
 
     async updateProfile(req: Request, res: Response) {
         try {
-            const { firstName, lastName, email, profilePicture }: { firstName: string, lastName: string, email: string, profilePicture?: string } = req.body;
+            const { firstName, lastName, email, profilePicture, logo }: { firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string } = req.body;
             const adminId = res.locals.admin._id;
 
             const updatedAdmin = await this.adminService.updateProfile({ 
@@ -495,7 +626,8 @@ class Admin {
                 firstName,
                 lastName, 
                 email, 
-                profilePicture ,
+                profilePicture,
+                logo,
                 user: res.locals.admin
             });
 

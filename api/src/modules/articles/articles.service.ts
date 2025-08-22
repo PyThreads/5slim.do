@@ -1,4 +1,4 @@
-import { COLLNAMES, IAdmin, IArticle, IArticleCart, IArticlesSummary, IClient, IOrderStatus, IPaginateArticles, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, IAdmin, IArticle, IArticleCart, IArticlesSummary, IClient, IOrderStatus, IPaginateArticles, IPaginationResult, IArticlesVariants } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { ArticlesIndex } from "./articlesIndex";
@@ -327,6 +327,91 @@ class ArticleService extends BaseService {
      * @param query: IPaginateArticles    
      * @returns 
      */
+    async addVariant({ articleId, variant, ownerId }: { articleId: number, variant: any, ownerId: number }): Promise<any> {
+        try {
+            const result = await this.collection.updateOne(
+                { _id: articleId, ownerId },
+                { $push: { variants: variant } }
+            );
+            
+            if (result.matchedCount === 0) {
+                throw new Error("Artículo no encontrado");
+            }
+            
+            return { success: true };
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    async updateVariant({ articleId, variantId, variant, ownerId }: { articleId: number, variantId: string, variant: any, ownerId: number }): Promise<any> {
+        try {
+            const result = await this.collection.updateOne(
+                { 
+                    _id: articleId, 
+                    ownerId,
+                    "variants._id": variantId 
+                },
+                { 
+                    $set: {
+                        "variants.$[variant].costPrice": variant.costPrice,
+                        "variants.$[variant].sellingPrice": variant.sellingPrice,
+                        "variants.$[variant].status": variant.status,
+                        "variants.$[variant].stock": variant.stock,
+                        "variants.$[variant].images": variant.images,
+                        "variants.$[variant].source": variant.source,
+                        "variants.$[variant].available": variant.available,
+                        "variants.$[variant].comment": variant.comment,
+                        "variants.$[variant].tracking": variant.tracking
+                    }
+                },
+                {
+                    arrayFilters: [{ "variant._id": variantId }]
+                }
+            );
+            
+            if (result.matchedCount === 0) {
+                throw new Error("Artículo o variante no encontrado");
+            }
+            
+            return { success: true };
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    async deleteVariant({ articleId, variantId, ownerId }: { articleId: number, variantId: string, ownerId: number }): Promise<void> {
+        try {
+            const result = await this.collection.updateOne(
+                { _id: articleId, ownerId },
+                { $pull: { variants: { _id: variantId } } }
+            );
+            
+            if (result.matchedCount === 0) {
+                throw new Error("Artículo no encontrado");
+            }
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    async getVariants({ articleId, ownerId }: { articleId: number, ownerId: number }): Promise<IArticlesVariants[]> {
+        try {
+            const result = await this.collection.findOne(
+                { _id: articleId, ownerId },
+                { projection: { variants: 1 } }
+            );
+            
+            if (!result) {
+                throw new Error("Artículo no encontrado");
+            }
+            
+            return result.variants || [];
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
     async getArticles({ query, ownerId }: { query: any, ownerId?: number }): Promise<IPaginationResult> {
         try {
 

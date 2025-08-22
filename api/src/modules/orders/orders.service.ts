@@ -190,7 +190,10 @@ export class OrderService extends BaseService {
     async printOrder({ _id,ownerId }: { _id: number,ownerId: number }): Promise<any> {
         try {
             const order = await this.collection.findOne({ _id,ownerId });
-            const html = invoiceCreated({ order });
+            // Obtener el logo del owner
+            const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
+            const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
+            const html = invoiceCreated({ order, logo });
             return await generarFacturaPDF({ html });
         } catch (error: any) {
             throw error;
@@ -200,7 +203,10 @@ export class OrderService extends BaseService {
     async printOrderLabel({ _id, ownerId }: { _id: number, ownerId: number }): Promise<any> {
         try {
             const order = await this.collection.findOne({ _id, ownerId });
-            const html = await invoiceLabel({ order });
+            // Obtener el logo del owner
+            const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
+            const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
+            const html = await invoiceLabel({ order, logo });
             return await generarLabelPDF({ html });
         } catch (error: any) {
             throw error;
@@ -276,6 +282,24 @@ export class OrderService extends BaseService {
 
         } catch (error: any) {
             throw new Error("Ha ocurrido un error al buscar las ordenes.");
+        }
+    }
+
+    async updateComment({ orderId, comment, ownerId }: { orderId: number, comment: string, ownerId: number }): Promise<IOrder> {
+        try {
+            const result = await this.collection.findOneAndUpdate(
+                { _id: orderId, ownerId },
+                { $set: { comment } },
+                { returnDocument: "after" }
+            );
+            
+            if (!result) {
+                throw new Error("Orden no encontrada");
+            }
+            
+            return result;
+        } catch (error: any) {
+            throw error;
         }
     }
 }

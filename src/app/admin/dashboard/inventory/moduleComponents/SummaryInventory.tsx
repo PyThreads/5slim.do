@@ -1,9 +1,8 @@
-import { Box, Grid, Typography } from "@mui/material";
+import { Box, Grid, Typography, Skeleton } from "@mui/material";
 import { ArticlesIcons, CustomersIcon } from "../../../../../../components/icons/Svg";
 import { useCallback, useEffect, useState } from "react";
 import { IArticlesSummary } from "../../../../../../api/src/interfaces";
 import React from "react";
-import SplashScreen from "../../../../providers/SplashScreen";
 import { articleService } from "../articleService";
 
 
@@ -34,14 +33,7 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
     }, [reload])
 
     return (
-        <React.Fragment>
-            {
-                loading ?
-                    (
-                        <SplashScreen />)
-                    : (
-
-                        <Grid container spacing={2}>
+        <Grid container spacing={2}>
 
                             <Grid container item xs={12} md={6} >
                                 <Box borderRadius={"12px"} padding={"11px 15px"} minHeight={"145px"} margin={0} width={"100%"} bgcolor={"#5570F1"} >
@@ -59,7 +51,11 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Todos</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
+                                                        {loading ? (
+                                                            <Skeleton variant="text" width={60} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.2)' }} />
+                                                        ) : (
+                                                            <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
+                                                        )}
                                                     </Grid>
                                                 </Box>
                                             </Box>
@@ -70,8 +66,14 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"14px"} fontWeight={400} >Activos</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
-                                                        <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"12px"} fontWeight={500} ml={1} >100%</Typography>
+                                                        {loading ? (
+                                                            <Skeleton variant="text" width={60} height={30} sx={{ bgcolor: 'rgba(255,255,255,0.2)' }} />
+                                                        ) : (
+                                                            <>
+                                                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.total)}</Typography>
+                                                                <Typography fontFamily={"Inter"} color={"#FFF"} fontSize={"12px"} fontWeight={500} ml={1} >100%</Typography>
+                                                            </>
+                                                        )}
                                                     </Grid>
                                                 </Box>
                                             </Box>
@@ -100,7 +102,11 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={400} >Alerta Stock</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.lowStockAlert)}</Typography>
+                                                        {loading ? (
+                                                            <Skeleton variant="text" width={40} height={30} />
+                                                        ) : (
+                                                            <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.lowStockAlert)}</Typography>
+                                                        )}
                                                     </Grid>
                                                 </Box>
                                             </Box>
@@ -111,7 +117,11 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Agotados</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.outOfStock)}</Typography>
+                                                        {loading ? (
+                                                            <Skeleton variant="text" width={40} height={30} />
+                                                        ) : (
+                                                            <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.outOfStock)}</Typography>
+                                                        )}
                                                     </Grid>
                                                 </Box>
                                             </Box>
@@ -123,7 +133,11 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} fontSize={"14px"} fontWeight={500} >Vendidos hoy</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
-                                                        <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.soldToday)}</Typography>
+                                                        {loading ? (
+                                                            <Skeleton variant="text" width={40} height={30} />
+                                                        ) : (
+                                                            <Typography fontFamily={"Inter"} color={"#45464E"} fontSize={"20px"} fontWeight={500} >{articleService.decimalNumber(summary.soldToday)}</Typography>
+                                                        )}
                                                     </Grid>
                                                 </Box>
                                             </Box>
@@ -134,9 +148,6 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
                                 </Box>
                             </Grid>
                         </Grid>
-                    )
-            }
-        </React.Fragment>
     )
 }
 

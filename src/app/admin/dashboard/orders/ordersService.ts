@@ -183,6 +183,18 @@ class OrdersService extends BaseService {
         }
     }
 
+    async updateComment({ orderId, comment }: { orderId: number, comment: string }): Promise<IOrder> {
+        try {
+            const { data } = await this.axiosAdmin.put(`/admin/private/orders/${orderId}/comment`, { comment });
+            eventBus.emit("notify", { message: "Comentario actualizado exitosamente", open: true, type: "success", title: "Éxito!" })
+            return data.data as IOrder
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || "Error al actualizar comentario"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
 }
 
 export const ordersService = new OrdersService()

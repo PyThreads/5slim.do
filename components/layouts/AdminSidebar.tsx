@@ -6,6 +6,7 @@ import { Typography } from '@mui/material';
 import { useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
 import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon } from '../icons/Svg';
+import { useAdminAuth } from '../../context/AdminContext';
 
 const poppins = Poppins({
     subsets: ['latin'],
@@ -69,6 +70,20 @@ const Li = ({ name, icon, href }: { name?: string, icon: Function, href?: string
 
 
 export default function AdminSidebar() {
+    const { currentAdmin } = useAdminAuth() as { currentAdmin: any };
+
+    const getLogoSrc = () => {
+        // Si es cliente, usar el logo del owner
+        if (currentAdmin?.userType === 'Cliente' && currentAdmin?.ownerLogo) {
+            return currentAdmin.ownerLogo;
+        }
+        // Si es owner o cliente con logo propio
+        if (currentAdmin?.logo) {
+            return currentAdmin.logo;
+        }
+        // Logo por defecto
+        return "/flash-lines.png";
+    };
 
     return (
         <React.Fragment>
@@ -76,10 +91,12 @@ export default function AdminSidebar() {
             <Box sx={style.box}>
 
                 <Image
-                    alt={"5slim.do. logo"}
+                    key={getLogoSrc()}
+                    alt={"Logo"}
                     width={38}
                     height={38}
-                    src={"/flash-lines.png"}
+                    src={getLogoSrc()}
+                    style={{ objectFit: 'contain' }}
                 />
 
                 <Box sx={style.boxLi}>

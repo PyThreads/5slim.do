@@ -1,7 +1,9 @@
 import * as React from 'react';
-import { Box, Grid, Paper, MenuItem, IconButton } from '@mui/material';
+import { Box, Grid, Paper, MenuItem, IconButton, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
+import SaveIcon from '@mui/icons-material/Save';
+import DeleteIcon from '@mui/icons-material/Delete';
 import CustomField, { DefaultSwitch } from '../../../../../../components/inputs/CustomField';
 import { v4 as uuidv4 } from 'uuid';
 import { IArticleImages, IArticleStatus, IArticlesVariants, IArticleAvailability } from '../../../../../../api/src/interfaces';
@@ -9,16 +11,26 @@ import { baseService } from '../../../../utils/baseService';
 import axios from '../../../../../../context/adminAxiosInstance';
 import { eventBus } from '../../../../utils/broadcaster';
 import Image from 'next/image';
+import { articleService } from '../articleService';
 
 export default function TableArticleVariants({
     rows = [],
     onChange,
     mainImage,
+    articleId,
 }: {
     rows: IArticlesVariants[];
     onChange: Function;
     mainImage: string | undefined;
+    articleId: string;
 }) {
+    const [loading, setLoading] = React.useState<{[key: string]: boolean}>({});
+    const [variants, setVariants] = React.useState<IArticlesVariants[]>(rows);
+    const [deleteConfirm, setDeleteConfirm] = React.useState<{open: boolean, variant: IArticlesVariants | null}>({open: false, variant: null});
+
+    React.useEffect(() => {
+        setVariants(rows);
+    }, [rows]);
     const refInput = React.useRef<HTMLInputElement>(null);
     const refInput2 = React.useRef<HTMLInputElement>(null);
 
@@ -40,11 +52,11 @@ export default function TableArticleVariants({
 
         if (row) {
             const updatedRow: IArticlesVariants = { ...row, [name]: result };
-            const arr = [...rows];
+            const arr = [...variants];
             const index = arr.findIndex((item) => item._id === updatedRow._id);
             if (index !== -1) {
                 arr[index] = updatedRow;
-                onChange([...arr]);
+                setVariants([...arr]);
             }
             return;
         }
@@ -52,41 +64,82 @@ export default function TableArticleVariants({
         setNewOne((prev) => ({ ...prev, [name]: result }));
     };
 
-    const addSelected = () => {
-        const arr = [...rows];
-        for (let i = 1; i <= newOne.stock!; i++) {
-            const variant: IArticlesVariants = {
+    const addSelected = async () => {
+        setLoading(prev => ({ ...prev, 'new': true }));
+        try {
+            for (let i = 1; i <= newOne.stock!; i++) {
+                const variant = {
+                    _id: uuidv4(),
+                    costPrice: newOne.costPrice!,
+                    sellingPrice: newOne.sellingPrice!,
+                    status: IArticleStatus.NEW,
+                    stock: 1,
+                    images: newOne.images!,
+                    source: newOne.source!,
+                    available: newOne.available!,
+                    comment: newOne.comment!,
+                    tracking: newOne.tracking!,
+                };
+                await articleService.addVariant(articleId, variant);
+            }
+            // Reload variants after adding
+            const updatedVariants = await articleService.getVariants(articleId);
+            setVariants(updatedVariants);
+            onChange(updatedVariants);
+            setNewOne({
                 _id: uuidv4(),
-                costPrice: newOne.costPrice!,
-                sellingPrice: newOne.sellingPrice!,
+                costPrice: 0,
+                sellingPrice: 0,
                 status: IArticleStatus.NEW,
                 stock: 1,
-                images: newOne.images!,
-                source: newOne.source!,
-                available: newOne.available!,
-                comment: newOne.comment!,
-                tracking: newOne.tracking!,
-            };
-            arr.push(variant);
+                images: [],
+                source: '',
+                available: IArticleAvailability.AVAILABLE,
+                comment: '',
+                tracking: ''
+            });
+        } catch (error) {
+            console.error('Error adding variant:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, 'new': false }));
         }
-        onChange(arr);
-        setNewOne({
-            _id: uuidv4(),
-            costPrice: 0,
-            sellingPrice: 0,
-            status: IArticleStatus.NEW,
-            stock: 1,
-            images: [],
-            source: '',
-            available: IArticleAvailability.AVAILABLE,
-            comment: '',
-            tracking: ''
-        });
     };
 
-    const removeSelected = (row: IArticlesVariants) => {
-        const arr = rows.filter((item) => item._id !== row._id);
-        onChange([...arr]);
+    const handleDeleteClick = (variant: IArticlesVariants) => {
+        setDeleteConfirm({open: true, variant});
+    };
+
+    const confirmDelete = async () => {
+        if (!deleteConfirm.variant) return;
+        const variant = deleteConfirm.variant;
+        setLoading(prev => ({ ...prev, [variant._id!]: true }));
+        try {
+            await articleService.deleteVariant(articleId, variant._id!);
+            // Reload variants after deleting
+            const updatedVariants = await articleService.getVariants(articleId);
+            setVariants(updatedVariants);
+            onChange(updatedVariants);
+        } catch (error) {
+            console.error('Error deleting variant:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, [variant._id!]: false }));
+            setDeleteConfirm({open: false, variant: null});
+        }
+    };
+
+    const updateVariant = async (variant: IArticlesVariants) => {
+        setLoading(prev => ({ ...prev, [variant._id!]: true }));
+        try {
+            await articleService.updateVariant(articleId, variant._id!, variant);
+            // Reload variants after updating
+            const updatedVariants = await articleService.getVariants(articleId);
+            setVariants(updatedVariants);
+            onChange(updatedVariants);
+        } catch (error) {
+            console.error('Error updating variant:', error);
+        } finally {
+            setLoading(prev => ({ ...prev, [variant._id!]: false }));
+        }
     };
 
     const handleChange = async (e: React.ChangeEvent<HTMLInputElement>, isPrimary = false, item?: IArticlesVariants | null) => {
@@ -110,14 +163,14 @@ export default function TableArticleVariants({
             }
 
             if (item) {
-                const arr = [...rows];
+                const arr = [...variants];
                 const index = arr.findIndex((value) => item._id === value._id);
                 if (index !== -1) {
                     const currentImages = arr[index].images || [];
                     const cleanedImages = currentImages.map((img) => ({ ...img, primary: false }));
                     const list = [...cleanedImages, ...result];
                     arr[index] = { ...arr[index], images: list };
-                    onChange([...arr]);
+                    setVariants([...arr]);
                 }
                 return;
             }
@@ -327,13 +380,31 @@ export default function TableArticleVariants({
                             </Grid>
                             <Grid item xs={12} textAlign="right">
                                 {isNew ? (
-                                    <IconButton onClick={addSelected}>
-                                        <AddCircleIcon sx={{ color: '#A3A3A3' }} />
+                                    <IconButton 
+                                        onClick={addSelected}
+                                        disabled={loading['new']}
+                                        color="primary"
+                                    >
+                                        {loading['new'] ? <CircularProgress size={20} /> : <AddCircleIcon />}
                                     </IconButton>
                                 ) : (
-                                    <IconButton onClick={() => removeSelected(variant)}>
-                                        <DoNotDisturbOnIcon sx={{ color: '#A3A3A3' }} />
-                                    </IconButton>
+                                    <Box>
+                                        <IconButton 
+                                            onClick={() => updateVariant(variant)}
+                                            disabled={loading[variant._id!]}
+                                            color="primary"
+                                            sx={{ mr: 1 }}
+                                        >
+                                            {loading[variant._id!] ? <CircularProgress size={20} /> : <SaveIcon />}
+                                        </IconButton>
+                                        <IconButton 
+                                            onClick={() => handleDeleteClick(variant)}
+                                            disabled={loading[variant._id!]}
+                                            color="error"
+                                        >
+                                            {loading[variant._id!] ? <CircularProgress size={20} /> : <DeleteIcon />}
+                                        </IconButton>
+                                    </Box>
                                 )}
                             </Grid>
                         </Grid>
@@ -346,7 +417,79 @@ export default function TableArticleVariants({
     return (
         <Box sx={{ height: "75vh" }}>
             {renderVariantCard(newOne as IArticlesVariants, true)}
-            {rows.map((row) => <Box key={row._id}>{renderVariantCard(row)}</Box>)}
+            {variants.map((row, index) => <Box key={row._id || `variant-${index}`}>{renderVariantCard(row)}</Box>)}
+            
+            <Dialog 
+                open={deleteConfirm.open} 
+                onClose={() => setDeleteConfirm({open: false, variant: null})}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: '12px',
+                        p: 2,
+                        m: { xs: 2, sm: 3 }
+                    }
+                }}
+            >
+                <DialogTitle sx={{ 
+                    fontFamily: 'Inter', 
+                    fontSize: '18px', 
+                    fontWeight: 600, 
+                    color: '#45464E',
+                    pb: 1
+                }}>
+                    Confirmar eliminación
+                </DialogTitle>
+                <DialogContent sx={{ py: 2 }}>
+                    <DialogContentText sx={{ 
+                        fontFamily: 'Inter', 
+                        fontSize: '14px', 
+                        color: '#8B8D97',
+                        lineHeight: 1.5
+                    }}>
+                        ¿Estás seguro de que deseas eliminar esta variante? Esta acción no se puede deshacer.
+                    </DialogContentText>
+                </DialogContent>
+                <DialogActions sx={{ pt: 2, gap: 1, flexDirection: { xs: 'column', sm: 'row' } }}>
+                    <Button 
+                        onClick={() => setDeleteConfirm({open: false, variant: null})} 
+                        variant="outlined"
+                        fullWidth={{ xs: true, sm: false }}
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            borderColor: '#E1E2E9',
+                            color: '#6E7079',
+                            '&:hover': {
+                                borderColor: '#C1C2C9',
+                                backgroundColor: '#F8F9FA'
+                            }
+                        }}
+                    >
+                        Cancelar
+                    </Button>
+                    <Button 
+                        onClick={confirmDelete} 
+                        variant="contained"
+                        fullWidth={{ xs: true, sm: false }}
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            backgroundColor: '#DC3545',
+                            '&:hover': {
+                                backgroundColor: '#C82333'
+                            }
+                        }}
+                    >
+                        Eliminar
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </Box>
     );
 }

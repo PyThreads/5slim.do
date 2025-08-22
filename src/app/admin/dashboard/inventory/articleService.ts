@@ -1,6 +1,6 @@
 import { BaseService } from "../../../utils/baseService";
 import adminAxios from "../../../../../context/adminAxiosInstance";
-import { IArticle, IArticlesSummary, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IArticle, IArticlesSummary, IPaginationResult, IArticlesVariants } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 
 class ArticleService extends BaseService {
@@ -87,6 +87,52 @@ class ArticleService extends BaseService {
         
         // Same logic as backend: totalStock > 0 && totalStock <= stockAlert && stockAlert > 0
         return totalStock > 0 && totalStock <= stockAlert && stockAlert > 0
+    }
+
+    async addVariant(articleId: string, variant: any): Promise<any> {
+        try {
+            const { data } = await adminAxios.post(`/admin/private/articles/${articleId}/variants`, variant)
+            eventBus.emit("notify", { message: "Variante agregada exitosamente", open: true, type: "success", title: "Éxito!" })
+            return data.data
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Error al agregar variante"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
+    async updateVariant(articleId: string, variantId: string, variant: any): Promise<any> {
+        try {
+            const { data } = await adminAxios.put(`/admin/private/articles/${articleId}/variants/${variantId}`, variant)
+            eventBus.emit("notify", { message: "Variante actualizada exitosamente", open: true, type: "success", title: "Éxito!" })
+            return data.data
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Error al actualizar variante"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
+    async deleteVariant(articleId: string, variantId: string): Promise<void> {
+        try {
+            await adminAxios.delete(`/admin/private/articles/${articleId}/variants/${variantId}`)
+            eventBus.emit("notify", { message: "Variante eliminada exitosamente", open: true, type: "success", title: "Éxito!" })
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Error al eliminar variante"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
+    async getVariants(articleId: string): Promise<IArticlesVariants[]> {
+        try {
+            const { data } = await adminAxios.get(`/admin/private/articles/${articleId}/variants`)
+            return data.data
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Error al obtener variantes"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
     }
 }
 

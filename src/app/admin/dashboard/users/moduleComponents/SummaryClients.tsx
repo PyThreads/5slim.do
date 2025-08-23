@@ -20,7 +20,7 @@ export default function SummaryClients() {
         } finally {
             setLoading(false)
         }
-    }, [setLoading, userService, setTotalClients])
+    }, [])
 
     useEffect(() => {
         loadClientsSummary();

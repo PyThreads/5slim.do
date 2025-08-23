@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { Box, Grid, Paper, MenuItem, IconButton, Button, CircularProgress, Dialog, DialogActions, DialogContent, DialogContentText, DialogTitle } from '@mui/material';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
-import DoNotDisturbOnIcon from '@mui/icons-material/DoNotDisturbOn';
 import SaveIcon from '@mui/icons-material/Save';
 import DeleteIcon from '@mui/icons-material/Delete';
-import CustomField, { DefaultSwitch } from '../../../../../../components/inputs/CustomField';
+import CustomField from '../../../../../../components/inputs/CustomField';
 import { v4 as uuidv4 } from 'uuid';
 import { IArticleImages, IArticleStatus, IArticlesVariants, IArticleAvailability } from '../../../../../../api/src/interfaces';
 import { baseService } from '../../../../utils/baseService';
@@ -22,7 +21,7 @@ export default function TableArticleVariants({
     rows: IArticlesVariants[];
     onChange: Function;
     mainImage: string | undefined;
-    articleId: string;
+    articleId: number;
 }) {
     const [loading, setLoading] = React.useState<{[key: string]: boolean}>({});
     const [variants, setVariants] = React.useState<IArticlesVariants[]>(rows);
@@ -455,7 +454,6 @@ export default function TableArticleVariants({
                     <Button 
                         onClick={() => setDeleteConfirm({open: false, variant: null})} 
                         variant="outlined"
-                        fullWidth={{ xs: true, sm: false }}
                         sx={{
                             fontFamily: 'Inter',
                             fontSize: '14px',
@@ -463,6 +461,7 @@ export default function TableArticleVariants({
                             borderRadius: '8px',
                             borderColor: '#E1E2E9',
                             color: '#6E7079',
+                            width: { xs: '100%', sm: 'auto' },
                             '&:hover': {
                                 borderColor: '#C1C2C9',
                                 backgroundColor: '#F8F9FA'
@@ -474,13 +473,13 @@ export default function TableArticleVariants({
                     <Button 
                         onClick={confirmDelete} 
                         variant="contained"
-                        fullWidth={{ xs: true, sm: false }}
                         sx={{
                             fontFamily: 'Inter',
                             fontSize: '14px',
                             textTransform: 'none',
                             borderRadius: '8px',
                             backgroundColor: '#DC3545',
+                            width: { xs: '100%', sm: 'auto' },
                             '&:hover': {
                                 backgroundColor: '#C82333'
                             }

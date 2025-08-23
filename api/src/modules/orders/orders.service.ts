@@ -17,17 +17,15 @@ export class OrderService extends BaseService {
         this.articleService = new ArticleService({ mongoDatabase });
     }
 
-    async updateOrderStatus(params: { orderId: number, status: IOrderStatus }): Promise<IOrder> {
+    async updateOrderStatus(params: { orderId: number, status: IOrderStatus, user: IAdmin }): Promise<IOrder> {
         try {
-            const { orderId, status } = params;
+            const { orderId, status, user } = params;
 
             if (status === IOrderStatus.CANCELLED) throw new Error("No se puede cambiar al cancelada.")
 
-            const result = await this.collection.findOneAndUpdate(
-                { _id: orderId },
-                { $set: { status } },
-                { returnDocument: "after" }
-            )
+            const filter = { _id: orderId, ownerId: user.ownerId };
+            const body = { status };
+            const result = await this.updateOne({ filter, body, user });
             return result
         } catch (error) {
             throw error
@@ -174,13 +172,18 @@ export class OrderService extends BaseService {
     async cancelOrder({ orderId, type, user }: { orderId: number, user: IAdmin, type: CancelOrderType }): Promise<IOrder> {
         try {
 
-            const updated: IOrder = await this.updateOne({ filter: { _id: orderId, ownerId: user.ownerId }, body: { status: IOrderStatus.CANCELLED, cancelType: type }, user });
-
-            if (type === CancelOrderType.RETURN_ITEMS) {
-                await this.articleService.setToOrder({ articles: updated.articles, user });
+            const order = await this.collection.findOne({ _id: orderId, ownerId: user.ownerId });
+            if (!order) {
+                throw new Error("Orden no encontrada");
             }
 
-            return updated;
+            await this.updateOne({ filter: { _id: orderId, ownerId: user.ownerId }, body: { status: IOrderStatus.CANCELLED, cancelType: type }, user });
+
+            if (type === CancelOrderType.RETURN_ITEMS) {
+                await this.articleService.setToOrder({ articles: order.articles, user });
+            }
+
+            return order;
 
         } catch (error: any) {
             throw error
@@ -285,21 +288,16 @@ export class OrderService extends BaseService {
         }
     }
 
-    async updateComment({ orderId, comment, ownerId }: { orderId: number, comment: string, ownerId: number }): Promise<IOrder> {
+    async updateComment({ orderId, comment, user }: { orderId: number, comment: string, user: IAdmin }): Promise<IOrder> {
         try {
-            const result = await this.collection.findOneAndUpdate(
-                { _id: orderId, ownerId },
-                { $set: { comment } },
-                { returnDocument: "after" }
-            );
-            
-            if (!result) {
-                throw new Error("Orden no encontrada");
-            }
-            
+            const filter = { _id: orderId, ownerId: user.ownerId };
+            const body = { comment };
+            const result = await this.updateOne({ filter, body, user });
             return result;
         } catch (error: any) {
             throw error;
         }
     }
+
+
 }

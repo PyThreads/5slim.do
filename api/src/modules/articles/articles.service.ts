@@ -311,7 +311,7 @@ class ArticleService extends BaseService {
         }
     }
 
-    async updateArticle({ _id, user, body }: { _id: number, body: IClient, user: IAdmin }) {
+    async updateArticle({ _id, user, body }: { _id: number, body: IArticle, user: IAdmin }) {
         try {
 
             const filter = { _id ,ownerId: user.ownerId}

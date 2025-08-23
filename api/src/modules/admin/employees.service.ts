@@ -57,8 +57,8 @@ export class EmployeesService extends BaseService {
             };
 
             try {
-                await this.insertOne({ body: newEmployee, user: user });
-                return newEmployee;
+                const result = await this.insertOne({ body: newEmployee, user: user });
+                return result;
             } catch (error) {
                 throw new Error("Ha ocurrido un error al guardar el empleado.")
             }
@@ -68,7 +68,7 @@ export class EmployeesService extends BaseService {
         }
     }
 
-    async updateEmployee(_id: number, employeeData: Partial<IAdmin>, ownerId: number): Promise<IAdmin | null> {
+    async updateEmployee(_id: number, employeeData: Partial<IAdmin>, user: IAdmin): Promise<IAdmin | null> {
         try {
 
             const exists: IAdmin = await this.collection.findOne({ _id: _id });
@@ -81,23 +81,15 @@ export class EmployeesService extends BaseService {
             }
 
             if (employeeData.firstName || employeeData.lastName) {
-                const currentEmployee = await this.collection.findOne({ _id: _id, ownerId });
+                const currentEmployee = await this.collection.findOne({ _id: _id, ownerId: user.ownerId });
                 if (currentEmployee) {
                     employeeData.fullName = `${employeeData.firstName || currentEmployee.firstName} ${employeeData.lastName || currentEmployee.lastName}`.trim();
                 }
             }
 
-            try {
-                const result = await this.collection.findOneAndUpdate(
-                    { _id: _id, userType: IUserType.EMPLEADO, ownerId },
-                    { $set: employeeData },
-                    { returnDocument: 'after' }
-                );
-
-                return result.value;
-            } catch (error) {
-                throw new Error("Ha ocurrido un error al actualizar.")
-            }
+            const filter = { _id: _id, userType: IUserType.EMPLEADO, ownerId: user.ownerId };
+            const result = await this.updateOne({ filter, body: employeeData, user });
+            return result;
             
         } catch (error) {
             throw error;

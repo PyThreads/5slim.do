@@ -51,7 +51,7 @@ export class EmployeesController {
             const { id } = req.params;
             const employeeData: Partial<IAdmin> = req.body;
             const admin: IAdmin = res.locals.admin;
-            const result = await this.employeesService.updateEmployee(parseInt(id), employeeData, admin.ownerId);
+            const result = await this.employeesService.updateEmployee(parseInt(id), employeeData, admin);
             res.status(200).json({
                 success: true,
                 data: result

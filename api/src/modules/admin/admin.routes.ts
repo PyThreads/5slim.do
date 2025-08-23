@@ -5,6 +5,7 @@ import { Db } from "mongodb"
 import BaseService from "../../base/baseService"
 import { utils } from "../../utils"
 import createEmployeesRoutes from "./employees.routes"
+import CategoriesRouter from "../categories/categories.routes"
 
 const router = express.Router();
 const publicRouter = express.Router();
@@ -58,6 +59,7 @@ class AdminRouter {
 
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", createEmployeesRoutes({mongoDatabase}));
+        router.use("/private/categories", new CategoriesRouter({mongoDatabase}).routes);
         router.use("/private", router);
         router.use("/public", publicRouter);
 

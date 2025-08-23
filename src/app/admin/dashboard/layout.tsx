@@ -7,17 +7,32 @@ import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from "next/image";
 import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon } from '../../../../components/icons/Svg';
+import CategoryIcon from '@mui/icons-material/Category';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
 import Link from 'next/link';
-import { IAdmin } from '../../../../api/src/interfaces';
+import { IAdmin, IUserType } from '../../../../api/src/interfaces';
 import LogoutIcon from '@mui/icons-material/Logout';
 import PersonIcon from '@mui/icons-material/Person';
 
 const poppins = Poppins({ subsets: ['latin'], display: 'swap', weight: "400" });
 const inter = Inter({ subsets: ['latin'], display: 'swap', weight: "500" });
 
-const items = [
+interface MenuItem {
+  name: string;
+  icon: (filled: boolean) => React.ReactNode;
+  href: string;
+  child: Array<{
+    path: string;
+    title: string;
+    order: number;
+    isDynamic?: boolean;
+    match?: (pathname: string) => boolean;
+  }>;
+  userTypeRestriction?: IUserType;
+}
+
+const items: MenuItem[] = [
   {
     name: "Dashboard",
     icon: (filled: boolean) => <DashboardIcon filled={filled} />,
@@ -72,7 +87,8 @@ const items = [
         order: 3
       }
     ]
-  }
+  },
+
 ];
 
 export default function ProtectedAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
@@ -126,6 +142,11 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
         />
         <Box sx={style.boxLi} >
           {items.map((item, key) => {
+            // Check user type restriction
+            if (item.userTypeRestriction && currentAdmin?.userType !== item.userTypeRestriction && currentAdmin?.userType !== 'Cliente') {
+              return null;
+            }
+            
             const isActive = item.child.some((child) =>
               child.isDynamic ? child.match?.(pathName) : child.path === pathName
             );
@@ -168,6 +189,11 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
       >
         <List>
           {items.map((item, index) => {
+            // Check user type restriction for mobile
+            if (item.userTypeRestriction && currentAdmin?.userType !== item.userTypeRestriction && currentAdmin?.userType !== 'Cliente') {
+              return null;
+            }
+            
             return (
               <ListItem key={index} onClick={() => { router.push(item.href); setMobileOpen(false); }}>
                 <ListItemIcon>{item.icon(false)}</ListItemIcon>
@@ -234,6 +260,13 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
               <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
               <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
                 <Link href="/admin/dashboard/profile">Mi Perfil</Link>
+              </Typography>
+            </React.Fragment>
+          )) || (pathName === '/admin/dashboard/categories' && (
+            <React.Fragment>
+              <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
+              <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
+                <Link href="/admin/dashboard/categories">Categorías</Link>
               </Typography>
             </React.Fragment>
           ))}

@@ -193,6 +193,31 @@ const summaryOrders = ()=>{
     ]
 }
 
+const createCategoryValidation = () => {
+    return [
+        body('description').notEmpty().withMessage('La descripción es requerida.').isString().withMessage('La descripción debe ser texto.').trim(),
+        validation
+    ]
+}
+
+const updateCategoryValidation = () => {
+    return [
+        param('_id').isInt().toInt().withMessage('El ID de la categoría es requerido.'),
+        body('description').notEmpty().withMessage('La descripción es requerida.').isString().withMessage('La descripción debe ser texto.').trim(),
+        validation
+    ]
+}
+
+const getAllCategoriesValidation = () => {
+    return [
+        query("page").optional().isInt({ min: 1 }).toInt().withMessage("page debe ser un entero mayor o igual a 1"),
+        query("limit").optional().isInt({ min: 1 }).toInt().withMessage("limit debe ser un entero mayor o igual a 1"),
+        query("description").optional().isString().withMessage("description debe ser un string"),
+        query("_id").optional().isInt({ min: 1 }).toInt().withMessage("_id debe ser un entero mayor o igual a 1"),
+        validation
+    ]
+}
+
 export const adminRoutesValidations = {
     validateLogin,
     validateOrdersDetails,
@@ -205,5 +230,8 @@ export const adminRoutesValidations = {
     creatOrderValidation,
     paginatOrdersValidation,
     printOrder,
-    summaryOrders
+    summaryOrders,
+    createCategoryValidation,
+    updateCategoryValidation,
+    getAllCategoriesValidation
 }

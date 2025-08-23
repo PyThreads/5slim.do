@@ -3,12 +3,14 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import AddIcon from '@mui/icons-material/Add';
+import CategoryIcon from '@mui/icons-material/Category';
 import SummaryInventory from "./moduleComponents/SummaryInventory";
 import TableArticleList from "./moduleComponents/TableArticlesList";
+import CategoriesModal from "./moduleComponents/CategoriesModal";
 import { IArticle, IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
 import { articleService } from "./articleService";
 import Link from "next/link";
-import { useRouter } from 'next/navigation'
+import { useRouter } from 'next/navigation';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -26,6 +28,7 @@ export default function AdminClientes() {
     })
     const [result, setResult] = useState<IPaginationResult>()
     const [reloadSummary, setReloadSummary] = useState(false)
+    const [openCategoriesModal, setOpenCategoriesModal] = useState(false)
 
     const getAllArticles = useCallback(async () => {
         const result = await articleService.getAllArticles(filters)
@@ -43,18 +46,28 @@ export default function AdminClientes() {
 
                 <Typography sx={{ ...style.title }}>Resumen inventario</Typography>
 
-                <Link href="/admin/dashboard/inventory/newArticle">
+                <Box display="flex" gap={2} alignItems="center">
                     <Button 
                         variant="contained" 
-                        sx={style.addButton}
-                        startIcon={<AddIcon sx={{ display: { xs: "none", sm: "block" } }} />}
+                        sx={style.categoryButton}
+                        onClick={() => setOpenCategoriesModal(true)}
                     >
-                        <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                            Agregar Nuevo Artículo
-                        </Box>
-                        <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
+                        <CategoryIcon />
                     </Button>
-                </Link>
+                    
+                    <Link href="/admin/dashboard/inventory/newArticle">
+                        <Button 
+                            variant="contained" 
+                            sx={style.addButton}
+                            startIcon={<AddIcon sx={{ display: { xs: "none", sm: "block" } }} />}
+                        >
+                            <Box sx={{ display: { xs: "none", sm: "block" } }}>
+                                Agregar Nuevo Artículo
+                            </Box>
+                            <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
+                        </Button>
+                    </Link>
+                </Box>
 
             </Grid>
 
@@ -77,6 +90,10 @@ export default function AdminClientes() {
                 />
             </Box>
 
+            <CategoriesModal 
+                open={openCategoriesModal} 
+                onClose={() => setOpenCategoriesModal(false)} 
+            />
 
         </Box>
     )
@@ -100,6 +117,17 @@ const style = {
         borderRadius: "12px",
         "&:hover": {
             backgroundColor: "#5570F1",
+        }
+    },
+    categoryButton: {
+        backgroundColor: "#28a745",
+        fontSize: { xs: 12, sm: 14, md: 16 },
+        fontFamily: inter.style.fontFamily,
+        height: "36px",
+        textTransform: "none",
+        borderRadius: "12px",
+        "&:hover": {
+            backgroundColor: "#218838",
         }
     },
     title: {

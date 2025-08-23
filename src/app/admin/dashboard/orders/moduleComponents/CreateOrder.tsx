@@ -79,7 +79,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
             setLoading(false);
 
         }
-    }, [order])
+    }, [order, router])
 
     return (
         <Box height={"70vh"}

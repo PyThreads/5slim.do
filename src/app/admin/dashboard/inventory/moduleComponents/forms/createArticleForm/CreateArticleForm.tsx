@@ -3,9 +3,9 @@ import { Grid, Typography, MenuItem, Box, Button, } from "@mui/material";
 import { Form as FormikForm, useFormikContext } from "formik";
 import { CustomField, DefaultSwitch, MultipleSelectChip } from '../../../../../../../../components/inputs/CustomField';
 import { Inter } from "next/font/google";
-import { IArticle, IArticleImages, IArticlesVariants, IDiscountType } from "../../../../../../../../api/src/interfaces";
+import { IArticle, IArticleImages, IArticlesVariants, IDiscountType, ICategory } from "../../../../../../../../api/src/interfaces";
 import TableArticleTipTap from "../../TableArticleTipTap";
-import { categories } from "../../../../../../utils/lists";
+import { categoriesService } from "../../../../categories/categoriesService";
 import { baseService } from "../../../../../../utils/baseService";
 import { UploadArticlesPictures } from "../../UploadArticlesPictures";
 import BackupTableIcon from '@mui/icons-material/BackupTable';
@@ -26,7 +26,8 @@ export const CreateArticleForm = () => {
     const [advanced, setAdvanced] = React.useState(values.tipTap ? true : false);
     const [openModalVariantes, setOpenModalVariantes] = React.useState(false);
     const [variants, setVariants] = React.useState<IArticlesVariants[]>([]);
-    const [loadingVariants, setLoadingVariants] = React.useState(false);
+    const [_loadingVariants, setLoadingVariants] = React.useState(false);
+    const [categories, setCategories] = React.useState<ICategory[]>([]);
 
     const loadVariants = async () => {
         if (!values._id) return;
@@ -37,6 +38,19 @@ export const CreateArticleForm = () => {
             console.error('Error loading variants:', error);
         }
     };
+
+    const loadCategories = async () => {
+        try {
+            const result = await categoriesService.getAllCategories({ page: 1, limit: 100 });
+            setCategories(result.list || []);
+        } catch (error) {
+            console.error('Error loading categories:', error);
+        }
+    };
+
+    React.useEffect(() => {
+        loadCategories();
+    }, []);
 
     const handleOpenVariantsModal = async () => {
         if (values._id) {
@@ -87,12 +101,12 @@ export const CreateArticleForm = () => {
                                     <Grid item xs={12} >
                                         <MultipleSelectChip name="categories" label="Categorías" fullWidth
                                             items={categories}
-                                            getLabel={(item: any) => item?.description}
-                                            selected={values?.categories.map((category: any) => category?._id)}
-                                            setSelected={(selected: any) => {
-                                                const lists = selected.map((itemSelected: any) => {
-                                                    return categories.find((category: any) => category._id === itemSelected)
-                                                })
+                                            getLabel={(item: ICategory) => item?.description}
+                                            selected={values?.categories.map((category: ICategory) => category?._id)}
+                                            setSelected={(selected: number[]) => {
+                                                const lists = selected.map((itemSelected: number) => {
+                                                    return categories.find((category: ICategory) => category._id === itemSelected)
+                                                }).filter(Boolean)
                                                 setFieldValue("categories", lists)
                                             }}
                                         />
@@ -305,7 +319,7 @@ export const CreateArticleForm = () => {
                             rows={variants} 
                             mainImage={values.images.find(item => item.primary)?.url!} 
                             onChange={setVariants}
-                            articleId={values._id || ''}
+                            articleId={values._id}
                         />
                     </Grid>
 

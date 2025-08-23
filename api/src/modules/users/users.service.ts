@@ -49,7 +49,7 @@ class UsersService extends BaseService {
         try {
 
             body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
-            const filter = { _id }
+            const filter = { _id, ownerId: user.ownerId }
             await this.updateOne({ filter, body, user });
             return body
         } catch (error: any) {

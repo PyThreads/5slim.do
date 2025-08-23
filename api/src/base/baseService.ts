@@ -269,7 +269,7 @@ class BaseService {
     }
 
 
-    async getSequence(): Promise<Number> {
+    async getSequence(): Promise<number> {
         const collection = this.tableName;
 
         try {

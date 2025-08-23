@@ -44,7 +44,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
 
     useEffect(() => {
         getOrdersSummary();
-    }, [reloadSummary])
+    }, [reloadSummary, getOrdersSummary])
 
 
     return (

@@ -30,7 +30,7 @@ export default function SummaryInventory({ reload = false }: { reload: boolean }
 
     useEffect(() => {
         getSummary();
-    }, [reload])
+    }, [reload, getSummary])
 
     return (
         <Grid container spacing={2}>

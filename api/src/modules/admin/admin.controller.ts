@@ -26,7 +26,8 @@ class Admin {
         try {
             const { status }: { status: IOrderStatus } = req.body
 
-            const result = await this.orderService.updateOrderStatus({ orderId: Number(req.params._id), status });
+            const admin: IAdmin = res.locals.admin;
+            const result = await this.orderService.updateOrderStatus({ orderId: Number(req.params._id), status, user: admin });
 
             return res.status(200).json({
                 success: true,
@@ -47,8 +48,9 @@ class Admin {
         try {
             const { orderIds, status }: { orderIds: number[], status: IOrderStatus } = req.body;
 
+            const admin: IAdmin = res.locals.admin;
             for (const orderId of orderIds) {
-                await this.orderService.updateOrderStatus({ orderId, status });
+                await this.orderService.updateOrderStatus({ orderId, status, user: admin });
             }
 
             return res.status(200).json({
@@ -72,7 +74,7 @@ class Admin {
             const orderId = Number(req.params.orderId);
             const { comment }: { comment: string } = req.body;
 
-            const result = await this.orderService.updateComment({ orderId, comment, ownerId: admin.ownerId });
+            const result = await this.orderService.updateComment({ orderId, comment, user: admin });
 
             return res.status(200).json({
                 success: true,

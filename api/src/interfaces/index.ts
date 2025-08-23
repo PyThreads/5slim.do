@@ -49,6 +49,18 @@ export interface ICategory {
     _id: number;
     description: string;
     slug: string;
+    createdDate?: Date;
+    createdBy?: ICreatedBy;
+    updatedBy?: ICreatedBy;
+    updatedDate?: Date;
+    ownerId: number;
+}
+
+export interface IPaginateCategories {
+    page: number;
+    limit: number;
+    description?: string;
+    _id?: number;
 }
 
 export interface IArticleDiscount {
@@ -186,7 +198,8 @@ export enum COLLNAMES {
     ADMIN = "ADMIN",
     CLIENTS = "CLIENTS",
     ARTICLES = "ARTICLES",
-    ORDER = "0RDER"
+    ORDER = "0RDER",
+    CATEGORIES = "CATEGORIES"
 }
 
 export interface ICartTotals {
@@ -329,6 +342,10 @@ export interface IAdmin {
     ownerLogo?: string
     userType: IUserType
     ownerId: number
+    createdDate?: Date
+    createdBy?: ICreatedBy
+    updatedDate?: Date
+    updatedBy?: ICreatedBy
 }
 
 export interface IUserAddress {

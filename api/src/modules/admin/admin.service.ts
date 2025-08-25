@@ -1,7 +1,7 @@
 
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
-import { COLLNAMES, EnumTypeTempCode, IAdmin, IClient } from "../../interfaces";
+import { COLLNAMES, EnumTypeTempCode, IAdmin, IClient, IPaginationResult } from "../../interfaces";
 import { AdminIndex } from "./adminIndex";
 
 class AdminService extends BaseService {
@@ -186,6 +186,102 @@ class AdminService extends BaseService {
             throw new Error(error?.message || "Ha ocurrido un error al actualizar el perfil.");
         }
     }
+
+    async createSystemUser({ body, user }: { body: any, user: IAdmin }) {
+        try {
+            const { firstName, lastName, email, profilePicture, active } = body;
+            
+            // Verificar si el email ya existe
+            const existingUser = await this.collection.findOne({ email });
+            if (existingUser) {
+                throw new Error("Ya existe un usuario con este email.");
+            }
+
+            const userData = {
+                firstName,
+                lastName,
+                fullName: `${firstName.trim()} ${lastName.trim()}`,
+                email,
+                userType: "Cliente",
+                role: [],
+                profilePicture: profilePicture || "",
+                active: active !== undefined ? active : true,
+                ownerId: 0, // Se actualizará después de la inserción
+            };
+
+            // Insertar el usuario
+            const result = await this.insertOne({body: userData, user });
+            const newUserId = result._id;
+
+            // Actualizar el ownerId con su propio _id
+            await this.collection.updateOne(
+                { _id: newUserId },
+                { $set: { ownerId: newUserId } }
+            );
+
+            // Obtener el usuario creado
+            const createdUser = await this.collection.findOne(
+                { _id: newUserId }
+            );
+
+            return createdUser;
+
+        } catch (error: any) {
+            throw new Error(error?.message || "Error al crear usuario del sistema.");
+        }
+    }
+
+    async getAllSystemUsers(query: { page: number, limit: number, fullName?: string }): Promise<IPaginationResult> {
+        try {
+            const match = { userType: "Cliente" };
+
+
+            if(query.fullName){
+                Object.assign(match, { fullName: { $regex: this.diacriticSensitive(query.fullName), $options: "i" } });
+            }
+
+            const pipeline = [
+                { 
+                    $match: match
+                },
+                { $project: { fullName: 1, firstName: 1, lastName: 1, createdDate: 1, userType: 1, email: 1, active: 1, profilePicture: 1, role: 1 } },
+                { $sort: { createdDate: 1 } }
+            ];
+
+            return await this.paginate({ query: pipeline, page: query.page, limit: query.limit, collection: COLLNAMES.ADMIN });
+
+        } catch (error: any) {
+            throw new Error(error?.message || "Error al obtener usuarios del sistema.");
+        }
+    }
+
+    async updateSystemUser({ userId, body, user }: { userId: number, body: any, user: IAdmin }): Promise<IAdmin> {
+        try {
+            const { firstName, lastName, email, profilePicture, active } = body;
+            
+            const updateData: any = {
+                firstName,
+                lastName,
+                fullName: `${firstName.trim()} ${lastName.trim()}`,
+                email,
+                profilePicture: profilePicture || "",
+                active: active !== undefined ? active : true,
+                updatedDate: new Date(),
+                updatedBy: {
+                    _id: user._id,
+                    fullName: user.fullName
+                }
+            };
+
+           return await this.updateOne({ filter: { _id: userId, userType: "Cliente" }, body: updateData, user });
+
+    
+
+        } catch (error: any) {
+            throw new Error(error?.message || "Error al actualizar usuario del sistema.");
+        }
+    }
+
 
     generateHtmlNotifyPaymentValidation({ clientName, orderId }: { clientName: string, orderId: number }) {
         return `

@@ -693,6 +693,108 @@ class Admin {
         }
     }
 
+    async createSystemUser(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            
+            // Verificar que el usuario tenga rol de Support
+            if (!admin.role || !admin.role.includes("Support")) {
+                return res.status(512).json({
+                    success: false,
+                    data: null, 
+                    message: "No tienes permisos para crear usuarios del sistema."
+                });
+            }
+
+            const userData = {
+                ...req.body,
+                userType: "Cliente",
+                role: []
+            };
+
+            const result = await this.adminService.createSystemUser({ body: userData, user: admin });
+
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "Usuario del sistema creado exitosamente."
+            });
+
+        } catch (error: any) {
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Error al crear usuario del sistema."
+            });
+        }
+    }
+
+    async getAllSystemUsers(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            
+            if (!admin.role || !admin.role.includes("Support")) {
+                return res.status(403).json({
+                    success: false,
+                    data: null,
+                    message: "No tienes permisos para ver usuarios del sistema."
+                });
+            }
+
+            const query = {
+                page: Number(req.query.page) || 1,
+                limit: Number(req.query.limit) || 10,
+                fullName: req.query.fullName as string
+            };
+            const result = await this.adminService.getAllSystemUsers(query);
+
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "Usuarios obtenidos exitosamente."
+            });
+
+        } catch (error: any) {
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Error al obtener usuarios."
+            });
+        }
+    }
+
+    async updateSystemUser(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            
+            if (!admin.role || !admin.role.includes("Support")) {
+                return res.status(403).json({
+                    success: false,
+                    data: null,
+                    message: "No tienes permisos para actualizar usuarios del sistema."
+                });
+            }
+
+            const userId = Number(req.params._id);
+            const result = await this.adminService.updateSystemUser({ userId, body: req.body, user: admin });
+
+            res.status(200).json({
+                success: true,
+                data: result,
+                message: "Usuario actualizado exitosamente."
+            });
+
+        } catch (error: any) {
+            res.status(512).json({
+                success: false,
+                data: null,
+                message: error?.message || "Error al actualizar usuario."
+            });
+        }
+    }
+
+  
+
 }
 
 export { Admin };

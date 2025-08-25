@@ -1,12 +1,14 @@
 import { COLLNAMES, IAdmin, ICategory, IPaginateCategories, IPaginationResult } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
+import { CategoriesIndex } from "./categoriesIndex";
 
 class CategoriesService extends BaseService {
 
     public readonly collection: Document | any
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: COLLNAMES.CATEGORIES });
+        new CategoriesIndex({ mongoDatabase, tableName: COLLNAMES.CATEGORIES });
     }
 
     async createCategory({ body, user }: { body: ICategory, user: IAdmin }): Promise<ICategory> {

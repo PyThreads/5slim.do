@@ -6,7 +6,7 @@ import { Container, Typography, Drawer, List, ListItem, ListItemIcon, ListItemTe
 import MenuIcon from '@mui/icons-material/Menu';
 import { useRouter, usePathname } from 'next/navigation';
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon } from '../../../../components/icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon, UserManagementIcon } from '../../../../components/icons/Svg';
 import CategoryIcon from '@mui/icons-material/Category';
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import { AdminProvider, useAdminAuth } from '../../../../context/AdminContext';
@@ -32,64 +32,78 @@ interface MenuItem {
   userTypeRestriction?: IUserType;
 }
 
-const items: MenuItem[] = [
-  {
-    name: "Dashboard",
-    icon: (filled: boolean) => <DashboardIcon filled={filled} />,
-    href: "/admin/dashboard",
-    child: [
-      { path: "/admin/dashboard", title: "Dashboard", order: 1 }
-    ]
-  },
-  {
-    name: "Ordenes",
-    icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
-    href: "/admin/dashboard/orders",
-    child: [
-      { path: "/admin/dashboard/orders", title: "Ordenes", order: 1 },
-      {
-        isDynamic: true,
-        path: "/admin/dashboard/orders/",
-        match: (pathname: string) => pathname.startsWith("/admin/dashboard/orders/"),
-        title: "Detalles orden",
-        order: 3
-      }
-    ]
-  },
-  {
-    name: "Clientes",
-    icon: (filled: boolean) => <CustomersIcon filled={filled} />,
-    href: "/admin/dashboard/users",
-    child: [
-      { path: "/admin/dashboard/users", title: "Clientes", order: 1 }
-    ]
-  },
-  {
-    name: "Empleados",
-    icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
-    href: "/admin/dashboard/employees",
-    child: [
-      { path: "/admin/dashboard/employees", title: "Empleados", order: 1 }
-    ]
-  },
-  {
-    name: "Artículos",
-    icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
-    href: "/admin/dashboard/inventory",
-    child: [
-      { path: "/admin/dashboard/inventory", title: "Artículos", order: 1 },
-      { path: "/admin/dashboard/inventory/newArticle", title: "Nuevo Artículo", order: 2 },
-      {
-        isDynamic: true,
-        path: "/admin/dashboard/inventory/newArticle/",
-        match: (pathname: string) => pathname.startsWith("/admin/dashboard/inventory/newArticle/"),
-        title: "Editando Artículo",
-        order: 3
-      }
-    ]
-  },
+const getItems = (currentAdmin: IAdmin | null): MenuItem[] => {
+  const baseItems: MenuItem[] = [
+    {
+      name: "Dashboard",
+      icon: (filled: boolean) => <DashboardIcon filled={filled} />,
+      href: "/admin/dashboard",
+      child: [
+        { path: "/admin/dashboard", title: "Dashboard", order: 1 }
+      ]
+    },
+    {
+      name: "Ordenes",
+      icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
+      href: "/admin/dashboard/orders",
+      child: [
+        { path: "/admin/dashboard/orders", title: "Ordenes", order: 1 },
+        {
+          isDynamic: true,
+          path: "/admin/dashboard/orders/",
+          match: (pathname: string) => pathname.startsWith("/admin/dashboard/orders/"),
+          title: "Detalles orden",
+          order: 3
+        }
+      ]
+    },
+    {
+      name: "Clientes",
+      icon: (filled: boolean) => <CustomersIcon filled={filled} />,
+      href: "/admin/dashboard/users",
+      child: [
+        { path: "/admin/dashboard/users", title: "Clientes", order: 1 }
+      ]
+    },
+    {
+      name: "Empleados",
+      icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
+      href: "/admin/dashboard/employees",
+      child: [
+        { path: "/admin/dashboard/employees", title: "Empleados", order: 1 }
+      ]
+    },
+    {
+      name: "Artículos",
+      icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
+      href: "/admin/dashboard/inventory",
+      child: [
+        { path: "/admin/dashboard/inventory", title: "Artículos", order: 1 },
+        { path: "/admin/dashboard/inventory/newArticle", title: "Nuevo Artículo", order: 2 },
+        {
+          isDynamic: true,
+          path: "/admin/dashboard/inventory/newArticle/",
+          match: (pathname: string) => pathname.startsWith("/admin/dashboard/inventory/newArticle/"),
+          title: "Editando Artículo",
+          order: 3
+        }
+      ]
+    }
+  ];
 
-];
+  if (currentAdmin?.role?.some((item: string) => item === "Support")) {
+    baseItems.push({
+      name: "Gestión Usuarios",
+      icon: (filled: boolean) => <UserManagementIcon filled={filled} />,
+      href: "/admin/dashboard/gestion-usuarios",
+      child: [
+        { path: "/admin/dashboard/gestion-usuarios", title: "Gestión Usuarios", order: 1 }
+      ]
+    });
+  }
+
+  return baseItems;
+};
 
 export default function ProtectedAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
   return (
@@ -106,6 +120,8 @@ function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode
   const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
   const [hideMenuNames, setHideMenuNames] = React.useState(false);
   const router = useRouter();
+  
+  const items = getItems(currentAdmin);
 
   const mainPath = items.find((main) =>
     main.child.some((child) =>

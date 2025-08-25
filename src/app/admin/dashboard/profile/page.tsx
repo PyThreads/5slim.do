@@ -8,7 +8,8 @@ import { IAdmin } from "../../../../../api/src/interfaces";
 import Image from "next/image";
 import { UploadImageIcon } from "../../../../../components/icons/Svg";
 import axios from "../../../../../context/adminAxiosInstance";
-import { eventBus } from "../../../utils/broadcaster";
+import { eventBus, notify } from "../../../utils/EventBus";
+import SimpleSnackbar from "../../../../../components/notifications/SimpleSnackbar";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -21,6 +22,7 @@ export default function ProfilePage() {
     const [loading, setLoading] = useState(false);
     const [uploadingImage, setUploadingImage] = useState(false);
     const [uploadingLogo, setUploadingLogo] = useState(false);
+    const [notification, setNotification] = useState<any>(null);
     const refInput = useRef<HTMLInputElement>(null);
     const refLogoInput = useRef<HTMLInputElement>(null);
     
@@ -48,6 +50,18 @@ export default function ProfilePage() {
             });
         }
     }, [currentAdmin]);
+
+    useEffect(() => {
+        const handleNotification = (data: any) => {
+            setNotification({ ...data, open: true });
+        };
+        
+        eventBus.on('notification', handleNotification);
+        
+        return () => {
+            eventBus.off('notification', handleNotification);
+        };
+    }, []);
 
     const handleInputChange = (field: string, value: string) => {
         setFormData(prev => ({ ...prev, [field]: value }));
@@ -77,20 +91,10 @@ export default function ProfilePage() {
                 await axios.put('/admin/private/profile', updatedFormData);
                 await refreshAdmin();
                 
-                eventBus.emit('notify', {
-                    message: 'Imagen subida y guardada exitosamente.',
-                    open: true,
-                    type: 'success',
-                    title: 'Éxito!'
-                });
+                notify.success('Éxito!', 'Imagen subida y guardada exitosamente.');
             }
         } catch (error) {
-            eventBus.emit('notify', {
-                message: 'Error al subir la imagen.',
-                open: true,
-                type: 'error',
-                title: 'Error!'
-            });
+            notify.error('Error!', 'Error al subir la imagen.');
         } finally {
             setUploadingImage(false);
             if (refInput.current) refInput.current.value = '';
@@ -122,20 +126,10 @@ export default function ProfilePage() {
                     setCurrentAdmin({ ...currentAdmin, logo: logoUrl });
                 }
                 
-                eventBus.emit('notify', {
-                    message: 'Logo subido y guardado exitosamente.',
-                    open: true,
-                    type: 'success',
-                    title: 'Éxito!'
-                });
+                notify.success('Éxito!', 'Logo subido y guardado exitosamente.');
             }
         } catch (error) {
-            eventBus.emit('notify', {
-                message: 'Error al subir el logo.',
-                open: true,
-                type: 'error',
-                title: 'Error!'
-            });
+            notify.error('Error!', 'Error al subir el logo.');
         } finally {
             setUploadingLogo(false);
             if (refLogoInput.current) refLogoInput.current.value = '';
@@ -153,19 +147,9 @@ export default function ProfilePage() {
             // Refresh admin data from server to get latest info
             await refreshAdmin();
             
-            eventBus.emit('notify', {
-                message: 'Perfil actualizado exitosamente.',
-                open: true,
-                type: 'success',
-                title: 'Guardado!'
-            });
+            notify.success('Guardado!', 'Perfil actualizado exitosamente.');
         } catch (error) {
-            eventBus.emit('notify', {
-                message: 'Error al actualizar el perfil.',
-                open: true,
-                type: 'error',
-                title: 'Error!'
-            });
+            notify.error('Error!', 'Error al actualizar el perfil.');
         } finally {
             setLoading(false);
         }
@@ -343,6 +327,16 @@ export default function ProfilePage() {
                     </Grid>
                 </Grid>
             </Box>
+            
+            {notification && (
+                <SimpleSnackbar
+                    type={notification.type}
+                    title={notification.title}
+                    message={notification.message}
+                    open={notification.open}
+                    setOpen={() => setNotification(null)}
+                />
+            )}
         </Box>
     )
 }

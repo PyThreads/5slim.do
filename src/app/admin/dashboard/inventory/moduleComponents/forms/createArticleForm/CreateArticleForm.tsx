@@ -233,11 +233,22 @@ export const CreateArticleForm = () => {
                                         <CustomField name="shortDescription" label="Descripción Corta" placeholder="Descripción corta" fullWidth value={values.shortDescription} multiline rows={8} />
                                     </Grid>
 
+
+
                                     <Grid item xs={12} mt={2} >
                                         <Grid container item xs={12} spacing={2} >
                                             <Grid item xs={6} >
-                                                <CustomField select name="advertisement.type" label="Publicidad tipo" placeholder="Publicidad tipo" fullWidth value={values?.advertisement?.type || ""} noValidate
-
+                                                <CustomField 
+                                                    select 
+                                                    name="advertisement.type" 
+                                                    label="Publicidad tipo (Opcional)" 
+                                                    placeholder="Publicidad tipo" 
+                                                    fullWidth 
+                                                    value={values?.advertisement?.type || ""} 
+                                                    onChange={(e: any) => {
+                                                        setFieldValue("advertisement.type", e.target.value);
+                                                    }}
+                                                    noValidate
                                                 >
                                                     <MenuItem value="">
                                                         <em>Ninguno</em>
@@ -251,7 +262,17 @@ export const CreateArticleForm = () => {
                                             </Grid>
 
                                             <Grid item xs={6} >
-                                                <CustomField name="advertisement.value" label="Valor de Publicidad" placeholder="Valor de la publicidad" fullWidth value={values?.advertisement?.value || ""} noValidate />
+                                                <CustomField 
+                                                    name="advertisement.value" 
+                                                    label="Valor de Publicidad (Opcional)" 
+                                                    placeholder="Valor de la publicidad" 
+                                                    fullWidth 
+                                                    value={values?.advertisement?.value || ""} 
+                                                    onChange={(e: any) => {
+                                                        setFieldValue("advertisement.value", e.target.value);
+                                                    }}
+                                                    noValidate 
+                                                />
                                             </Grid>
                                         </Grid>
                                     </Grid>

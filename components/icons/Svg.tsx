@@ -665,3 +665,31 @@ export const EmployeesIcon: FC<MiIconoProps> = ({ filled }) => {
         </svg>
     );
 };
+
+export const UserManagementIcon: FC<MiIconoProps> = ({ filled }) => {
+    return (
+        <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M28 31.2068C31.689 31.2068 34.842 31.7658 34.842 33.9988C34.842 36.2318 31.71 36.8068 28 36.8068C24.31 36.8068 21.158 36.2528 21.158 34.0188C21.158 31.7848 24.289 31.2068 28 31.2068Z"
+                stroke={filled ? "#FFFFFF" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M28 28.0198C25.578 28.0198 23.614 26.0568 23.614 23.6348C23.614 21.2128 25.578 19.2498 28 19.2498C30.421 19.2498 32.385 21.2128 32.385 23.6348C32.394 26.0478 30.444 28.0108 28.031 28.0198H28Z"
+                stroke={filled ? "#99A9F7" : "#53545C"}
+                strokeWidth="1.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                fill={filled ? "#99A9F7" : "transparent"}
+            />
+            <circle cx="38" cy="20" r="8" fill={filled ? "#5570F1" : "#E3F2FD"} stroke={filled ? "#FFFFFF" : "#5570F1"} strokeWidth="1.5"/>
+            <path d="M35 20L37 22L41 18" stroke={filled ? "#FFFFFF" : "#5570F1"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+};

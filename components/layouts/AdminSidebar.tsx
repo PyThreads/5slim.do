@@ -5,7 +5,7 @@ import { Poppins } from 'next/font/google';
 import { Typography } from '@mui/material';
 import { useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon } from '../icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, UserManagementIcon } from '../icons/Svg';
 import { useAdminAuth } from '../../context/AdminContext';
 
 const poppins = Poppins({
@@ -15,33 +15,45 @@ const poppins = Poppins({
 })
 
 
-const items = [
-    {
-        name: "",
-        icon: (filled: boolean) => <DashboardIcon filled={filled} />,
-        href: "/admin/dashboard"
-    },
-    {
-        name: "",
-        icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
-        href: "/admin/dashboard/articles"
-    },
-    {
-        name: "",
-        icon: (filled: boolean) => <CustomersIcon filled={filled} />,
-        href: "/admin/dashboard/users"
-    },
-    {
-        name: "",
-        icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
-        href: "/admin/dashboard/employees"
-    },
-    {
-        name: "",
-        icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
-        href: "/admin/dashboard/inventory"
+const getItems = (hasSuportRole: boolean) => {
+    const baseItems = [
+        {
+            name: "",
+            icon: (filled: boolean) => <DashboardIcon filled={filled} />,
+            href: "/admin/dashboard"
+        },
+        {
+            name: "",
+            icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
+            href: "/admin/dashboard/articles"
+        },
+        {
+            name: "",
+            icon: (filled: boolean) => <CustomersIcon filled={filled} />,
+            href: "/admin/dashboard/users"
+        },
+        {
+            name: "",
+            icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
+            href: "/admin/dashboard/employees"
+        },
+        {
+            name: "",
+            icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
+            href: "/admin/dashboard/inventory"
+        }
+    ];
+
+    if (hasSuportRole) {
+        baseItems.push({
+            name: "",
+            icon: (filled: boolean) => <UserManagementIcon filled={filled} />,
+            href: "/admin/dashboard/gestion-usuarios"
+        });
     }
-]
+
+    return baseItems;
+}
 
 const Li = ({ name, icon, href }: { name?: string, icon: Function, href?: string }) => {
     const router = useRouter()
@@ -71,6 +83,14 @@ const Li = ({ name, icon, href }: { name?: string, icon: Function, href?: string
 
 export default function AdminSidebar() {
     const { currentAdmin } = useAdminAuth() as { currentAdmin: any };
+    
+    React.useEffect(() => {
+        console.log('currentAdmin:', currentAdmin);
+        console.log('currentAdmin roles:', currentAdmin?.role);
+    }, [currentAdmin]);
+    
+    const hasSuportRole = currentAdmin?.role?.some((item: string) => item === "Support");
+    const items = getItems(hasSuportRole);
 
     const getLogoSrc = () => {
         // Si es cliente, usar el logo del owner

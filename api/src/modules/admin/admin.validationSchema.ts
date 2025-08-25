@@ -49,29 +49,6 @@ const validationSchemaArticleForm = () => {
       body('variants.*.stock').isInt({min:0}).toInt().withMessage("Debe ingresar una cantidad de stock mayor o igual a cero."),
       body('variants.*.available').optional().isString().withMessage("La disponibilidad debe ser un string válido."),
       body('variants.*.comment').optional().isString().withMessage("El comentario debe ser un string."),
-      body('discount').custom((value, { req }) => {
-        if (req.body.hasDiscount) {
-          if (!value || typeof value !== 'object') {
-            throw new Error('El descuento es requerido o desmarque el descuento en el formulario*.');
-          }
-    
-          if (!value.type || value.type.trim() === '') {
-            throw new Error('El tipo de descuento es requerido*.');
-          }
-    
-          if (value.value === undefined || value.value === null) {
-            throw new Error('El valor de descuento es requerido*.');
-          }
-    
-          if (value.hasExpiration && (!value.endDate || value.endDate.trim() === '')) {
-            throw new Error('Debe seleccionar una fecha de finalización*.');
-          }
-        }
-    
-        return true;
-      }),
-      body('advertisement.type').trim().notEmpty().withMessage('El tipo del monto publicitario es requerido*.'),
-      body('advertisement.value').trim().notEmpty().withMessage('El valor de la publicidad es requerido*.'),
       body('published').optional().isBoolean(),
       body('shortDescription').trim().notEmpty().withMessage('La descripción es requerida*.'),
       body('tipTap').optional().trim(),

@@ -61,6 +61,13 @@ class AdminRouter {
         router.get("/articles/:articleId/variants", this.adminController.getVariants.bind(this.adminController));
 
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
+        
+        // User management routes (for Support role) - AFTER authentication middleware
+        router.post("/users", this.baseService.verifyTokenAdmin.bind(this.baseService), this.adminController.createSystemUser.bind(this.adminController));
+        router.get("/users", this.baseService.verifyTokenAdmin.bind(this.baseService), this.adminController.getAllSystemUsers.bind(this.adminController));
+        router.put("/users/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), this.adminController.updateSystemUser.bind(this.adminController));
+
+        
         router.use("/private", createEmployeesRoutes({mongoDatabase}));
         router.use("/private/categories", new CategoriesRouter({mongoDatabase}).routes);
         router.use("/private/brands", new BrandsRouter({mongoDatabase}).routes);

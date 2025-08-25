@@ -285,6 +285,8 @@ class ArticleService extends BaseService {
                 if (existingArticle) {
                     throw new Error("El código externo ya existe para otro artículo.");
                 }
+            } else {
+                body.externalCode = null; // Clear external code if not provided
             }
 
             body.slug = await this.getArticleSlug(body.description);
@@ -346,6 +348,8 @@ class ArticleService extends BaseService {
                 if (existingArticle) {
                     throw new Error("El código externo ya existe para otro artículo.");
                 }
+            } else {
+                body.externalCode = null; // Clear external code if not provided
             }
 
             // Generate article search field

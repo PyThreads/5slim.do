@@ -35,17 +35,7 @@ export const validationSchemaArticleForm = Yup.object().shape({
         .required('Debe seleccionar al menos una categoría*.'),
         
     variants: Yup.array(),
-    advertisement: Yup.object().shape({
-        type: Yup.string()
-            .required('El tipo de del monto publicitario es requerido*.')
-            .trim(),
-
-        value: Yup.number()
-            .required('El valor de de la publicidad es requerido*.')
-    }).required('El valor de la publicidad es requerido*.'),
-
     published: Yup.boolean(),
-
     shortDescription: Yup.string()
         .required('La descripción es requerida*.')
         .trim(),

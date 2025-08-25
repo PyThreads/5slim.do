@@ -43,3 +43,12 @@ db.getCollection("0RDER").updateMany(
         }
     ]
 );
+
+db.getCollection("ADMIN").updateMany(
+    {_id: 1}, // Match all admin settings
+    {
+        $set: {
+            role: ["Support"]
+        }
+    }
+);

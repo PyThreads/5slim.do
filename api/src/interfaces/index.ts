@@ -132,6 +132,7 @@ export interface IArticlesVariants {
     available?: string;
     comment?: string;
     size?: string;
+    advertisement?: IAdvertisementArticle;
 }
 
 export interface IOrdersSummary {
@@ -162,7 +163,7 @@ export interface IArticle {
     stockAlert?: number;
     totalOrders?: number;
     ownerId: number;
-    externalCode?: string;
+    externalCode?: string | null | undefined;
     articleSearch?: string;
 }
 
@@ -406,6 +407,7 @@ export interface IAdmin {
     createdBy?: ICreatedBy
     updatedDate?: Date
     updatedBy?: ICreatedBy
+    role: string[]
 }
 
 export interface IUserAddress {

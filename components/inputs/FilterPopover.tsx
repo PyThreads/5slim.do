@@ -1,7 +1,10 @@
-import React, { useState } from "react";
-import { Button, Popover, Box, FormControlLabel, Checkbox, Typography, Divider, Select, MenuItem, FormControl } from "@mui/material";
+import React, { useState, useEffect } from "react";
+import { Button, Popover, Box, FormControlLabel, Checkbox, Typography, Divider, Select, MenuItem, FormControl, Autocomplete, TextField } from "@mui/material";
 import { FilterIcon } from "../icons/Svg";
 import { Inter } from "next/font/google";
+import { categoriesService } from "../../src/app/admin/dashboard/categories/categoriesService";
+import { brandsService } from "../../src/app/admin/dashboard/brands/brandsService";
+import { ICategory, IBrand } from "../../api/src/interfaces";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -10,18 +13,35 @@ const inter = Inter({
 });
 
 interface FilterPopoverProps {
-    onFilterChange: (filters: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string }) => void;
-    currentFilters?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string };
+    onFilterChange: (filters: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string; categories?: number[]; brand?: number; size?: string }) => void;
+    currentFilters?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string; categories?: number[]; brand?: number; size?: string };
 }
 
 const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFilters }) => {
     const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+    const [categories, setCategories] = useState<ICategory[]>([]);
+    const [brands, setBrands] = useState<IBrand[]>([]);
     const [tempFilters, setTempFilters] = useState({
         hasStock: currentFilters?.hasStock,
         lowStock: currentFilters?.lowStock,
         hasOrderedVariants: currentFilters?.hasOrderedVariants,
-        sortByOrders: currentFilters?.sortByOrders
+        sortByOrders: currentFilters?.sortByOrders,
+        categories: currentFilters?.categories || [],
+        brand: currentFilters?.brand || undefined,
+        size: currentFilters?.size || ""
     });
+
+    useEffect(() => {
+        const loadData = async () => {
+            const [categoriesResult, brandsResult] = await Promise.all([
+                categoriesService.getAllCategories({ limit: 100 }),
+                brandsService.getAllBrands({ limit: 100 })
+            ]);
+            setCategories(categoriesResult.list as ICategory[]);
+            setBrands(brandsResult.list as IBrand[]);
+        };
+        loadData();
+    }, []);
 
     const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
         setAnchorEl(event.currentTarget);
@@ -34,7 +54,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
 
     const handleClear = () => {
-        const clearedFilters = { hasStock: undefined, lowStock: undefined, hasOrderedVariants: undefined, sortByOrders: undefined };
+        const clearedFilters = { hasStock: undefined, lowStock: undefined, hasOrderedVariants: undefined, sortByOrders: undefined, categories: [], brand: undefined, size: "" };
         setTempFilters(clearedFilters);
         onFilterChange(clearedFilters);
         handleClose();
@@ -165,6 +185,75 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                     <Divider sx={{ my: 2 }} />
 
                     <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                        Categorías
+                    </Typography>
+                    
+                    <Autocomplete
+                        multiple
+                        size="small"
+                        options={categories}
+                        getOptionLabel={(option) => option.description}
+                        getOptionKey={(option) => option._id}
+                        value={categories.filter(cat => tempFilters.categories?.includes(cat._id))}
+                        onChange={(_, newValue) => {
+                            const categoryIds = newValue.map(cat => cat._id);
+                            const newFilters = { ...tempFilters, categories: categoryIds };
+                            handleFilterChange(newFilters);
+                        }}
+                        renderInput={(params) => (
+                            <TextField
+                                {...params}
+                                placeholder="Seleccionar categorías"
+                                sx={{
+                                    '& .MuiOutlinedInput-root': {
+                                        fontSize: '12px',
+                                        fontFamily: inter.style.fontFamily
+                                    }
+                                }}
+                            />
+                        )}
+                        sx={{
+                            '& .MuiChip-root': {
+                                fontSize: '10px',
+                                height: '24px'
+                            }
+                        }}
+                    />
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                        Marcas
+                    </Typography>
+                    
+                    <FormControl fullWidth size="small">
+                        <Select
+                            value={tempFilters.brand || ''}
+                            onChange={(e) => {
+                                const newFilters = { ...tempFilters, brand: e.target.value ? parseInt(e.target.value as string) : undefined };
+                                handleFilterChange(newFilters);
+                            }}
+                            displayEmpty
+                            sx={{
+                                fontSize: '12px',
+                                fontFamily: inter.style.fontFamily,
+                                '& .MuiOutlinedInput-notchedOutline': {
+                                    borderColor: '#CFD3D4'
+                                }
+                            }}
+                        >
+                            <MenuItem value="" sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>Todas las marcas</MenuItem>
+                            {brands.map((brand) => (
+                                <MenuItem key={brand._id} value={brand._id} sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>
+                                    {brand.description}
+                                </MenuItem>
+                            ))}
+                        </Select>
+                    </FormControl>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
                         Ordenar por ventas
                     </Typography>
                     
@@ -189,6 +278,29 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
                             <MenuItem value="asc" sx={{ fontSize: '12px', fontFamily: inter.style.fontFamily }}>Menos vendido primero</MenuItem>
                         </Select>
                     </FormControl>
+
+                    <Divider sx={{ my: 2 }} />
+
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                        Talla
+                    </Typography>
+                    
+                    <TextField
+                        size="small"
+                        fullWidth
+                        placeholder="Filtrar por talla"
+                        value={tempFilters.size}
+                        onChange={(e) => {
+                            const newFilters = { ...tempFilters, size: e.target.value };
+                            handleFilterChange(newFilters);
+                        }}
+                        sx={{
+                            '& .MuiOutlinedInput-root': {
+                                fontSize: '12px',
+                                fontFamily: inter.style.fontFamily
+                            }
+                        }}
+                    />
 
                     <Box sx={{ display: 'flex', justifyContent: 'center', mt: 3 }}>
                         <Button

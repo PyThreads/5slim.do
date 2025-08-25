@@ -48,7 +48,6 @@ export default function TableClientsList(
                 <Grid container item display={"flex"} alignItems={"center"} xs={12} md={12} lg={7} spacing={1}>
                     <Grid item xs={12}>
                         <SearchTable 
-                            fullWidth
                             onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
                                 setFilers((prev: any) => ({ ...prev, fullName: e.target.value, page: 1 }))
                             }} 

@@ -1,21 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
-import { IArticle, IArticleCart, IArticlesVariants, IClient, IOrder, IOrderStatus, IOrderType, IPaymentStatus, IPaginationResult } from "../../../../../../api/src/interfaces";
+import { IArticle, IArticleCart, IArticlesVariants, IClient, IOrder, IOrderStatus, IOrderType, IOrderDiscountType, IPaymentStatus, IPaginationResult } from "../../../../../../api/src/interfaces";
 import { ordersService } from "../ordersService";
 import { userService } from "../../users/userService";
 import { articleService } from "../../inventory/articleService";
-import { Box, Button, CircularProgress, Grid, MenuItem, Paper, Popover, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography } from "@mui/material";
+import { Box, Button, CircularProgress, Grid, MenuItem, Paper, Popover, Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Tooltip, Typography, Chip, Autocomplete, TextField } from "@mui/material";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AddIcon from '@mui/icons-material/Add';
+import FilterListIcon from '@mui/icons-material/FilterList';
 import CloseIcon from '@mui/icons-material/Close';
 import { BagOrderIcon } from "../../../../../../components/icons/Svg";
 import { Inter } from "next/font/google";
 import { baseService } from "../../../../utils/baseService";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
+import SearchFilterPopover from "../../../../../../components/inputs/SearchFilterPopover";
 import CustomField, { AutocompleteCustom } from "../../../../../../components/inputs/CustomField";
 import CustomModal from "../../../../../../components/modals/CustomModal";
 import Image from "next/image";
 import { eventBus } from "../../../../utils/broadcaster";
 import React from "react";
 import { useRouter } from 'next/navigation';
+import CreateClientForm from "../../users/moduleComponents/forms/createClientForm/index";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -29,10 +33,14 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     const router = useRouter()
     const [filtersArticle, setFilersArticles] = useState<string>("")
     const [filtersClient, setFiltersClient] = useState<string>("")
+    const [selectedCategories, setSelectedCategories] = useState<number[]>([])
+    const [selectedBrand, setSelectedBrand] = useState<number | undefined>(undefined)
+    const [sizeFilter, setSizeFilter] = useState<string>("")
     const [result, setResult] = useState<IPaginationResult>()
     const [resultArticles, setResultArticles] = useState<IPaginationResult>()
     const [selectedArticle, selectArticle] = useState<IArticle | null>(null)
     const [openModalArticle, setOpenModalArticle] = useState(false)
+    const [openCreateClientModal, setOpenCreateClientModal] = useState(false)
     const [loading, setLoading] = useState(false)
     const [order, setOrder] = useState<Partial<IOrder>>({
         total: { total: 0, discount: 0, subTotal: 0 },
@@ -55,13 +63,18 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     }, [filtersClient, getAllClients])
 
     const getAllArticles = useCallback(async () => {
-        const result = await articleService.getAllArticles({ description: filtersArticle })
+        const result = await articleService.getArticlesForOrders({ 
+            articleSearch: filtersArticle,
+            categories: selectedCategories.length > 0 ? selectedCategories : undefined,
+            brand: selectedBrand,
+            size: sizeFilter || undefined
+        })
         setResultArticles(result)
-    }, [setResultArticles, filtersArticle])
+    }, [setResultArticles, filtersArticle, selectedCategories, selectedBrand, sizeFilter])
 
     useEffect(() => {
         getAllArticles()
-    }, [filtersArticle, getAllArticles])
+    }, [filtersArticle, selectedCategories, selectedBrand, sizeFilter, getAllArticles])
 
     const createOrder = useCallback(async () => {
         try {
@@ -114,49 +127,61 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                         </Grid>
 
                         <Grid item xs={12} mt={2}>
-                            <AutocompleteCustom
-                                getDefaultValue={() => { order?.client || {} }}
-                                isOptionEqualToValue={(option: any, value: any) => option.fullClient === value.fullClient}
-                                options={result?.list || []}
-                                getOptionLabel={(option: IClient) => (
-                                    option.fullClient
-                                )}
-                                size="small"
-                                renderOption={(props: any, option: any) => {
-                                    const { key, ...rest } = props;
-                                    return (
-                                        <Box key={key} display="flex" alignItems="center" {...rest}>
-                                            <AccountCircleIcon fontSize="medium" sx={{ color: "#8B8D97", marginRight: 1 }} />
-                                            <Typography fontFamily="Inter" fontSize="14px" color="#8B8D97">
-                                                {option.fullClient}
-                                            </Typography>
-                                        </Box>
-                                    );
-                                }}
-                                onChange={(_event: any, newValue: IClient | null) => {
-                                    const orderStruct = order ? { ...order } : {};
+                            <Box display="flex" gap={1} alignItems="flex-end">
+                                <Box flex={1}>
+                                    <AutocompleteCustom
+                                        getDefaultValue={() => { order?.client || {} }}
+                                        isOptionEqualToValue={(option: any, value: any) => option.fullClient === value.fullClient}
+                                        options={result?.list || []}
+                                        getOptionLabel={(option: IClient) => (
+                                            option.fullClient
+                                        )}
+                                        size="small"
+                                        renderOption={(props: any, option: any) => {
+                                            const { key, ...rest } = props;
+                                            return (
+                                                <Box key={key} display="flex" alignItems="center" {...rest}>
+                                                    <AccountCircleIcon fontSize="medium" sx={{ color: "#8B8D97", marginRight: 1 }} />
+                                                    <Typography fontFamily="Inter" fontSize="14px" color="#8B8D97">
+                                                        {option.fullClient}
+                                                    </Typography>
+                                                </Box>
+                                            );
+                                        }}
+                                        onChange={(_event: any, newValue: IClient | null) => {
+                                            const orderStruct = order ? { ...order } : {};
 
-                                    if (!newValue && (!orderStruct.client || !orderStruct.client._id)) {
-                                        delete orderStruct.client
-                                        setOrder(orderStruct)
-                                        return
-                                    }
+                                            if (!newValue && (!orderStruct.client || !orderStruct.client._id)) {
+                                                delete orderStruct.client
+                                                setOrder(orderStruct)
+                                                return
+                                            }
 
-                                    if (!newValue) return
+                                            if (!newValue) return
 
-                                    setOrder({
-                                        ...order, client: {
-                                            _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, phone: newValue.phone, address: newValue.addresses.find(address => address.default), email: newValue.email,
-                                            createdDate: newValue.createdDate!
-                                        }
-                                    })
-                                }}
-                                customErrorText={""}
-                                label="Cliente"
-                                onSearch={(event: React.ChangeEvent<HTMLInputElement>) => {
-                                    setFiltersClient(event.target.value)
-                                }}
-                            />
+                                            setOrder({
+                                                ...order, client: {
+                                                    _id: newValue._id, fullClient: newValue.fullClient, fullName: newValue.fullName, phone: newValue.phone, address: newValue.addresses.find(address => address.default), email: newValue.email,
+                                                    createdDate: newValue.createdDate!
+                                                }
+                                            })
+                                        }}
+                                        customErrorText={""}
+                                        label="Cliente"
+                                        onSearch={(event: React.ChangeEvent<HTMLInputElement>) => {
+                                            setFiltersClient(event.target.value)
+                                        }}
+                                    />
+                                </Box>
+                                <Button
+                                    variant="outlined"
+                                    size="small"
+                                    onClick={() => setOpenCreateClientModal(true)}
+                                    sx={{ minWidth: 'auto', padding: '8px', height: '40px' }}
+                                >
+                                    <AddIcon fontSize="small" />
+                                </Button>
+                            </Box>
                         </Grid>
 
 
@@ -229,15 +254,30 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
 
                         <Grid item xs={12} mt={3} >
                             <Grid item xs={12} mt={3}>
-                                <SearchTable
-                                    onChange={(e) => {
-                                        setFilersArticles(e.target.value);
-                                    }}
-                                    handleClick={(e) => {
-                                        setAnchorEl(e.currentTarget)
-                                    }}
-                                />
-
+                                <Box display="flex" gap={1} alignItems="center">
+                                    <Box flex={1}>
+                                        <SearchTable
+                                            onChange={(e) => {
+                                                setFilersArticles(e.target.value);
+                                            }}
+                                            handleClick={(e) => {
+                                                setAnchorEl(e.currentTarget)
+                                            }}
+                                        />
+                                    </Box>
+                                    <SearchFilterPopover
+                                        onFilterChange={(filters) => {
+                                            setSelectedCategories(filters.categories || []);
+                                            setSelectedBrand(filters.brand);
+                                            setSizeFilter(filters.size || "");
+                                        }}
+                                        currentFilters={{
+                                            categories: selectedCategories,
+                                            brand: selectedBrand,
+                                            size: sizeFilter
+                                        }}
+                                    />
+                                </Box>
                             </Grid>
 
                             <Grid item xs={12} mt={3} sx={{ ...style.hideScroll }} >
@@ -246,7 +286,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                     order.articles!.length > 0 && order.articles!.map((item: IArticleCart) => (
 
                                         <React.Fragment key={item.variant._id}>
-                                            <Box display={"flex"} mt={1}>
+                                            <Box display={"flex"} mt={1} p={1} border={"1px solid #E1E2E9"} borderRadius={"8px"}>
                                                 <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
                                                     <Image
                                                         src={
@@ -261,37 +301,178 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                                         style={{ borderRadius: "8px" }}
                                                     />
                                                 </Box>
-                                                <Box ml={"14px"} width={"100%"} position={"relative"} height={"49px"}>
-
-                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} top={0}>
-                                                        <Tooltip title={item.description} placement="top" arrow>
-                                                            <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "10px", md: "12px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
-                                                        </Tooltip>
-
-                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#CC5F5F"} fontWeight={500} sx={{ cursor: "pointer" }}
+                                                <Box ml={"14px"} width={"100%"}>
+                                                    <Box display={"flex"} justifyContent={"space-between"} alignItems={"flex-start"} mb={1}>
+                                                        <Box flex={1}>
+                                                            <Tooltip title={item.description} placement="top" arrow>
+                                                                <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#000"} fontWeight={500}>
+                                                                    {item.description.length > 20 ? item.description.slice(0, 20) + "..." : item.description}
+                                                                </Typography>
+                                                            </Tooltip>
+                                                            <Box display="flex" flexDirection="column" gap={0.2} mt={0.5}>
+                                                                <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO: {item._id}</Typography>
+                                                                {item.externalCode && (
+                                                                    <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO EXTERNO: {item.externalCode}</Typography>
+                                                                )}
+                                                            </Box>
+                                                        </Box>
+                                                        <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#CC5F5F"} fontWeight={500} sx={{ cursor: "pointer" }}
                                                             onClick={() => {
                                                                 setOrder({
                                                                     ...order,
                                                                     articles: order?.articles?.filter(value => value.variant._id !== item.variant._id)
-                                                                }
-                                                                )
+                                                                })
                                                             }}
                                                         >
-                                                            Eliminar
+                                                            ✕
                                                         </Typography>
                                                     </Box>
 
-                                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} bottom={0}>
-                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={400}>{baseService.dominicanNumberFormat(item.variant.sellingPrice)}</Typography>
-                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={500} sx={{ cursor: "pointer" }}>{item.variant.stock}</Typography>
+                                                    <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"} mb={1}>
+                                                        <Typography fontFamily={"Inter"} fontSize={"11px"} color={"#8B8D97"} fontWeight={400}>
+                                                            {baseService.dominicanNumberFormat(item.variant.sellingPrice)}
+                                                        </Typography>
+                                                        <Box display={"flex"} alignItems={"center"} gap={1}>
+                                                            <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} sx={{ cursor: "pointer" }}
+                                                                onClick={() => {
+                                                                    if (item.variant.stock > 1) {
+                                                                        setOrder({
+                                                                            ...order,
+                                                                            articles: order?.articles?.map(article => 
+                                                                                article.variant._id === item.variant._id 
+                                                                                    ? { ...article, variant: { ...article.variant, stock: article.variant.stock - 1 } }
+                                                                                    : article
+                                                                            )
+                                                                        });
+                                                                    }
+                                                                }}
+                                                            >
+                                                                -
+                                                            </Typography>
+                                                            <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#000"} fontWeight={500} minWidth={"20px"} textAlign={"center"}>
+                                                                {item.variant.stock}
+                                                            </Typography>
+                                                            <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} sx={{ cursor: "pointer" }}
+                                                                onClick={() => {
+                                                                    // Buscar el artículo original para obtener el stock disponible
+                                                                    const originalArticle = resultArticles?.list.find((art: any) => art.variant._id === item.variant._id);
+                                                                    const maxStock = originalArticle?.variant.stock || 0;
+                                                                    
+                                                                    if (item.variant.stock >= maxStock) {
+                                                                        eventBus.emit("notify", { message: "No hay más stock disponible.", open: true, type: "error", title: "Error!", delay: 2000 });
+                                                                        return;
+                                                                    }
+                                                                    
+                                                                    setOrder({
+                                                                        ...order,
+                                                                        articles: order?.articles?.map(article => 
+                                                                            article.variant._id === item.variant._id 
+                                                                                ? { ...article, variant: { ...article.variant, stock: article.variant.stock + 1 } }
+                                                                                : article
+                                                                        )
+                                                                    });
+                                                                }}
+                                                            >
+                                                                +
+                                                            </Typography>
+                                                        </Box>
                                                     </Box>
 
+                                                    <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
+                                                        <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#5570F1"} fontWeight={500} sx={{ cursor: "pointer" }}
+                                                            onClick={() => {
+                                                                const currentDiscount = item.orderDiscount;
+                                                                const newDiscount = currentDiscount ? undefined : { type: IOrderDiscountType.PERCENT, value: 10 };
+                                                                
+                                                                setOrder({
+                                                                    ...order,
+                                                                    articles: order?.articles?.map(article => 
+                                                                        article.variant._id === item.variant._id 
+                                                                            ? { ...article, orderDiscount: newDiscount }
+                                                                            : article
+                                                                    )
+                                                                });
+                                                            }}
+                                                        >
+                                                            {item.orderDiscount ? 'Quitar Desc.' : '+ Descuento'}
+                                                        </Typography>
+                                                        {item.orderDiscount && (
+                                                            <Box display={"flex"} alignItems={"center"} gap={0.5}>
+                                                                <CustomField 
+                                                                    select 
+                                                                    size="small" 
+                                                                    value={item.orderDiscount.type} 
+                                                                    onChange={(e: any) => {
+                                                                        setOrder({
+                                                                            ...order,
+                                                                            articles: order?.articles?.map(article => 
+                                                                                article.variant._id === item.variant._id 
+                                                                                    ? { ...article, orderDiscount: { ...article.orderDiscount!, type: e.target.value } }
+                                                                                    : article
+                                                                            )
+                                                                        });
+                                                                    }}
+                                                                    sx={{ width: '90px' }}
+                                                                    noValidate
+                                                                >
+                                                                    <MenuItem value="PERCENT">%</MenuItem>
+                                                                    <MenuItem value="VALUE">RD$</MenuItem>
+                                                                </CustomField>
+                                                                
+                                                                <CustomField 
+                                                                    size="small" 
+                                                                    type="number" 
+                                                                    value={item.orderDiscount.value} 
+                                                                    onChange={(e: any) => {
+                                                                        const value = parseFloat(e.target.value) || 0;
+                                                                        setOrder({
+                                                                            ...order,
+                                                                            articles: order?.articles?.map(article => 
+                                                                                article.variant._id === item.variant._id 
+                                                                                    ? { ...article, orderDiscount: { ...article.orderDiscount!, value } }
+                                                                                    : article
+                                                                            )
+                                                                        });
+                                                                    }}
+                                                                    sx={{ width: '90px' }}
+                                                                    noValidate
+                                                                />
+                                                                
+                                                            </Box>
+                                                        )}
+                                                    </Box>
                                                 </Box>
                                             </Box>
 
-                                            <Box borderBottom={"1px solid #00000007"} paddingBottom={"5px"} mt={1} width={"100%"} display={"flex"} justifyContent={"space-between"}>
-                                                <Typography fontFamily={"Inter"} fontSize={"15px"} color={"#8B8D97"} fontWeight={500}>Sub-total</Typography>
-                                                <Typography fontFamily={"Inter"} fontSize={"15px"} color={"#33343A"} fontWeight={500}>{baseService.dominicanNumberFormat(item.variant.sellingPrice * item.variant.stock)}</Typography>
+                                            <Box borderBottom={"1px solid #00000007"} paddingBottom={"5px"} mt={1} width={"100%"}>
+                                                {item.orderDiscount && (
+                                                    <Box display={"flex"} justifyContent={"space-between"} mb={0.5}>
+                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#FF9800"} fontWeight={500}>
+                                                            Descuento ({item.orderDiscount.value}{item.orderDiscount.type === IOrderDiscountType.PERCENT ? '%' : ' RD$'})
+                                                        </Typography>
+                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#FF9800"} fontWeight={500}>
+                                                            -{baseService.dominicanNumberFormat(
+                                                                item.orderDiscount.type === IOrderDiscountType.PERCENT 
+                                                                    ? (item.variant.sellingPrice * item.variant.stock * item.orderDiscount.value / 100)
+                                                                    : item.orderDiscount.value
+                                                            )}
+                                                        </Typography>
+                                                    </Box>
+                                                )}
+                                                <Box display={"flex"} justifyContent={"space-between"}>
+                                                    <Typography fontFamily={"Inter"} fontSize={"15px"} color={"#8B8D97"} fontWeight={500}>Sub-total</Typography>
+                                                    <Typography fontFamily={"Inter"} fontSize={"15px"} color={"#33343A"} fontWeight={500}>
+                                                        {baseService.dominicanNumberFormat(
+                                                            item.orderDiscount 
+                                                                ? (item.variant.sellingPrice * item.variant.stock) - (
+                                                                    item.orderDiscount.type === IOrderDiscountType.PERCENT 
+                                                                        ? (item.variant.sellingPrice * item.variant.stock * item.orderDiscount.value / 100)
+                                                                        : item.orderDiscount.value
+                                                                )
+                                                                : item.variant.sellingPrice * item.variant.stock
+                                                        )}
+                                                    </Typography>
+                                                </Box>
                                             </Box>
 
                                         </React.Fragment>
@@ -374,7 +555,8 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                 PaperProps={{
                     sx: {
                         width: anchorEl && (anchorEl?.clientWidth || 0) + 39,
-                        height: 300,
+                        maxHeight: 400,
+                        minHeight: 'auto',
                         display: anchorEl ? "block" : "none",
                         marginLeft: "-40px",
                         pointerEvents: "auto",
@@ -382,36 +564,114 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                     }
                 }}
             >
-                <Box sx={{ height: 100, paddingLeft: 1, paddingRight: 1 }}>
+                <Box sx={{ padding: 1 }}>
                     {
-                        resultArticles?.list.map((item: IArticle) => (
-                            <Box display={"flex"} key={item._id} borderBottom={"1px solid #00000007"} paddingBottom={"12px"} mt={1} >
-                                <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
+                        resultArticles?.list.map((item: any) => (
+                            <Box 
+                                key={`${item._id}-${item.variant._id}`} 
+                                sx={{
+                                    display: "flex",
+                                    padding: 2,
+                                    marginBottom: 1,
+                                    border: "1px solid #E5E7EB",
+                                    borderRadius: "8px",
+                                    backgroundColor: "#FAFAFA",
+                                    '&:hover': {
+                                        backgroundColor: "#F3F4F6",
+                                        borderColor: "#D1D5DB"
+                                    }
+                                }}
+                            >
+                                <Box height={60} width={60} minWidth={60} borderRadius={"8px"} border={"1px solid #E5E7EB"} boxShadow={"0px 2px 4px rgba(0,0,0,0.1)"} position={"relative"} overflow={"hidden"}>
                                     <Image
-                                        src={item.images.find(item => item.primary)?.url!}
+                                        src={item.variant.images?.find((img: any) => img.primary)?.url || item.images?.find((img: any) => img.primary)?.url || "/Image.svg"}
                                         fill
                                         alt="Image articles list"
-                                        objectFit="contain"
-                                        style={{ borderRadius: "8px" }}
+                                        style={{ objectFit: "cover" }}
                                     />
                                 </Box>
-                                <Box ml={"14px"} width={"100%"} position={"relative"} height={"49px"}>
-                                    <Tooltip title={item.description} placement="top" arrow>
-                                        <Typography fontFamily={"Inter"} sx={{ fontSize: { xs: "12px", md: "14px" } }} color={"#000"} fontWeight={400}>{item.description.length > 34 ? item.description.slice(0, 34 - 3) + "..." : item.description}</Typography>
-                                    </Tooltip>
-
-                                    <Box width={"100% !important"} display={"flex"} justifyContent={"space-between"} bottom={0} >
-                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#8B8D97"} fontWeight={400}>{baseService.dominicanNumberFormat(item.variants?.length > 0 ? item.variants[0].sellingPrice : 0)}</Typography>
-                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#5570F1"} fontWeight={500} sx={{ cursor: "pointer" }}
-                                            onClick={() => {
-                                                selectArticle(item);
-                                                setOpenModalArticle(true);
+                                <Box ml={2} flex={1} display={"flex"} flexDirection={"column"} justifyContent={"space-between"}>
+                                    <Box>
+                                        <Typography 
+                                            fontFamily={"Inter"} 
+                                            fontSize={"12px"} 
+                                            color={"#111827"} 
+                                            fontWeight={500}
+                                        >
+                                            {item.description}
+                                        </Typography>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#059669"} fontWeight={600} mt={0.5}>
+                                            {baseService.dominicanNumberFormat(item.variant.sellingPrice)}
+                                        </Typography>
+                                    </Box>
+                                    
+                                    <Box display={"flex"} justifyContent={"space-between"} alignItems={"flex-end"} mt={1}>
+                                        <Box>
+                                            <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#6B7280"} fontWeight={400}>
+                                                CÓDIGO: {item._id}
+                                            </Typography>
+                                            {item.externalCode && (
+                                                <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#6B7280"} fontWeight={400}>
+                                                    EXT: {item.externalCode}
+                                                </Typography>
+                                            )}
+                                            <Typography 
+                                                fontFamily={"Inter"} 
+                                                fontSize={"11px"} 
+                                                color={item.variant.available === "Disponible" ? "#059669" : 
+                                                      item.variant.available === "Encargado" ? "#D97706" : "#DC2626"} 
+                                                fontWeight={500}
+                                            >
+                                                {item.variant.available} ({item.variant.stock})
+                                            </Typography>
+                                        </Box>
+                                        
+                                        <Typography 
+                                            fontFamily={"Inter"} 
+                                            fontSize={"12px"} 
+                                            color={item.variant.available === "Disponible" && item.variant.stock > 0 ? "#2563EB" : "#DC2626"} 
+                                            fontWeight={600}
+                                            sx={{ 
+                                                cursor: item.variant.available === "Disponible" && item.variant.stock > 0 ? "pointer" : "default",
+                                                padding: "4px 8px",
+                                                borderRadius: "4px",
+                                                backgroundColor: item.variant.available === "Disponible" && item.variant.stock > 0 ? "#EFF6FF" : "#FEF2F2",
+                                                border: `1px solid ${item.variant.available === "Disponible" && item.variant.stock > 0 ? "#DBEAFE" : "#FECACA"}`,
+                                                '&:hover': item.variant.available === "Disponible" && item.variant.stock > 0 ? {
+                                                    backgroundColor: "#DBEAFE"
+                                                } : {}
                                             }}
-                                        >Agregar</Typography>
+                                            onClick={() => {
+                                                if (item.variant.available !== "Disponible" || item.variant.stock <= 0) {
+                                                    eventBus.emit("notify", { message: "Esta variante no está disponible para venta.", open: true, type: "error", title: "Error!", delay: 2000 })
+                                                    return
+                                                }
+
+                                                const currentClickedArticle: any = { ...item };
+                                                const itemOnList = order.articles!.find(orderItem => orderItem.variant._id === item.variant._id)
+
+                                                if (itemOnList) {
+                                                    if (itemOnList.variant.stock + 1 > item.variant.stock) {
+                                                        eventBus.emit("notify", { message: "No hay stock suficiente.", open: true, type: "error", title: "Error!", delay: 2000 })
+                                                        return
+                                                    }
+                                                    const arr = [...order.articles!].filter((currentInCart) => currentInCart.variant._id !== itemOnList.variant._id);
+                                                    itemOnList.variant.stock += 1
+                                                    setOrder({ ...order, articles: [...arr, itemOnList] })
+                                                } else {
+                                                    setOrder({ ...order, articles: [...order.articles!, { ...currentClickedArticle, variant: { ...item.variant, stock: 1 } }] })
+                                                }
+
+                                                eventBus.emit("notify", { message: "Artículo agregado al carrito.", open: true, type: "success", title: "Agregado!", delay: 1000 })
+                                                setAnchorEl(null);
+                                            }}
+                                        >
+                                            {item.variant.available === "Disponible" && item.variant.stock > 0 ? "Agregar" : 
+                                             item.variant.available === "Encargado" ? "Encargado" : "Agotado"}
+                                        </Typography>
                                     </Box>
                                 </Box>
                             </Box>
-
                         ))
                     }
                 </Box>
@@ -441,6 +701,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                 <TableRow>
                                     <TableCell></TableCell>
                                     <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Estado</Typography></TableCell>
+                                    <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Talla</Typography></TableCell>
                                     <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Disponibilidad</Typography></TableCell>
                                     <TableCell><Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Stock</Typography></TableCell>
                                     <TableCell align="left"> <Typography fontFamily={"Inter"} fontSize={"16px"} textAlign={"center"}>Costo</Typography></TableCell>
@@ -514,6 +775,10 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                         </TableCell>
 
                                         <TableCell align="center">
+                                            {row.size || "-"}
+                                        </TableCell>
+
+                                        <TableCell align="center">
                                             <Typography
                                                 sx={{
                                                     color: row.available === "Disponible" ? "#519C66" : row.available === "Encargado" ? "#FF9800" : "#CC5F5F",
@@ -548,6 +813,34 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                         </Table>
                     </TableContainer>
 
+                </Box>
+            </CustomModal>
+
+            {/* Modal Crear Cliente */}
+            <CustomModal open={openCreateClientModal} borderRadius={"8px"}>
+                <Box padding={"20px"} minHeight={200} maxHeight={"80vh"} sx={{ overflowY: 'auto' }}>
+                    <Grid item container justifyContent={"space-between"} alignItems={"center"} mb={2}>
+                        <Typography fontFamily={"Poppins"} fontSize={"20px"} fontWeight={600}>Crear Cliente</Typography>
+                        <CloseIcon 
+                            sx={{ 
+                                backgroundColor: "#FFF2E2", 
+                                width: 32, 
+                                height: 32, 
+                                borderRadius: "8px", 
+                                cursor: "pointer", 
+                                padding: "5px", 
+                                color: "#000" 
+                            }}
+                            onClick={() => setOpenCreateClientModal(false)}
+                        />
+                    </Grid>
+                    
+                    <CreateClientForm 
+                        onClose={() => {
+                            setOpenCreateClientModal(false);
+                            getAllClients(); // Refresh client list
+                        }} 
+                    />
                 </Box>
             </CustomModal>
 

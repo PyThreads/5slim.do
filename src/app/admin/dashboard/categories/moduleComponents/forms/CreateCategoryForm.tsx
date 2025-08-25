@@ -3,8 +3,9 @@ import { Grid, Button, Typography } from "@mui/material";
 import CircularProgress from '@mui/material/CircularProgress';
 import { Inter } from "next/font/google";
 import CustomField from "../../../../../../../components/inputs/CustomField";
-import { ICategory } from "../../../../../../../api/src/interfaces";
+import { ICategory, IBrand } from "../../../../../../../api/src/interfaces";
 import { categoriesService } from "../../categoriesService";
+import { brandsService } from "../../../brands/brandsService";
 import CloseIcon from '@mui/icons-material/Close';
 
 const inter = Inter({
@@ -13,7 +14,7 @@ const inter = Inter({
     weight: "500"
 })
 
-export default function CreateCategoryForm({ categoryToEdit, onClose }: { categoryToEdit?: ICategory | null, onClose: Function }) {
+export default function CreateCategoryForm({ categoryToEdit, onClose, isBrand = false }: { categoryToEdit?: ICategory | IBrand | null, onClose: Function, isBrand?: boolean }) {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [description, setDescription] = useState(categoryToEdit?.description || "");
     const [error, setError] = useState("");
@@ -30,17 +31,25 @@ export default function CreateCategoryForm({ categoryToEdit, onClose }: { catego
             setIsSubmitting(true);
             setError("");
 
-            const categoryData: ICategory = {
+            const data = {
                 _id: categoryToEdit?._id || 0,
                 description: description.trim(),
                 slug: "",
                 ownerId: 0
             };
 
-            if (categoryToEdit) {
-                await categoriesService.updateCategory(categoryToEdit._id, categoryData);
+            if (isBrand) {
+                if (categoryToEdit) {
+                    await brandsService.updateBrand(categoryToEdit._id, data as IBrand);
+                } else {
+                    await brandsService.createBrand(data as IBrand);
+                }
             } else {
-                await categoriesService.createCategory(categoryData);
+                if (categoryToEdit) {
+                    await categoriesService.updateCategory(categoryToEdit._id, data as ICategory);
+                } else {
+                    await categoriesService.createCategory(data as ICategory);
+                }
             }
 
             onClose();
@@ -55,7 +64,7 @@ export default function CreateCategoryForm({ categoryToEdit, onClose }: { catego
         <Grid container width={400} p={2}>
             <Grid item xs={12} display={"flex"} justifyContent={"space-between"} alignItems={"center"} mb={2}>
                 <Typography fontFamily={"Inter"} fontSize={18} fontWeight={600} color={"#2C2D33"}>
-                    {categoryToEdit ? "Editar Categoría" : "Nueva Categoría"}
+                    {categoryToEdit ? `Editar ${isBrand ? 'Marca' : 'Categoría'}` : `Nueva ${isBrand ? 'Marca' : 'Categoría'}`}
                 </Typography>
                 <CloseIcon 
                     sx={{ 
@@ -75,7 +84,7 @@ export default function CreateCategoryForm({ categoryToEdit, onClose }: { catego
                 <Grid item xs={12} mt={2}>
                     <CustomField 
                         name="description" 
-                        placeholder="Descripción de la categoría" 
+                        placeholder={`Descripción de la ${isBrand ? 'marca' : 'categoría'}`} 
                         fullWidth 
                         value={description}
                         onChange={(e: React.ChangeEvent<HTMLInputElement>) => setDescription(e.target.value)}

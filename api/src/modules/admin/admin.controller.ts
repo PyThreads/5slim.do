@@ -286,12 +286,12 @@ class Admin {
                 message: "Artículo creado de forma exitosa."
             })
             
-        } catch (_) {
+        } catch (error: any) {
             
             return res.status(512).json({
                 success: false,
                 data: null,
-                message:  "Ha ocurrido un error al crear el artículo."
+                message: error.message || "Ha ocurrido un error al crear el artículo."
             })
         }
     }
@@ -319,6 +319,28 @@ class Admin {
         }
     }
 
+    async getArticlesForOrders (req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const query = req.query;
+            const result = await this.articleService.getArticlesForOrders({query, ownerId: admin.ownerId})
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Artículos para órdenes obtenidos exitosamente"
+            })
+            
+        } catch (_) {
+            
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: "Ha ocurrido un error al obtener los artículos para órdenes."
+            })
+        }
+    }
+
     async updateArticle (req: Request, res: Response) {
         try {
 
@@ -330,12 +352,12 @@ class Admin {
                 message: "Artículo actualizado de forma exitosa"
             })
             
-        } catch (_) {
+        } catch (error: any) {
             
-            return res.status(200).json({
+            return res.status(512).json({
                 success: false,
                 data: null,
-                message:  "Ha ocurrido un error al actualizar el artículo."
+                message: error.message || "Ha ocurrido un error al actualizar el artículo."
             })
         }
     }

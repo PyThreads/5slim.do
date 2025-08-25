@@ -29,14 +29,16 @@ class UsersService extends BaseService {
     async register({ body, user }: { body: IClient, user: IClient | IAdmin }): Promise<IClient> {
         try {
 
-            const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i" } });
+            if (body.email) {
+                const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i" }, ownerId: user.ownerId });
 
-            if (exists) {
-                throw new Error("Existe una cuenta con el correo: " + body.email);
+                if (exists) {
+                    throw new Error("Existe una cuenta con el correo: " + body.email);
+                }
             }
-            
+
             body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
-            
+
             await this.insertOne({ body, user });
             return body
 

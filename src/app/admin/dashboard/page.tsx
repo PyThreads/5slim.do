@@ -28,7 +28,9 @@ export default function DashboardPage(){
         pending: 0,
         delivered: 0,
         cancelled: 0,
+        sent: 0,
         paid: 0,
+        partiallyPaid: 0,
         preparingForDelivery: 0,
         earnings: 0,
         totalSold: 0
@@ -162,25 +164,31 @@ export default function DashboardPage(){
                         <CardContent sx={styles.cardContent}>
                             <Typography sx={styles.sectionTitle} mb={3}>Estado de Órdenes</Typography>
                             <Grid container spacing={2}>
-                                <Grid item xs={6} sm={3}>
+                                <Grid item xs={6} sm={2.4}>
                                     <Box textAlign="center">
                                         <Typography sx={styles.statusValue}>{ordersSummary.pending}</Typography>
                                         <Typography sx={styles.statusLabel}>Pendientes</Typography>
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid item xs={6} sm={2.4}>
                                     <Box textAlign="center">
                                         <Typography sx={styles.statusValue}>{ordersSummary.preparingForDelivery}</Typography>
                                         <Typography sx={styles.statusLabel}>Preparando</Typography>
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid item xs={6} sm={2.4}>
+                                    <Box textAlign="center">
+                                        <Typography sx={styles.statusValue}>{ordersSummary.sent}</Typography>
+                                        <Typography sx={styles.statusLabel}>Enviadas</Typography>
+                                    </Box>
+                                </Grid>
+                                <Grid item xs={6} sm={2.4}>
                                     <Box textAlign="center">
                                         <Typography sx={styles.statusValue}>{ordersSummary.delivered}</Typography>
                                         <Typography sx={styles.statusLabel}>Entregadas</Typography>
                                     </Box>
                                 </Grid>
-                                <Grid item xs={6} sm={3}>
+                                <Grid item xs={6} sm={2.4}>
                                     <Box textAlign="center">
                                         <Typography sx={styles.statusValue}>{ordersSummary.cancelled}</Typography>
                                         <Typography sx={styles.statusLabel}>Canceladas</Typography>

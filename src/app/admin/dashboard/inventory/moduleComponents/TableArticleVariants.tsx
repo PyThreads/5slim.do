@@ -44,6 +44,7 @@ export default function TableArticleVariants({
         available: IArticleAvailability.AVAILABLE,
         comment: '',
         tracking: '',
+        size: '',
     }));
 
     const handleChangeNewOne = (value: any, name: any, row?: IArticlesVariants | null | undefined) => {
@@ -78,6 +79,7 @@ export default function TableArticleVariants({
                     available: newOne.available!,
                     comment: newOne.comment!,
                     tracking: newOne.tracking!,
+                    size: newOne.size!,
                 };
                 await articleService.addVariant(articleId, variant);
             }
@@ -95,7 +97,8 @@ export default function TableArticleVariants({
                 source: '',
                 available: IArticleAvailability.AVAILABLE,
                 comment: '',
-                tracking: ''
+                tracking: '',
+                size: ''
             });
         } catch (error) {
             console.error('Error adding variant:', error);
@@ -294,6 +297,20 @@ export default function TableArticleVariants({
                                 </CustomField>
                             </Grid>
 
+                            <Grid item xs={6}>
+                                <CustomField
+                                    size="small"
+                                    label="Talla"
+                                    fullWidth
+                                    noValidate
+                                    type="text"
+                                    name="size"
+                                    value={variant.size || ""}
+                                    onChange={(e: any) =>
+                                        handleChangeNewOne(e.target.value || '', 'size', isNew ? undefined : variant)
+                                    }
+                                />
+                            </Grid>
                             <Grid item xs={6}>
                                 <CustomField
                                     size="small"

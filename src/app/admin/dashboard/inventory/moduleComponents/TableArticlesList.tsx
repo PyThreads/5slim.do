@@ -36,7 +36,7 @@ export default function TableArticlesList(
             totalPages: number,
             setFilers: Function
             onDoubleClickRow: Function
-            currentFilter?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string }
+            currentFilter?: { hasStock?: boolean; lowStock?: boolean; hasOrderedVariants?: boolean; sortByOrders?: string; categories?: number[]; brand?: number; size?: string }
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -64,7 +64,7 @@ export default function TableArticlesList(
                                 onFilterChange={(filters) => {
                                     setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
                                 }}
-                                currentFilters={{ hasStock: currentFilter?.hasStock, lowStock: currentFilter?.lowStock, hasOrderedVariants: currentFilter?.hasOrderedVariants, sortByOrders: currentFilter?.sortByOrders }}
+                                currentFilters={{ hasStock: currentFilter?.hasStock, lowStock: currentFilter?.lowStock, hasOrderedVariants: currentFilter?.hasOrderedVariants, sortByOrders: currentFilter?.sortByOrders, categories: currentFilter?.categories, brand: currentFilter?.brand, size: currentFilter?.size }}
                             />
                         </Grid>
                         
@@ -99,7 +99,7 @@ export default function TableArticlesList(
 
                                 <TableCell align="center" />
 
-                                <TableCell width="30%">
+                                <TableCell width="20%">
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Descripción
@@ -108,7 +108,19 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell align="center">
+                                <TableCell align="center" width="10%">
+                                    <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"}>
+                                        Código
+                                    </Typography>
+                                </TableCell>
+
+                                <TableCell align="center" width="10%">
+                                    <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"}>
+                                        Cód. Ext.
+                                    </Typography>
+                                </TableCell>
+
+                                <TableCell align="center" width="8%">
                                     <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Stock
@@ -117,7 +129,7 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell align="center">
+                                <TableCell align="center" width="8%">
                                     <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Ordenado
@@ -126,19 +138,19 @@ export default function TableArticlesList(
                                     </Box>
                                 </TableCell>
 
-                                <TableCell align="center">
+                                <TableCell align="center" width="12%">
                                     <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Alerta Stock
+                                        <Typography fontFamily={"Inter"} fontSize={"12px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Alerta
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
                                 </TableCell>
 
-                                <TableCell align="center">
+                                <TableCell align="center" width="10%">
                                     <Box display={"flex"} alignItems={"center"} justifyContent={"center"}>
-                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Total Ordenes
+                                        <Typography fontFamily={"Inter"} fontSize={"12px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Órdenes
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -207,12 +219,28 @@ export default function TableArticlesList(
                                                     cursor: 'pointer',
                                                     '&:hover': {
                                                         textDecoration: 'underline'
-                                                    }
+                                                    },
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap',
+                                                    maxWidth: '150px'
                                                 }}
                                             >
                                                 {row.description}
                                             </Typography>
                                         </Link>
+                                    </TableCell>
+
+                                    <TableCell align="center" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
+                                            {row._id}
+                                        </Typography>
+                                    </TableCell>
+
+                                    <TableCell align="center" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
+                                            {row.externalCode || '-'}
+                                        </Typography>
                                     </TableCell>
                                     <TableCell align="center" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
@@ -289,6 +317,14 @@ export default function TableArticlesList(
                                         }}
                                         sx={{ '&.Mui-checked': { color: "#5570F1" } }}
                                     />
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Código:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row._id}</Typography>
+                                </Box>
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Cód. Ext.:</Typography>
+                                    <Typography sx={styles.mobileCardValue}>{row.externalCode || '-'}</Typography>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Stock:</Typography>

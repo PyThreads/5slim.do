@@ -179,8 +179,7 @@ export default function AdminClientes() {
         switch (status) {
             case IOrderStatus.PENDING:
                 return <PendingIcon fontSize="small" />;
-            case IOrderStatus.PAID:
-                return <PaidIcon fontSize="small" />;
+
             case IOrderStatus.PREPARING_FOR_DELIVERY:
                 return <LocalShippingOutlinedIcon fontSize="small" />;
             case IOrderStatus.SENT:
@@ -400,7 +399,7 @@ export default function AdminClientes() {
                                     {order!.status !== IOrderStatus.CANCELLED && (
                                         <>
 
-                                            {[IOrderStatus.PAID, IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order!.status) && (
+                                            {[IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order!.status) && (
                                                 <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
                                                     onClick={() => handleStatus(IOrderStatus.SENT)}
                                                 >

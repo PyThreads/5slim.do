@@ -76,7 +76,25 @@ export interface ICategory {
     ownerId: number;
 }
 
+export interface IBrand {
+    _id: number;
+    description: string;
+    slug: string;
+    createdDate?: Date;
+    createdBy?: ICreatedBy;
+    updatedBy?: ICreatedBy;
+    updatedDate?: Date;
+    ownerId: number;
+}
+
 export interface IPaginateCategories {
+    page: number;
+    limit: number;
+    description?: string;
+    _id?: number;
+}
+
+export interface IPaginateBrands {
     page: number;
     limit: number;
     description?: string;
@@ -113,6 +131,7 @@ export interface IArticlesVariants {
     tracking?: string;
     available?: string;
     comment?: string;
+    size?: string;
 }
 
 export interface IOrdersSummary {
@@ -120,6 +139,7 @@ export interface IOrdersSummary {
     pending: number;
     delivered: number;
     cancelled: number;
+    sent: number;
     paid: number;
     partiallyPaid: number;
     preparingForDelivery: number;
@@ -133,8 +153,7 @@ export interface IArticle {
     description: string;
     slug: string;
     categories: ICategory[];
-    hasDiscount: boolean;
-    discount?: IArticleDiscount;
+    brand?: IBrand;
     published: boolean;
     shortDescription: string;
     tipTap: string;
@@ -142,7 +161,9 @@ export interface IArticle {
     images: IArticleImages[];
     stockAlert?: number;
     totalOrders?: number;
-    ownerId: number
+    ownerId: number;
+    externalCode?: string;
+    articleSearch?: string;
 }
 
 export interface IOrder {
@@ -167,7 +188,7 @@ export interface IClientOrder {
     _id: number;
     fullName: string;
     fullClient: string;
-    email: string;
+    email?: string;
     phone: string;
     address?: IClientAddress
     createdDate: Date;
@@ -179,13 +200,17 @@ export interface IArticleCart {
     description: string;
     slug: string;
     categories: ICategory[];
-    hasDiscount: boolean;
-    discount?: IArticleDiscount;
+    brand?: IBrand;
     published: boolean;
     shortDescription: string;
     tipTap: string;
     advertisement?: IAdvertisementArticle
     images: IArticleImages[];
+    externalCode?: string;
+    orderDiscount?: {
+        type: IOrderDiscountType;
+        value: number;
+    };
 }
 
 export interface IPaginateArticles {
@@ -194,6 +219,8 @@ export interface IPaginateArticles {
     description?: string
     slug?: string
     _id?: number
+    categories?: string[]
+    size?: string
 }
 
 export interface IPaginateClients {
@@ -208,6 +235,9 @@ export interface IPaginateClients {
     lowStock?: boolean
     hasOrderedVariants?: boolean
     sortByOrders?: string
+    categories?: number[]
+    brand?: number
+    size?: string
 }
 
 
@@ -223,7 +253,8 @@ export enum COLLNAMES {
     CLIENTS = "CLIENTS",
     ARTICLES = "ARTICLES",
     ORDER = "0RDER",
-    CATEGORIES = "CATEGORIES"
+    CATEGORIES = "CATEGORIES",
+    BRANDS = "BRANDS"
 }
 
 export interface ICartTotals {
@@ -251,6 +282,11 @@ export enum IAddressType {
 export enum IDiscountType {
     PERCENT = "Porcentaje",
     AMOUNT = "Monto"
+}
+
+export enum IOrderDiscountType {
+    PERCENT = "PERCENT",
+    VALUE = "VALUE"
 }
 
 export interface IFunctionProps {
@@ -316,7 +352,7 @@ export interface IClient {
     firstName: string;
     lastName: string;
     fullName: string;
-    email: string;
+    email?: string;
     phone: string;
     addresses: IClientAddress[];
     createdDate?: Date
@@ -332,7 +368,7 @@ export interface IPaginatedClient {
     firstName: string;
     lastName: string;
     fullName: string;
-    email: string;
+    email?: string;
     phone: string;
     addresses: IClientAddress[];
     createdDate?: Date

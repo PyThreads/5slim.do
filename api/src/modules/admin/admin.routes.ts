@@ -6,6 +6,7 @@ import BaseService from "../../base/baseService"
 import { utils } from "../../utils"
 import createEmployeesRoutes from "./employees.routes"
 import CategoriesRouter from "../categories/categories.routes"
+import BrandsRouter from "../brands/brands.routes"
 
 const router = express.Router();
 const publicRouter = express.Router();
@@ -51,6 +52,7 @@ class AdminRouter {
         router.post("/articles/register", adminRoutesValidations.validationSchemaArticleForm(), this.adminController.createArticle.bind(this.adminController));
         router.put("/articles/update/:_id", adminRoutesValidations.validationSchemaArticleForm(), this.adminController.updateArticle.bind(this.adminController));
         router.get("/articles", adminRoutesValidations.getAllArticles(), this.adminController.getArticles.bind(this.adminController));
+        router.get("/articles/for-orders", this.adminController.getArticlesForOrders.bind(this.adminController));
         router.get("/articles/summary", this.adminController.articlesSummary.bind(this.adminController));
         
         router.post("/articles/:articleId/variants", this.adminController.addVariant.bind(this.adminController));
@@ -61,6 +63,7 @@ class AdminRouter {
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", createEmployeesRoutes({mongoDatabase}));
         router.use("/private/categories", new CategoriesRouter({mongoDatabase}).routes);
+        router.use("/private/brands", new BrandsRouter({mongoDatabase}).routes);
         router.use("/private", router);
         router.use("/public", publicRouter);
 

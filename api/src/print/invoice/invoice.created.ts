@@ -1,4 +1,4 @@
-import { IArticleCart, IOrder } from "../../interfaces"
+import { IArticleCart, IOrder, IOrderDiscountType } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
@@ -147,6 +147,7 @@ export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: str
                 <th>Artículo</th>
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
+                <th>Descuento</th>
                 <th>Total</th>
             </tr>
             </thead>
@@ -158,14 +159,22 @@ export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: str
                                article.images?.find(img => img.primary)?.url || 
                                article.images?.[0]?.url || 
                                '/Image.svg';
+                const itemSubTotal = article.variant.sellingPrice * article.variant.stock;
+                const itemDiscount = article.orderDiscount 
+                    ? (article.orderDiscount.type === IOrderDiscountType.PERCENT 
+                        ? (itemSubTotal * article.orderDiscount.value / 100)
+                        : article.orderDiscount.value)
+                    : 0;
+                const itemTotal = itemSubTotal - itemDiscount;
                 return `
                   <tr>
                     <td>${index + 1}</td>
                     <td style="text-align: center;"><img src="${imageUrl}" alt="${article.description}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;"/></td>
-                    <td>${article.description}</td>
+                    <td>${article.description}${article.externalCode ? ` (${article.externalCode})` : ''}</td>
                     <td>${article.variant.stock}</td>
                     <td>${utils.dominicanNumberFormat(article.variant.sellingPrice)}</td>
-                    <td>${utils.dominicanNumberFormat(article.variant.sellingPrice * article.variant.stock)}</td>
+                    <td>${itemDiscount > 0 ? utils.dominicanNumberFormat(itemDiscount) : '-'}</td>
+                    <td>${utils.dominicanNumberFormat(itemTotal)}</td>
                   </tr>
                 `;
               }).join('')}

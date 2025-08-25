@@ -39,7 +39,7 @@ export async function generarFacturaPDF({
   return base64PDF;
 }
 
-export async function generarLabelPDF({ html }: { html: string }): Promise<string> {
+export async function generarLabelPDF({ html, filename = 'label' }: { html: string; filename?: string }): Promise<{ base64: string; filename: string }> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -59,5 +59,5 @@ export async function generarLabelPDF({ html }: { html: string }): Promise<strin
   await browser.close();
 
   const base64PDF = Buffer.from(pdfBuffer).toString("base64");
-  return base64PDF;
+  return { base64: base64PDF, filename: `${filename}.pdf` };
 }

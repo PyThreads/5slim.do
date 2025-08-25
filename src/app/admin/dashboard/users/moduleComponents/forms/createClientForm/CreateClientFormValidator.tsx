@@ -15,7 +15,7 @@ export const validationSchemaClientForm = Yup.object().shape({
     firstName: Yup.string().required('El nombre es requerido*.').trim(),
     lastName: Yup.string().required('El apellido es requerido*.').trim(),
     fullName: Yup.string().trim(),
-    email: Yup.string().required('El correo es requerido*.').trim(),
+    email: Yup.string().trim(),
     phone: Yup.string().required('El teléfono es requerido*.').trim(),
     addresses: Yup.array().of(
         Yup.object().shape({

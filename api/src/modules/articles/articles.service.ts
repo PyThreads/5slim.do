@@ -276,11 +276,34 @@ class ArticleService extends BaseService {
 
     async register({ body, user }: { body: IArticle, user: IAdmin }): Promise<IArticle> {
         try {
+            // Check external code uniqueness
+            if (body.externalCode) {
+                const existingArticle = await this.collection.findOne({
+                    ownerId: user.ownerId,
+                    externalCode: body.externalCode
+                });
+                if (existingArticle) {
+                    throw new Error("El código externo ya existe para otro artículo.");
+                }
+            }
 
             body.slug = await this.getArticleSlug(body.description);
-
             const result = await this.insertOne({ body, user });
-            return result
+            
+            // Generate and update article search field
+            const articleSearch = this.generateArticleSearch({
+                description: result.description,
+                _id: result._id,
+                externalCode: result.externalCode
+            });
+            
+            await this.collection.updateOne(
+                { _id: result._id, ownerId: user.ownerId },
+                { $set: { articleSearch } }
+            );
+            
+            result.articleSearch = articleSearch;
+            return result;
 
         } catch (error: any) {
             throw error;
@@ -313,10 +336,31 @@ class ArticleService extends BaseService {
 
     async updateArticle({ _id, user, body }: { _id: number, body: IArticle, user: IAdmin }) {
         try {
+            // Check external code uniqueness
+            if (body.externalCode) {
+                const existingArticle = await this.collection.findOne({
+                    ownerId: user.ownerId,
+                    externalCode: body.externalCode,
+                    _id: { $ne: _id }
+                });
+                if (existingArticle) {
+                    throw new Error("El código externo ya existe para otro artículo.");
+                }
+            }
 
-            const filter = { _id ,ownerId: user.ownerId}
+            // Generate article search field
+            const articleSearch = this.generateArticleSearch({
+                description: body.description,
+                _id: _id,
+                externalCode: body.externalCode
+            });
+            
+            body.articleSearch = articleSearch;
+            
+            const filter = { _id, ownerId: user.ownerId };
             await this.updateOne({ filter, body, user });
-            return body
+            
+            return body;
         } catch (error: any) {
             throw error;
         }
@@ -362,7 +406,8 @@ class ArticleService extends BaseService {
                         "variants.$[variant].source": variant.source,
                         "variants.$[variant].available": variant.available,
                         "variants.$[variant].comment": variant.comment,
-                        "variants.$[variant].tracking": variant.tracking
+                        "variants.$[variant].tracking": variant.tracking,
+                        "variants.$[variant].size": variant.size
                     }
                 },
                 {
@@ -415,7 +460,7 @@ class ArticleService extends BaseService {
     async getArticles({ query, ownerId }: { query: any, ownerId?: number }): Promise<IPaginationResult> {
         try {
 
-            const { page, limit, slug, _id, description, published, hasStock, lowStock, hasOrderedVariants, sortByOrders } = query;
+            const { page, limit, slug, _id, description, published, hasStock, lowStock, hasOrderedVariants, sortByOrders, categories, brand, size } = query;
             const match: Record<string, any> = {};
 
             if (ownerId) {
@@ -433,7 +478,7 @@ class ArticleService extends BaseService {
             }
 
             if (description) {
-                match["description"] = { $regex: this.diacriticSensitive(description), $options: "i" };
+                match["articleSearch"] = { $regex: this.diacriticSensitive(description), $options: "i" };
             }
 
             if (slug) {
@@ -442,6 +487,19 @@ class ArticleService extends BaseService {
 
             if (published !== undefined) {
                 match["published"] = published === 'true';
+            }
+
+            if (categories && categories.length > 0) {
+                const categoryIds = Array.isArray(categories) ? categories : [categories];
+                match["categories._id"] = { $in: categoryIds.map((id: string | number) => typeof id === 'string' ? parseInt(id) : id) };
+            }
+
+            if (brand) {
+                match["brand._id"] = typeof brand === 'string' ? parseInt(brand) : brand;
+            }
+
+            if (size) {
+                match["variants.size"] = { $regex: this.diacriticSensitive(size), $options: "i" };
             }
 
             if (hasStock !== undefined) {
@@ -539,6 +597,97 @@ class ArticleService extends BaseService {
 
         } catch (error: any) {
             throw error;
+        }
+    }
+
+    async getArticlesForOrders({ query, ownerId }: { query: any, ownerId?: number }): Promise<IPaginationResult> {
+        try {
+            const { page, limit, articleSearch, categories, brand, size } = query;
+            const match: Record<string, any> = {};
+
+            match["ownerId"] = ownerId;
+
+            if (articleSearch) {
+                match["articleSearch"] = { $regex: this.diacriticSensitive(articleSearch), $options: "i" };
+            }
+
+            if (categories && categories.length > 0) {
+                match["categories._id"] = { $in: categories.map((id: string) => parseInt(id)) };
+            }
+
+            if (brand) {
+                match["brand._id"] = typeof brand === 'string' ? parseInt(brand) : brand;
+            }
+
+            const aggregate: any[] = [
+                { $match: match },
+                { $unwind: "$variants" }
+            ];
+
+            // Add size filter after unwind if specified
+            if (size) {
+                aggregate.push({
+                    $match: {
+                        "variants.size": { $regex: this.diacriticSensitive(size), $options: "i" }
+                    }
+                });
+            }
+
+            aggregate.push(
+                {
+                    $project: {
+                        _id: 1,
+                        description: 1,
+                        slug: 1,
+                        categories: 1,
+                        hasDiscount: 1,
+                        discount: 1,
+                        published: 1,
+                        shortDescription: 1,
+                        tipTap: 1,
+                        advertisement: 1,
+                        images: 1,
+                        stockAlert: 1,
+                        ownerId: 1,
+                        externalCode: 1,
+                        articleSearch: 1,
+                        variant: "$variants"
+                    }
+                },
+                { $sort: { _id: -1, "variant._id": 1 } }
+            );
+
+            return await this.paginate({
+                query: aggregate,
+                page: page ? page : 1,
+                limit: limit ? limit : 10,
+                collection: COLLNAMES.ARTICLES
+            });
+
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    private generateArticleSearch(article: any): string {
+        const description = article.description || '';
+        const internalCode = article._id || '';
+        const externalCode = article.externalCode || '';
+        return `${description} ${internalCode} ${externalCode}`.trim();
+    }
+
+    async updateArticleSearch({ _id, ownerId }: { _id: number, ownerId: number }): Promise<void> {
+        try {
+            const article = await this.collection.findOne({ _id, ownerId });
+            if (article) {
+                const articleSearch = this.generateArticleSearch(article);
+                await this.collection.updateOne(
+                    { _id, ownerId },
+                    { $set: { articleSearch } }
+                );
+            }
+        } catch (error: any) {
+            // Silent fail for search field update
         }
     }
 

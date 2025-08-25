@@ -18,9 +18,9 @@ export class UserIndex{
         this.createIndexSafely(tableName, { phone: 1 }, "users_phone");
     }
 
-    private async createIndexSafely(tableName: string, indexSpec: any, indexName: string) {
+    private async createIndexSafely(tableName: string, indexSpec: any, indexName: string, options: any = {}) {
         try {
-            await this.mongoDatabase.collection(tableName).createIndex(indexSpec, { name: indexName });
+            await this.mongoDatabase.collection(tableName).createIndex(indexSpec, { name: indexName, ...options });
         } catch (error: any) {
             if (error.code !== 85) { // Only ignore IndexOptionsConflict errors
                 console.error(`Error creating index ${indexName}:`, error.message);
@@ -28,4 +28,4 @@ export class UserIndex{
         }
     }
 
-}
+} 

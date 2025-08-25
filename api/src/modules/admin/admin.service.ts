@@ -2,12 +2,14 @@
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { COLLNAMES, EnumTypeTempCode, IAdmin, IClient } from "../../interfaces";
+import { AdminIndex } from "./adminIndex";
 
 class AdminService extends BaseService {
 
 
     constructor({ mongoDatabase }: { mongoDatabase: Db }) {
         super({ mongoDatabase, tableName: COLLNAMES.ADMIN });
+        new AdminIndex({ mongoDatabase, tableName: COLLNAMES.ADMIN });
     }
 
     async login({ username, password }: { username: string, password: string }) {

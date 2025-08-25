@@ -1,11 +1,12 @@
 "use client"
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Button, Grid, Typography, Dialog, DialogContent } from "@mui/material";
+import { Box, Button, Grid, Typography, Dialog, DialogContent, Tabs, Tab } from "@mui/material";
 import { Inter } from "next/font/google";
 import CloseIcon from '@mui/icons-material/Close';
 import AddIcon from '@mui/icons-material/Add';
-import { ICategory, IPaginationResult, IUserType } from "../../../../../../api/src/interfaces";
+import { ICategory, IBrand, IPaginationResult, IUserType } from "../../../../../../api/src/interfaces";
 import { categoriesService } from "../../categories/categoriesService";
+import { brandsService } from "../../brands/brandsService";
 import { useAdminAuth } from "../../../../../../context/AdminContext";
 import TableCategoriesList from "../../categories/moduleComponents/TableCategoriesList";
 import CreateCategoryForm from "../../categories/moduleComponents/forms/CreateCategoryForm";
@@ -23,10 +24,14 @@ interface CategoriesModalProps {
 }
 
 export default function CategoriesModal({ open, onClose }: CategoriesModalProps) {
+    const [tabValue, setTabValue] = useState(0);
     const [result, setResult] = useState<IPaginationResult>();
+    const [brandsResult, setBrandsResult] = useState<IPaginationResult>();
     const [filters, setFilters] = useState({ page: 1, limit: 10 });
+    const [brandsFilters, setBrandsFilters] = useState({ page: 1, limit: 10 });
     const [openCreateModal, setOpenCreateModal] = useState(false);
     const [categoryToEdit, setCategoryToEdit] = useState<ICategory | null>(null);
+    const [brandToEdit, setBrandToEdit] = useState<IBrand | null>(null);
 
     // Categories module available for all user types
 
@@ -35,21 +40,40 @@ export default function CategoriesModal({ open, onClose }: CategoriesModalProps)
         setResult(result);
     }, [setResult, filters]);
 
+    const getAllBrands = useCallback(async () => {
+        const result = await brandsService.getAllBrands(brandsFilters);
+        setBrandsResult(result);
+    }, [setBrandsResult, brandsFilters]);
+
     useEffect(() => {
         if (open) {
-            getAllCategories();
+            if (tabValue === 0) {
+                getAllCategories();
+            } else {
+                getAllBrands();
+            }
         }
-    }, [filters, getAllCategories, open]);
+    }, [filters, brandsFilters, getAllCategories, getAllBrands, open, tabValue]);
 
     const handleEditCategory = (category: ICategory) => {
         setCategoryToEdit(category);
         setOpenCreateModal(true);
     };
 
+    const handleEditBrand = (brand: IBrand) => {
+        setBrandToEdit(brand);
+        setOpenCreateModal(true);
+    };
+
     const handleCloseCreateModal = () => {
         setOpenCreateModal(false);
         setCategoryToEdit(null);
-        getAllCategories();
+        setBrandToEdit(null);
+        if (tabValue === 0) {
+            getAllCategories();
+        } else {
+            getAllBrands();
+        }
     };
 
     return (
@@ -75,7 +99,7 @@ export default function CategoriesModal({ open, onClose }: CategoriesModalProps)
                                 fontSize={{ xs: "16px", sm: "20px", md: "24px" }}
                                 fontWeight={600}
                             >
-                                Gestión de Categorías
+                                Gestión de {tabValue === 0 ? 'Categorías' : 'Marcas'}
                             </Typography>
                             
                             <Box display="flex" alignItems="center" gap={2}>
@@ -86,7 +110,7 @@ export default function CategoriesModal({ open, onClose }: CategoriesModalProps)
                                     onClick={() => setOpenCreateModal(true)}
                                 >
                                     <Box sx={{ display: { xs: "none", sm: "block" } }}>
-                                        Agregar Nueva Categoría
+                                        Agregar Nueva {tabValue === 0 ? 'Categoría' : 'Marca'}
                                     </Box>
                                     <AddIcon sx={{ display: { xs: "block", sm: "none" } }} />
                                 </Button>
@@ -106,26 +130,55 @@ export default function CategoriesModal({ open, onClose }: CategoriesModalProps)
                             </Box>
                         </Grid>
 
+                        <Tabs 
+                            value={tabValue} 
+                            onChange={(_, newValue) => setTabValue(newValue)}
+                            sx={{ mb: 3, borderBottom: 1, borderColor: 'divider' }}
+                        >
+                            <Tab label="Categorías" />
+                            <Tab label="Marcas" />
+                        </Tabs>
+
                         <Box>
-                            <TableCategoriesList
-                                setFilters={setFilters}
-                                rows={result?.list || []}
-                                currentPage={result?.currentPage || 1}
-                                limit={filters.limit}
-                                totalItems={result?.totalItems || 0}
-                                totalPages={result?.totalPages || 1}
-                                onEditCategory={handleEditCategory}
-                            />
+                            {tabValue === 0 ? (
+                                <TableCategoriesList
+                                    setFilters={setFilters}
+                                    rows={result?.list || []}
+                                    currentPage={result?.currentPage || 1}
+                                    limit={filters.limit}
+                                    totalItems={result?.totalItems || 0}
+                                    totalPages={result?.totalPages || 1}
+                                    onEditCategory={handleEditCategory}
+                                />
+                            ) : (
+                                <TableCategoriesList
+                                    setFilters={setBrandsFilters}
+                                    rows={brandsResult?.list || []}
+                                    currentPage={brandsResult?.currentPage || 1}
+                                    limit={brandsFilters.limit}
+                                    totalItems={brandsResult?.totalItems || 0}
+                                    totalPages={brandsResult?.totalPages || 1}
+                                    onEditCategory={handleEditBrand}
+                                />
+                            )}
                         </Box>
                     </Box>
                 </DialogContent>
             </Dialog>
 
             <CustomModal open={openCreateModal} borderRadius="16px">
-                <CreateCategoryForm 
-                    categoryToEdit={categoryToEdit} 
-                    onClose={handleCloseCreateModal} 
-                />
+                {tabValue === 0 ? (
+                    <CreateCategoryForm 
+                        categoryToEdit={categoryToEdit} 
+                        onClose={handleCloseCreateModal} 
+                    />
+                ) : (
+                    <CreateCategoryForm 
+                        categoryToEdit={brandToEdit} 
+                        onClose={handleCloseCreateModal}
+                        isBrand={true}
+                    />
+                )}
             </CustomModal>
         </>
     );

@@ -3,9 +3,10 @@ import { Grid, Typography, MenuItem, Box, Button, } from "@mui/material";
 import { Form as FormikForm, useFormikContext } from "formik";
 import { CustomField, DefaultSwitch, MultipleSelectChip } from '../../../../../../../../components/inputs/CustomField';
 import { Inter } from "next/font/google";
-import { IArticle, IArticleImages, IArticlesVariants, IDiscountType, ICategory } from "../../../../../../../../api/src/interfaces";
+import { IArticle, IArticleImages, IArticlesVariants, IDiscountType, ICategory, IBrand } from "../../../../../../../../api/src/interfaces";
 import TableArticleTipTap from "../../TableArticleTipTap";
 import { categoriesService } from "../../../../categories/categoriesService";
+import { brandsService } from "../../../../brands/brandsService";
 import { baseService } from "../../../../../../utils/baseService";
 import { UploadArticlesPictures } from "../../UploadArticlesPictures";
 import BackupTableIcon from '@mui/icons-material/BackupTable';
@@ -30,6 +31,7 @@ export const CreateArticleForm = () => {
     const [variants, setVariants] = React.useState<IArticlesVariants[]>([]);
     const [_loadingVariants, setLoadingVariants] = React.useState(false);
     const [categories, setCategories] = React.useState<ICategory[]>([]);
+    const [brands, setBrands] = React.useState<IBrand[]>([]);
     const [openCategoryModal, setOpenCategoryModal] = React.useState(false);
 
     const loadVariants = async () => {
@@ -51,8 +53,18 @@ export const CreateArticleForm = () => {
         }
     };
 
+    const loadBrands = async () => {
+        try {
+            const result = await brandsService.getAllBrands({ page: 1, limit: 100 });
+            setBrands(result.list || []);
+        } catch (error) {
+            console.error('Error loading brands:', error);
+        }
+    };
+
     React.useEffect(() => {
         loadCategories();
+        loadBrands();
     }, []);
 
     const handleOpenVariantsModal = async () => {
@@ -107,6 +119,28 @@ export const CreateArticleForm = () => {
                                         <CustomField name="description" label="Descripción" placeholder="Nombre del articulo" fullWidth value={values.description} />
                                     </Grid>
 
+                                    <Grid container item xs={12} spacing={2}>
+                                        <Grid item xs={6}>
+                                            <CustomField 
+                                                label="Código Interno" 
+                                                placeholder="ID del sistema" 
+                                                fullWidth 
+                                                value={values._id || 'Se asignará automáticamente'} 
+                                                disabled 
+                                                noValidate 
+                                            />
+                                        </Grid>
+                                        <Grid item xs={6}>
+                                            <CustomField 
+                                                name="externalCode" 
+                                                label="Código Externo" 
+                                                placeholder="Código personalizado" 
+                                                fullWidth 
+                                                value={values.externalCode || ''} 
+                                            />
+                                        </Grid>
+                                    </Grid>
+
                                     <Grid item xs={12}>
                                         <Box display="flex"  gap={1} alignItems={"center"}>
                                             <Box flex={1}>
@@ -144,6 +178,30 @@ export const CreateArticleForm = () => {
                                         </Box>
                                     </Grid>
 
+                                    <Grid item xs={12}>
+                                        <CustomField 
+                                            name="brand" 
+                                            label="Marca" 
+                                            fullWidth 
+                                            select
+                                            value={values?.brand?._id || ""}
+                                            onChange={(e: any) => {
+                                                const selectedBrand = brands.find(brand => brand._id === parseInt(e.target.value));
+                                                setFieldValue("brand", selectedBrand || null);
+                                            }}
+                                            noValidate
+                                        >
+                                            <MenuItem value="">
+                                                <em>Seleccionar marca</em>
+                                            </MenuItem>
+                                            {brands.map((brand) => (
+                                                <MenuItem key={brand._id} value={brand._id}>
+                                                    {brand.description}
+                                                </MenuItem>
+                                            ))}
+                                        </CustomField>
+                                    </Grid>
+
                                     <Grid item xs={12} >
                                         <CustomField label="Unidades" placeholder="Unidades disponibles" type="number" fullWidth value={articleService.getStockNumber(values)} disabled noValidate />
                                     </Grid>
@@ -163,92 +221,7 @@ export const CreateArticleForm = () => {
                                         />
                                     </Grid>
 
-                                    <Grid container item xs={12} spacing={2} >
-                                        <Grid item xs={6} >
-                                            <Typography fontFamily={"Inter"} fontSize={"16px"} color={"#8B8D97"}>Descuento</Typography>
-                                        </Grid>
-                                        <Grid item xs={6} textAlign={"right"}>
-                                            <DefaultSwitch checked={values.hasDiscount} setChecked={(checked: boolean) => {
 
-                                                setValues({
-                                                    ...values,
-                                                    hasDiscount: checked,
-                                                    discount: {
-                                                        type: IDiscountType.AMOUNT,
-                                                        value: 0,
-                                                        endDate: "",
-                                                        hasExpiration: false
-                                                    }
-                                                })
-
-                                            }
-                                            } label="Agregar Descuento"
-                                                stylesLabel={{
-                                                    fontFamily: inter.style.fontFamily,
-                                                    fontSize: "16px",
-                                                    color: "#8B8D97"
-                                                }}
-                                            />
-                                        </Grid>
-                                    </Grid>
-
-
-                                    {
-
-                                        values.hasDiscount &&
-                                        <Grid container item xs={12} spacing={2}>
-                                            <Grid item xs={6} >
-                                                <CustomField select name="discount.type" label="Tipo de Descuento" placeholder="Nombres" fullWidth
-                                                    onChange={(e: any) => setFieldValue("discount.type", e.target.value)}
-                                                    value={values?.discount?.type || ""}>
-                                                    {Object.entries(IDiscountType).map((option) => (
-                                                        <MenuItem key={option[1]} value={option[1]}>
-                                                            {option[1]}
-                                                        </MenuItem>
-                                                    ))}
-                                                </CustomField>
-                                            </Grid>
-                                            <Grid item xs={6} >
-                                                <CustomField name="discount.value" label="Valor del Descuento" placeholder="Valor del descuento" type="number" fullWidth value={values?.discount?.value || ""} />
-                                            </Grid>
-
-
-                                            <Grid container item xs={12} spacing={2} >
-                                                <Grid item xs={6} >
-                                                    <Typography fontFamily={"Inter"} fontSize={"16px"} color={"#8B8D97"}>Fecha de Expiración</Typography>
-                                                </Grid>
-
-                                                <Grid item xs={6} textAlign={"right"}>
-                                                    <DefaultSwitch checked={values?.discount?.hasExpiration || false} setChecked={(checked: boolean) => {
-                                                        setFieldValue("discount.hasExpiration", checked)
-                                                    }
-                                                    } label="Agregar Expiración"
-                                                        stylesLabel={{
-                                                            fontFamily: inter.style.fontFamily,
-                                                            fontSize: "16px",
-                                                            color: "#8B8D97"
-                                                        }}
-                                                    />
-                                                </Grid>
-                                            </Grid>
-
-                                            {
-                                                values?.discount?.hasExpiration &&
-                                                <Grid item xs={12}>
-                                                    <CustomField name="discount.endDate" label="Fecha de Expiración" placeholder="Precio de Venta" fullWidth type="datetime-local"
-                                                        value={
-                                                            baseService.dateToDateTimeLocal(values?.discount?.endDate || "")
-                                                        }
-                                                        onChange={(e: any) => {
-                                                            const date = baseService.newDate(e.target.value);
-                                                            setFieldValue("discount.endDate", date)
-                                                        }}
-                                                    />
-                                                </Grid>
-                                            }
-                                        </Grid>
-
-                                    }
 
 
                                 </Grid>
@@ -365,7 +338,8 @@ export const CreateArticleForm = () => {
                 <CreateCategoryForm 
                     onClose={() => {
                         setOpenCategoryModal(false);
-                        loadCategories(); // Reload categories after creating a new one
+                        loadCategories();
+                        loadBrands();
                     }} 
                 />
             </CustomModal>

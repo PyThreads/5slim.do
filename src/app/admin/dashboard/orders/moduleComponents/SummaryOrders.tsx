@@ -28,6 +28,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
         pending: 0,
         delivered: 0,
         cancelled: 0,
+        sent: 0,
         paid: 0,
         partiallyPaid: 0,
         preparingForDelivery: 0,
@@ -110,6 +111,17 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                             </Box>
                                         </Grid>
 
+                                        <Grid item xs={4} >
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={400} >Enviada</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >{ordersService.decimalNumber(orderSummary.sent)}</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
                                     </Grid>
 
                                 </Box>
@@ -128,7 +140,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
 
                                     <Grid item container spacing={1} mt={"32px"}>
 
-                                        <Grid item xs={6} sm={4}>
+                                        <Grid item xs={6} sm={6}>
                                             <Box padding={0} margin={0}>
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={400} >Cancelada</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
@@ -139,7 +151,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                             </Box>
                                         </Grid>
 
-                                        <Grid item xs={6} sm={4}>
+                                        <Grid item xs={6} sm={6}>
                                             <Box padding={0} margin={0}>
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={500} >Entregada</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
@@ -151,7 +163,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                         </Grid>
 
 
-                                        <Grid item xs={6} sm={4}>
+                                        <Grid item xs={6} sm={6}>
                                             <Box padding={0} margin={0}>
                                                 <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={500} >Pagada</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
@@ -162,9 +174,9 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                             </Box>
                                         </Grid>
 
-                                        <Grid item xs={12} sm={12} >
+                                        <Grid item xs={6} sm={6}>
                                             <Box padding={0} margin={0}>
-                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "12px", sm: "10px", md: "12px", lg: "14px" } }} fontWeight={500} noWrap>Pagos Incompletos</Typography>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "15px", sm: "12px", md: "14px", lg: "16px" } }} fontWeight={500}>Pagos Incompletos</Typography>
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
                                                         <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >{ordersService.decimalNumber(orderSummary.partiallyPaid)}</Typography>

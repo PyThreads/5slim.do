@@ -134,6 +134,23 @@ class ArticleService extends BaseService {
             throw error
         }
     }
+
+    async getArticlesForOrders(query: any): Promise<IPaginationResult> {
+        try {
+            const params = this.transformQuery(query)
+            const { data: { data } }: any = await adminAxios.get("/admin/private/articles/for-orders" + params)
+            return data as unknown as IPaginationResult
+        } catch (error: any) {
+            const message = error?.response?.data?.message || "Ha ocurrido un error al obtener los artículos para órdenes."
+            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            return {
+                totalPages: 0,
+                list: [],
+                currentPage: 1,
+                totalItems: 0
+            }
+        }
+    }
 }
 
 export const articleService = new ArticleService()

@@ -2,7 +2,7 @@ import { Box, Card, CardContent, Grid, Paper, Table, TableBody, TableCell, Table
 import { SortTableIcon } from "../../../../../../components/icons/Svg";
 import { Inter } from "next/font/google";
 import { baseService } from "../../../../utils/baseService";
-import { IArticleCart, IOrder } from "../../../../../../api/src/interfaces";
+import { IArticleCart, IOrder, IOrderDiscountType } from "../../../../../../api/src/interfaces";
 import Image from "next/image";
 
 const inter = Inter({
@@ -72,6 +72,15 @@ export default function TableOrderDetailList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Descuento
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell >
+                                    <Box display={"flex"} alignItems={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Total
                                         </Typography>
                                         <SortTableIcon filled />
@@ -102,9 +111,24 @@ export default function TableOrderDetailList(
                                             </Box>
 
 
-                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"} ml={1}>
-                                                {row.description}
-                                            </Typography>
+                                            <Box ml={1}>
+                                                <Typography 
+                                                    fontFamily={"Inter"} 
+                                                    fontWeight={"400"} 
+                                                    color={"#6E7079"} 
+                                                    fontSize={"12px"}
+                                                    sx={{ cursor: "pointer", "&:hover": { color: "#5570F1", textDecoration: "underline" } }}
+                                                    onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                                >
+                                                    {row.description}
+                                                </Typography>
+                                                <Box display="flex" flexDirection="column" gap={0.2} mt={0.5}>
+                                                    <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO: {row._id}</Typography>
+                                                    {row.externalCode && (
+                                                        <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO EXTERNO: {row.externalCode}</Typography>
+                                                    )}
+                                                </Box>
+                                            </Box>
                                         </Box>
                                     </TableCell>
 
@@ -121,29 +145,81 @@ export default function TableOrderDetailList(
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#FF9800"} fontSize={"12px"}>
+                                            {row.orderDiscount 
+                                                ? `${row.orderDiscount.value}${row.orderDiscount.type === IOrderDiscountType.PERCENT ? '%' : ' RD$'}`
+                                                : '-'
+                                            }
+                                        </Typography>
+                                    </TableCell>
+
+                                    <TableCell align="left" sx={styles.tableCellBody}>
                                         <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {baseService.dominicanNumberFormat(row.variant.sellingPrice * row.variant.stock)}
+                                            {(() => {
+                                                const itemSubTotal = row.variant.sellingPrice * row.variant.stock;
+                                                const itemDiscount = row.orderDiscount 
+                                                    ? (row.orderDiscount.type === IOrderDiscountType.PERCENT 
+                                                        ? (itemSubTotal * row.orderDiscount.value / 100)
+                                                        : row.orderDiscount.value)
+                                                    : 0;
+                                                return baseService.dominicanNumberFormat(itemSubTotal - itemDiscount);
+                                            })()}
                                         </Typography>
                                     </TableCell>
 
                                 </TableRow>
                             ))}
 
+                            {order.total.discount > 0 && (
+                                <TableRow key="subtotal-row">
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#8B8D97"} fontSize={"14px"}>
+                                            Subtotal:
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#8B8D97"} fontSize={"14px"}>
+                                            {baseService.dominicanNumberFormat(order.total.subTotal)}
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+                            
+                            {order.total.discount > 0 && (
+                                <TableRow key="discount-row">
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody} />
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#FF9800"} fontSize={"14px"}>
+                                            Descuento:
+                                        </Typography>
+                                    </TableCell>
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#FF9800"} fontSize={"14px"}>
+                                            -{baseService.dominicanNumberFormat(order.total.discount)}
+                                        </Typography>
+                                    </TableCell>
+                                </TableRow>
+                            )}
+
                             <TableRow key="total-row">
                                 <TableCell align="left" sx={styles.tableCellBody} />
                                 <TableCell align="left" sx={styles.tableCellBody} />
+                                <TableCell align="left" sx={styles.tableCellBody} />
                                 <TableCell align="left" sx={styles.tableCellBody}>
-                                    <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#2C2D33"} fontSize={"16px"}>
+                                    <Typography fontFamily={"Inter"} fontWeight={"600"} color={"#2C2D33"} fontSize={"16px"}>
                                         Total:
                                     </Typography>
                                 </TableCell>
-
                                 <TableCell align="left" sx={styles.tableCellBody}>
-                                    <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#2C2D33"} fontSize={"16px"}>
+                                    <Typography fontFamily={"Inter"} fontWeight={"600"} color={"#2C2D33"} fontSize={"16px"}>
                                         {baseService.dominicanNumberFormat(order.total.total)}
                                     </Typography>
                                 </TableCell>
-
                             </TableRow>
 
                         </TableBody>
@@ -168,9 +244,24 @@ export default function TableOrderDetailList(
                                             style={{ borderRadius: "8px" }}
                                         />
                                     </Box>
-                                    <Typography sx={styles.mobileCardTitle}>
-                                        {row.description}
-                                    </Typography>
+                                    <Box flex={1}>
+                                        <Typography 
+                                            sx={{
+                                                ...styles.mobileCardTitle,
+                                                cursor: "pointer",
+                                                "&:hover": { color: "#5570F1", textDecoration: "underline" }
+                                            }}
+                                            onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                        >
+                                            {row.description}
+                                        </Typography>
+                                        <Box display="flex" flexDirection="column" gap={0.2} mt={0.5}>
+                                            <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO: {row._id}</Typography>
+                                            {row.externalCode && (
+                                                <Typography fontFamily={"Inter"} fontSize={"10px"} color={"#8B8D97"} fontWeight={400}>CÓDIGO EXTERNO: {row.externalCode}</Typography>
+                                            )}
+                                        </Box>
+                                    </Box>
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Precio Unidad:</Typography>
@@ -180,9 +271,27 @@ export default function TableOrderDetailList(
                                     <Typography sx={styles.mobileCardLabel}>Unidades:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{row.variant.stock}</Typography>
                                 </Box>
+                                {row.orderDiscount && (
+                                    <Box display="flex" justifyContent="space-between" mb={1}>
+                                        <Typography sx={styles.mobileCardLabel}>Descuento:</Typography>
+                                        <Typography sx={{...styles.mobileCardValue, color: '#FF9800'}}>
+                                            {row.orderDiscount.value}{row.orderDiscount.type === IOrderDiscountType.PERCENT ? '%' : ' RD$'}
+                                        </Typography>
+                                    </Box>
+                                )}
                                 <Box display="flex" justifyContent="space-between">
                                     <Typography sx={styles.mobileCardLabel}>Total:</Typography>
-                                    <Typography sx={styles.mobileCardValue}>{baseService.dominicanNumberFormat(row.variant.sellingPrice * row.variant.stock)}</Typography>
+                                    <Typography sx={styles.mobileCardValue}>
+                                        {(() => {
+                                            const itemSubTotal = row.variant.sellingPrice * row.variant.stock;
+                                            const itemDiscount = row.orderDiscount 
+                                                ? (row.orderDiscount.type === IOrderDiscountType.PERCENT 
+                                                    ? (itemSubTotal * row.orderDiscount.value / 100)
+                                                    : row.orderDiscount.value)
+                                                : 0;
+                                            return baseService.dominicanNumberFormat(itemSubTotal - itemDiscount);
+                                        })()}
+                                    </Typography>
                                 </Box>
                             </CardContent>
                         </Card>
@@ -191,6 +300,18 @@ export default function TableOrderDetailList(
                     {/* Mobile Total Card */}
                     <Card sx={{ ...styles.mobileCard, backgroundColor: '#F8F9FF', border: '1px solid #5570F1' }}>
                         <CardContent sx={styles.mobileCardContent}>
+                            {order.total.discount > 0 && (
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={{ ...styles.mobileCardLabel, color: '#8B8D97' }}>Subtotal:</Typography>
+                                    <Typography sx={{ ...styles.mobileCardValue, color: '#8B8D97' }}>{baseService.dominicanNumberFormat(order.total.subTotal)}</Typography>
+                                </Box>
+                            )}
+                            {order.total.discount > 0 && (
+                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                    <Typography sx={{ ...styles.mobileCardLabel, color: '#FF9800' }}>Descuento:</Typography>
+                                    <Typography sx={{ ...styles.mobileCardValue, color: '#FF9800' }}>-{baseService.dominicanNumberFormat(order.total.discount)}</Typography>
+                                </Box>
+                            )}
                             <Box display="flex" justifyContent="space-between">
                                 <Typography sx={{ ...styles.mobileCardLabel, fontWeight: 600, color: '#2C2D33' }}>Total General:</Typography>
                                 <Typography sx={{ ...styles.mobileCardValue, fontWeight: 600, color: '#2C2D33' }}>{baseService.dominicanNumberFormat(order.total.total)}</Typography>

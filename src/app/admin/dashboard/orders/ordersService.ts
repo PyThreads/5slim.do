@@ -1,5 +1,5 @@
 import { BaseService } from "../../../utils/baseService";
-import { CancelOrderType, IArticleCart, ICartTotals, IOrder, IOrderStatus, IOrdersSummary, IPaginationResult } from "../../../../../api/src/interfaces";
+import { CancelOrderType, IArticleCart, ICartTotals, IOrderDiscountType, IOrder, IOrderStatus, IOrdersSummary, IPaginationResult } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 import adminAxios from "../../../../../context/adminAxiosInstance";
 
@@ -34,7 +34,9 @@ class OrdersService extends BaseService {
                 pending: 0,
                 delivered: 0,
                 cancelled: 0,
+                sent: 0,
                 paid: 0,
+                partiallyPaid: 0,
                 preparingForDelivery: 0,
                 earnings: 0,
                 totalSold: 0
@@ -42,33 +44,37 @@ class OrdersService extends BaseService {
         }
     }
 
+    private downloadPDF(data: any, filename: string, errorMessage: string): void {
+        const base64Data = typeof data === 'object' && data.base64 ? data.base64 : data;
+        if (!base64Data || typeof base64Data !== 'string') throw new Error('Datos de PDF inválidos');
+        
+        const blob = new Blob([new Uint8Array(atob(base64Data).split('').map(c => c.charCodeAt(0)))], { type: 'application/pdf' });
+        const link = Object.assign(document.createElement('a'), {
+            href: URL.createObjectURL(blob),
+            download: filename
+        });
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(link.href);
+    }
+
     async printOrder(_id: number): Promise<void> {
         try {
-            const { data: { data } }: any = await adminAxios.get("/admin/private/orders/print/" + _id)
-            const byteCharacters = atob(data);
-            const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: 'application/pdf' });
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl, '_blank');
+            const { data: { data } } = await adminAxios.get(`/admin/private/orders/print/${_id}`);
+            this.downloadPDF(data, `Factura-${_id}.pdf`, "Ha ocurrido un error al imprimir la orden.");
         } catch (error: any) {
-            const message = "Ha ocurrido un error al imprimir la orden."
-            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la orden.", open: true, type: "error", title: "Upss!" });
         }
     }
 
     async printOrderLabel(_id: number): Promise<void> {
         try {
-            const { data: { data } }: any = await adminAxios.get("/admin/private/orders/print-label/" + _id)
-            const byteCharacters = atob(data);
-            const byteNumbers = new Array(byteCharacters.length).fill(0).map((_, i) => byteCharacters.charCodeAt(i));
-            const byteArray = new Uint8Array(byteNumbers);
-            const blob = new Blob([byteArray], { type: 'application/pdf' });
-            const blobUrl = URL.createObjectURL(blob);
-            window.open(blobUrl, '_blank');
+            const { data: { data } } = await adminAxios.get(`/admin/private/orders/print-label/${_id}`);
+            this.downloadPDF(data, `Label-${_id}.pdf`, "Ha ocurrido un error al imprimir la etiqueta.");
         } catch (error: any) {
-            const message = "Ha ocurrido un error al imprimir la etiqueta."
-            eventBus.emit("notify", { message: message, open: true, type: "error", title: "Upss!" })
+            eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la etiqueta.", open: true, type: "error", title: "Upss!" });
         }
     }
 
@@ -109,8 +115,18 @@ class OrdersService extends BaseService {
         let subTotal = 0;
 
         for (const article of articles) {
-            total += article.variant.sellingPrice * article.variant.stock;
-            subTotal += article.variant.sellingPrice * article.variant.stock;
+            const itemSubTotal = article.variant.sellingPrice * article.variant.stock;
+            subTotal += itemSubTotal;
+            
+            if (article.orderDiscount) {
+                const itemDiscount = article.orderDiscount.type === IOrderDiscountType.PERCENT 
+                    ? (itemSubTotal * article.orderDiscount.value / 100)
+                    : article.orderDiscount.value;
+                discount += itemDiscount;
+                total += itemSubTotal - itemDiscount;
+            } else {
+                total += itemSubTotal;
+            }
         }
 
         return { total, discount, subTotal }

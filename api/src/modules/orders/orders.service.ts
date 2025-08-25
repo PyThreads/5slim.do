@@ -1,4 +1,4 @@
-import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IOrdersSummary, IPaginateOrders, IPaginationResult, IOrderType, IPaymentStatus, IOrderPayment } from "../../interfaces";
+import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrderDiscountType, IOrder, IOrderStatus, IOrdersSummary, IPaginateOrders, IPaginationResult, IOrderType, IPaymentStatus, IOrderPayment } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
@@ -92,16 +92,54 @@ export class OrderService extends BaseService {
                             },
                             {
                                 $addFields: {
-                                    gain: {
+                                    itemSubTotal: {
                                         $multiply: [
-                                            {
-                                                $subtract: [
-                                                    "$articles.variant.sellingPrice",
-                                                    "$articles.variant.costPrice"
-                                                ]
-                                            },
+                                            "$articles.variant.sellingPrice",
                                             "$articles.variant.stock"
                                         ]
+                                    },
+                                    itemDiscount: {
+                                        $cond: {
+                                            if: { $ifNull: ["$articles.orderDiscount", false] },
+                                            then: {
+                                                $cond: {
+                                                    if: { $eq: ["$articles.orderDiscount.type", "PERCENT"] },
+                                                    then: {
+                                                        $multiply: [
+                                                            {
+                                                                $multiply: [
+                                                                    "$articles.variant.sellingPrice",
+                                                                    "$articles.variant.stock"
+                                                                ]
+                                                            },
+                                                            { $divide: ["$articles.orderDiscount.value", 100] }
+                                                        ]
+                                                    },
+                                                    else: "$articles.orderDiscount.value"
+                                                }
+                                            },
+                                            else: 0
+                                        }
+                                    }
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    finalSellingPrice: {
+                                        $subtract: ["$itemSubTotal", "$itemDiscount"]
+                                    },
+                                    costTotal: {
+                                        $multiply: [
+                                            "$articles.variant.costPrice",
+                                            "$articles.variant.stock"
+                                        ]
+                                    }
+                                }
+                            },
+                            {
+                                $addFields: {
+                                    gain: {
+                                        $subtract: ["$finalSellingPrice", "$costTotal"]
                                     }
                                 }
                             },
@@ -159,6 +197,7 @@ export class OrderService extends BaseService {
                 pending: 0,
                 delivered: 0,
                 cancelled: 0,
+                sent: 0,
                 paid: 0,
                 partiallyPaid: 0,
                 preparingForDelivery: 0,
@@ -169,16 +208,17 @@ export class OrderService extends BaseService {
             const result: any = await this.collection.aggregate(pipeline).toArray();
 
             if (result.length > 0) {
-                const resulted = result[0];
+                const resulted = result[0];                
                 baseResult.total = resulted.totalOrders.length > 0 ? resulted.totalOrders[0].total : 0;
                 baseResult.pending = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PENDING)?.count || 0 : 0;
                 baseResult.cancelled = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.CANCELLED)?.count || 0 : 0;
                 baseResult.delivered = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.DELIVERED)?.count || 0 : 0;
+                baseResult.sent = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.SENT)?.count || 0 : 0;
                 baseResult.preparingForDelivery = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PREPARING_FOR_DELIVERY)?.count || 0 : 0;
-                baseResult.paid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === 'Pagado')?.count || 0 : 0;
-                baseResult.partiallyPaid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === 'Pagado Parcialmente')?.count || 0 : 0;
-                baseResult.earnings = resulted.earnings.length > 0 ? resulted.earnings[0]?.totalEarnings || 0 : 0
-                baseResult.totalSold = resulted.totalSold.length > 0 ? resulted.totalSold[0]?.totalSold || 0 : 0
+                baseResult.paid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === IPaymentStatus.PAID)?.count || 0 : 0;
+                baseResult.partiallyPaid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === IPaymentStatus.PARTIALLY_PAID)?.count || 0 : 0;
+                baseResult.earnings = resulted.earnings.length > 0 ? resulted.earnings[0]?.totalEarnings || 0 : 0;
+                baseResult.totalSold = resulted.totalSold.length > 0 ? resulted.totalSold[0]?.totalSold || 0 : 0;
             }
 
             return baseResult;
@@ -230,7 +270,7 @@ export class OrderService extends BaseService {
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
             const html = await invoiceLabel({ order, logo });
-            return await generarLabelPDF({ html });
+            return await generarLabelPDF({ html, filename: `Label-${_id}` });
         } catch (error: any) {
             throw error;
         }
@@ -248,22 +288,9 @@ export class OrderService extends BaseService {
                 body.orderType = body.paymentType ? IOrderType.CASH : IOrderType.CREDIT;
             }
             
-            if (body.orderType === IOrderType.CASH) {
-                // Órdenes de contado se consideran pagadas al momento de creación
-                body.paymentStatus = IPaymentStatus.PAID;
-                body.payments = [{
-                    paymentDate: new Date(),
-                    amount: body.total.total,
-                    method: body.paymentType === 'Efectivo' ? 'Efectivo' : 
-                           body.paymentType === 'Tarjeta' ? 'Tarjeta' : 'Transferencia',
-                    reference: null,
-                    notes: 'Pago registrado al crear la orden',
-                    createdBy: { _id: user._id, fullName: user.fullName }
-                }];
-            } else {
-                body.paymentStatus = IPaymentStatus.NOT_PAID;
-                body.payments = [];
-            }
+            // Todas las órdenes inician sin pagos, deben agregarse manualmente
+            body.paymentStatus = IPaymentStatus.NOT_PAID;
+            body.payments = [];
 
             const result = await this.insertOne({ body, user });
             return result as unknown as IOrder;
@@ -279,8 +306,18 @@ export class OrderService extends BaseService {
         let subTotal = 0;
 
         for (const article of articles) {
-            total += article.variant.sellingPrice * article.variant.stock;
-            subTotal += article.variant.sellingPrice * article.variant.stock;
+            const itemSubTotal = article.variant.sellingPrice * article.variant.stock;
+            subTotal += itemSubTotal;
+            
+            if (article.orderDiscount) {
+                const itemDiscount = article.orderDiscount.type === IOrderDiscountType.PERCENT 
+                    ? (itemSubTotal * article.orderDiscount.value / 100)
+                    : article.orderDiscount.value;
+                discount += itemDiscount;
+                total += itemSubTotal - itemDiscount;
+            } else {
+                total += itemSubTotal;
+            }
         }
 
         return { total, discount, subTotal }

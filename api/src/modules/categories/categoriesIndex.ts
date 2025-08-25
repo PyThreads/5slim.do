@@ -1,21 +1,18 @@
 import { Db } from "mongodb";
 import { COLLNAMES } from "../../interfaces"
 
-export class UserIndex{
+export class CategoriesIndex {
 
-    mongoDatabase : Db | any
-        
+    mongoDatabase: Db | any
+
     constructor({ mongoDatabase, tableName }: { mongoDatabase: Db, tableName: COLLNAMES }) {
         this.mongoDatabase = mongoDatabase;
         
         // Create indexes with error handling
-        this.createIndexSafely(tableName, { ownerId: 1, fullName: 1 }, "users_owner_fullname");
-        this.createIndexSafely(tableName, { ownerId: 1, email: 1 }, "users_owner_email");
-        this.createIndexSafely(tableName, { ownerId: 1, _id: 1 }, "users_owner_id");
-        this.createIndexSafely(tableName, { ownerId: 1, fullClient: 1 }, "users_owner_fullclient");
-        this.createIndexSafely(tableName, { ownerId: 1, createdDate: 1 }, "users_owner_created_date");
-        this.createIndexSafely(tableName, { fullName: 1 }, "users_fullname");
-        this.createIndexSafely(tableName, { phone: 1 }, "users_phone");
+        this.createIndexSafely(tableName, { ownerId: 1, description: 1 }, "categories_owner_description");
+        this.createIndexSafely(tableName, { ownerId: 1, _id: 1 }, "categories_owner_id");
+        this.createIndexSafely(tableName, { ownerId: 1, slug: 1 }, "categories_owner_slug");
+        this.createIndexSafely(tableName, { description: 1 }, "categories_description");
     }
 
     private async createIndexSafely(tableName: string, indexSpec: any, indexName: string) {
@@ -27,5 +24,4 @@ export class UserIndex{
             }
         }
     }
-
 }

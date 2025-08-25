@@ -1,6 +1,6 @@
 "use client"
 import React, { useCallback, useEffect, useState } from "react";
-import { Box, Button, Checkbox, Grid, Popover, Typography, Dialog, DialogTitle, DialogContent, DialogActions } from "@mui/material"
+import { Box, Button, Checkbox, Grid, Popover, Typography, Dialog } from "@mui/material"
 import { Inter } from "next/font/google"
 import TableOrderDetailList from "../moduleComponents/TableOrderDetailList";
 import { CancelOrderType, IOrder, IOrderStatus } from "../../../../../../api/src/interfaces";
@@ -22,8 +22,11 @@ import PendingIcon from '@mui/icons-material/Pending';
 import PaidIcon from '@mui/icons-material/Paid';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { eventBus } from "../../../../utils/broadcaster";
 import CustomField from "../../../../../../components/inputs/CustomField";
+import { baseService } from "../../../../utils/baseService";
+import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -43,6 +46,14 @@ export default function AdminClientes() {
     const [loadingCancel, setLoadingCancel] = useState(false);
     const [commentModal, setCommentModal] = useState(false);
     const [comment, setComment] = useState('');
+    const [paymentModal, setPaymentModal] = useState(false);
+    const [paymentData, setPaymentData] = useState({
+        amount: '',
+        method: 'Efectivo',
+        paymentDate: '',
+        reference: '',
+        notes: ''
+    });
     const params = useParams();
 
     if (!params._id) {
@@ -123,6 +134,47 @@ export default function AdminClientes() {
         }
     };
 
+    const handleOpenPaymentModal = () => {
+        setPaymentModal(true);
+        setAnchorEl(null);
+    };
+
+    const handleSavePayment = async () => {
+        try {
+            const currentAmount = parseFloat(paymentData.amount);
+            const totalPaid = order?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0;
+            const orderTotal = order?.total?.total || 0;
+            
+            if (totalPaid + currentAmount > orderTotal) {
+                eventBus.emit("notify", { 
+                    message: `El monto excede el total de la orden. Máximo permitido: ${baseService.dominicanNumberFormat(orderTotal - totalPaid)}`, 
+                    open: true, 
+                    type: "error", 
+                    title: "Error!" 
+                });
+                return;
+            }
+
+            const payment = {
+                ...paymentData,
+                amount: currentAmount,
+                paymentDate: baseService.newDate(paymentData.paymentDate)
+            };
+            const updatedOrder = await ordersService.addPayment({ orderId: order!._id, payment });
+            setOrder(updatedOrder);
+            setPaymentModal(false);
+            setPaymentData({
+                amount: '',
+                method: 'Efectivo',
+                paymentDate: '',
+                reference: '',
+                notes: ''
+            });
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
     const getStatusIcon = (status: IOrderStatus) => {
         switch (status) {
             case IOrderStatus.PENDING:
@@ -157,18 +209,34 @@ export default function AdminClientes() {
                                     <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 1, sm: 3 } }}>
                                         <Box sx={{ display: "flex", alignItems: "center" }}>
                                             <Typography fontFamily={"Inter"} color={"#45464E"}
-                                                sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}
+                                                sx={{ fontSize: { xs: "12px", sm: "14px" }, fontWeight: 500 }}
                                             >
                                                 Orden Número
                                             </Typography>
                                             <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5}
-                                                sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 600 }}
+                                                sx={{ fontSize: { xs: "12px", sm: "14px" }, fontWeight: 600 }}
                                             > #{order?._id}</Typography>
                                         </Box>
 
                                         <Box sx={{ display: "flex", alignItems: "center" }}>
-                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 500 }}>Fecha</Typography>
-                                            <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5} sx={{ fontSize: { xs: "14px", sm: "16px" }, fontWeight: 400 }}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "12px", sm: "14px" }, fontWeight: 500 }}>Fecha</Typography>
+                                            <Typography fontFamily={"Inter"} color={"#45464E40"} ml={0.5} sx={{ fontSize: { xs: "12px", sm: "14px" }, fontWeight: 400 }}>{ordersService.formatAmPmLetters(order!.createdDate)}</Typography>
+                                        </Box>
+
+                                        <Box sx={{ display: "flex", alignItems: "center" }}>
+                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "12px", sm: "14px" }, fontWeight: 500 }}>Estado de Pago</Typography>
+                                            <Typography 
+                                                fontFamily={"Inter"} 
+                                                ml={0.5} 
+                                                sx={{ 
+                                                    fontSize: { xs: "12px", sm: "14px" }, 
+                                                    fontWeight: 600,
+                                                    color: order?.paymentStatus === 'Pagado' ? '#28a745' : 
+                                                           order?.paymentStatus === 'Pagado Parcialmente' ? '#ffc107' : '#dc3545'
+                                                }}
+                                            >
+                                                {order?.paymentStatus || 'No Pagado'}
+                                            </Typography>
                                         </Box>
                                     </Box>
                                 </Grid>
@@ -184,6 +252,14 @@ export default function AdminClientes() {
                                     >
                                         {action ? action : "Acción"}
                                     </Button>
+
+                                    {((order?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0) < (order?.total?.total || 0)) && (
+                                        <Button variant="contained" sx={{ ...style.accionButton, backgroundColor: "#28a745", "&:hover": { backgroundColor: "#218838" }, minWidth: { xs: 'auto', sm: 'auto' }, width: { xs: 'auto', sm: 'auto' } }}
+                                            onClick={handleOpenPaymentModal}
+                                        >
+                                            <AttachMoneyIcon />
+                                        </Button>
+                                    )}
 
                                     <Button variant="contained" sx={{ ...style.accionButton, ...style.cancelButton }}
                                         onClick={() => {
@@ -203,6 +279,66 @@ export default function AdminClientes() {
                             <Box mt={"23px"}>
                                 <SummaryOrderDetails order={order!} />
                             </Box>
+
+                            {order?.payments && order.payments.length > 0 && (
+                                <Box mt={"23px"}>
+                                    <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={600} color={"#45464E"} mb={2}>
+                                        Historial de Pagos
+                                    </Typography>
+                                    <Grid container spacing={2}>
+                                        {order.payments.map((payment, index) => (
+                                            <Grid item xs={12} sm={6} md={4} key={index}>
+                                                <Paper sx={{ p: 2, borderRadius: 2, boxShadow: 1, border: '1px solid #e0e0e0' }}>
+                                                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={600} color={"#28a745"}>
+                                                            {baseService.dominicanNumberFormat(payment.amount)}
+                                                        </Typography>
+                                                        <Box sx={{ 
+                                                            backgroundColor: payment.method === 'Efectivo' ? '#28a745' : 
+                                                                           payment.method === 'Tarjeta' ? '#007bff' : '#ffc107',
+                                                            color: 'white',
+                                                            px: 1,
+                                                            py: 0.5,
+                                                            borderRadius: 1,
+                                                            fontSize: '12px'
+                                                        }}>
+                                                            {payment.method}
+                                                        </Box>
+                                                    </Box>
+                                                    <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#6c757d"} mb={0.5}>
+                                                        {ordersService.formatAmPmLetters(payment.paymentDate)}
+                                                    </Typography>
+                                                    {payment.reference && (
+                                                        <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#6c757d"} mb={0.5}>
+                                                            Ref: {payment.reference}
+                                                        </Typography>
+                                                    )}
+                                                    <Typography fontFamily={"Inter"} fontSize={"11px"} color={"#6c757d"}>
+                                                        Por: {payment.createdBy.fullName}
+                                                    </Typography>
+                                                    {payment.notes && (
+                                                        <Typography fontFamily={"Inter"} fontSize={"11px"} color={"#6c757d"} mt={0.5} fontStyle="italic">
+                                                            {payment.notes}
+                                                        </Typography>
+                                                    )}
+                                                </Paper>
+                                            </Grid>
+                                        ))}
+                                        <Grid item xs={12}>
+                                            <Paper sx={{ p: 2, backgroundColor: '#f8f9fa', borderRadius: 2 }}>
+                                                <Box display="flex" justifyContent="space-between" alignItems="center">
+                                                    <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={600}>
+                                                        Total Pagado
+                                                    </Typography>
+                                                    <Typography fontFamily={"Inter"} fontSize={"16px"} fontWeight={600} color={"#28a745"}>
+                                                        {baseService.dominicanNumberFormat(order.payments.reduce((sum, p) => sum + p.amount, 0))}
+                                                    </Typography>
+                                                </Box>
+                                            </Paper>
+                                        </Grid>
+                                    </Grid>
+                                </Box>
+                            )}
 
                             <Box mt={"23px"} pb={10}>
                                 <TableOrderDetailList order={order!} />
@@ -443,6 +579,130 @@ export default function AdminClientes() {
                         }}
                     >
                         Guardar
+                    </Button>
+                </Box>
+            </Dialog>
+
+            <Dialog 
+                open={paymentModal} 
+                onClose={() => setPaymentModal(false)}
+                maxWidth="sm"
+                fullWidth
+                PaperProps={{
+                    sx: {
+                        borderRadius: '12px',
+                        p: 0
+                    }
+                }}
+            >
+                <Box sx={{ position: 'relative', p: 3 }}>
+                    <CloseIcon 
+                        sx={{ 
+                            position: 'absolute',
+                            top: 16,
+                            right: 16,
+                            cursor: 'pointer',
+                            color: '#6E7079',
+                            '&:hover': {
+                                color: '#45464E'
+                            }
+                        }}
+                        onClick={() => setPaymentModal(false)}
+                    />
+                    <Typography sx={{ 
+                        fontFamily: 'Inter', 
+                        fontSize: '18px', 
+                        fontWeight: 600, 
+                        color: '#45464E',
+                        mb: 1,
+                        pr: 4
+                    }}>
+                        Agregar Pago
+                    </Typography>
+                    <Box sx={{ mb: 2, p: 2, backgroundColor: '#f8f9fa', borderRadius: '8px' }}>
+                        <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#6c757d' }}>
+                            Total de la orden: <strong>{baseService.dominicanNumberFormat(order?.total?.total || 0)}</strong>
+                        </Typography>
+                        <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#6c757d' }}>
+                            Total pagado: <strong>{baseService.dominicanNumberFormat(order?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0)}</strong>
+                        </Typography>
+                        <Typography sx={{ fontFamily: 'Inter', fontSize: '14px', color: '#28a745', fontWeight: 600 }}>
+                            Restante: <strong>{baseService.dominicanNumberFormat((order?.total?.total || 0) - (order?.payments?.reduce((sum, p) => sum + p.amount, 0) || 0))}</strong>
+                        </Typography>
+                    </Box>
+                    <Grid container spacing={2}>
+                        <Grid item xs={12} sm={6}>
+                            <CustomField
+                                fullWidth
+                                type="number"
+                                label="Monto"
+                                placeholder="0.00"
+                                value={paymentData.amount}
+                                onChange={(e: any) => setPaymentData({...paymentData, amount: e.target.value})}
+                            />
+                        </Grid>
+                        <Grid item xs={12} sm={6}>
+                            <CustomField
+                                fullWidth
+                                select
+                                label="Método de Pago"
+                                value={paymentData.method}
+                                onChange={(e: any) => setPaymentData({...paymentData, method: e.target.value})}
+                                SelectProps={{
+                                    native: true,
+                                }}
+                            >
+                                <option value="Efectivo">Efectivo</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="Transferencia">Transferencia</option>
+                            </CustomField>
+                        </Grid>
+                        <Grid item xs={12}>
+                            <CustomField
+                                fullWidth
+                                type="datetime-local"
+                                label="Fecha de Pago"
+                                value={baseService.dateToDateTimeLocal(paymentData.paymentDate || new Date())}
+                                onChange={(e: any) => setPaymentData({...paymentData, paymentDate: e.target.value})}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <CustomField
+                                fullWidth
+                                label="Referencia (Opcional)"
+                                placeholder="Número de referencia..."
+                                value={paymentData.reference}
+                                onChange={(e: any) => setPaymentData({...paymentData, reference: e.target.value})}
+                            />
+                        </Grid>
+                        <Grid item xs={12}>
+                            <CustomField
+                                fullWidth
+                                multiline
+                                rows={2}
+                                label="Notas (Opcional)"
+                                placeholder="Notas adicionales..."
+                                value={paymentData.notes}
+                                onChange={(e: any) => setPaymentData({...paymentData, notes: e.target.value})}
+                            />
+                        </Grid>
+                    </Grid>
+                    <Button 
+                        onClick={handleSavePayment}
+                        variant="contained"
+                        fullWidth
+                        disabled={!paymentData.amount || parseFloat(paymentData.amount) <= 0}
+                        sx={{
+                            fontFamily: 'Inter',
+                            fontSize: '14px',
+                            textTransform: 'none',
+                            borderRadius: '8px',
+                            backgroundColor: '#5570F1',
+                            mt: 2,
+                            py: 1.5
+                        }}
+                    >
+                        Registrar Pago
                     </Button>
                 </Box>
             </Dialog>

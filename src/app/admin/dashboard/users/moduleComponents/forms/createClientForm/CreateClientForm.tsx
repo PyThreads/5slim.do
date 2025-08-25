@@ -53,7 +53,7 @@ export const CreateArticleForm = ({ onClose }: { onClose: Function }) => {
                 </Grid>
 
                 <Grid item xs={12} mt="28px">
-                    <CustomField name="phone" placeholder="Teléfono" fullWidth value={values.phone} />
+                    <CustomField name="phone" placeholder="Teléfono" fullWidth value={values?.phone} />
                 </Grid>
 
                 <Grid item xs={12} mt="28px">

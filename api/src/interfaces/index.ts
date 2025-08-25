@@ -9,6 +9,7 @@ export interface IPaginateOrders {
     limit: number
     fullClient?: string
     status?: IOrderStatus
+    paymentStatus?: IPaymentStatus
     _id?: number
 }
 
@@ -40,9 +41,28 @@ export enum IOrderStatus {
     PENDING = "Pendiente",
     DELIVERED = "Entregado",
     CANCELLED = "Cancelada",
-    PAID = "Pagado",
     PREPARING_FOR_DELIVERY = "Preparando para entrega",
     SENT = "Enviado"
+}
+
+export enum IPaymentStatus {
+    NOT_PAID = "No Pagado",
+    PAID = "Pagado",
+    PARTIALLY_PAID = "Pagado Parcialmente"
+}
+
+export enum IOrderType {
+    CASH = "Contado",
+    CREDIT = "Crédito"
+}
+
+export interface IOrderPayment {
+    paymentDate: Date;
+    amount: number;
+    method: 'Tarjeta' | 'Efectivo' | 'Transferencia';
+    reference?: string | null;
+    notes?: string | null;
+    createdBy: ICreatedBy;
 }
 
 export interface ICategory {
@@ -72,8 +92,8 @@ export interface IArticleDiscount {
 }
 
 export interface IAdvertisementArticle {
-    type: string;
-    value: number
+    type?: string;
+    value?: number
 }
 
 export interface IArticleImages {
@@ -101,6 +121,7 @@ export interface IOrdersSummary {
     delivered: number;
     cancelled: number;
     paid: number;
+    partiallyPaid: number;
     preparingForDelivery: number;
     earnings: number;
     totalSold: number;
@@ -130,6 +151,9 @@ export interface IOrder {
     client: IClientOrder;
     paymentType: IPaymentType;
     status: IOrderStatus;
+    orderType: IOrderType;
+    paymentStatus: IPaymentStatus;
+    payments: IOrderPayment[];
     createdDate: Date;
     updatedDate: Date;
     total: ICartTotals

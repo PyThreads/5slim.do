@@ -46,35 +46,13 @@ export default function TableClientsList(
                 </Grid>
 
                 <Grid container item display={"flex"} alignItems={"center"} xs={12} md={12} lg={7} spacing={1}>
-
-                    <Grid item width={"250px"} m={1}>
-                        <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setFilers((prev: any) => ({ ...prev, fullName: e.target.value, page: 1 }))
-                        }} />
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterDateIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
-                        >
-                            Acciones
-                        </Button>
+                    <Grid item xs={12}>
+                        <SearchTable 
+                            fullWidth
+                            onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                setFilers((prev: any) => ({ ...prev, fullName: e.target.value, page: 1 }))
+                            }} 
+                        />
                     </Grid>
                 </Grid>
 

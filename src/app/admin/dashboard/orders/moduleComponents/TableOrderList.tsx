@@ -1,5 +1,5 @@
-import { Box, Button, Card, CardContent, Checkbox, Grid, Link, MenuItem, Paper, Popover, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography } from "@mui/material";
-import { FilterDateIcon, FilterIcon, SortTableIcon } from "../../../../../../components/icons/Svg";
+import { Box, Button, Card, CardContent, Checkbox, Grid, Link, MenuItem, Paper, Popover, Select, Table, TableBody, TableCell, TableContainer, TableHead, TablePagination, TableRow, Typography, Chip } from "@mui/material";
+import { SortTableIcon } from "../../../../../../components/icons/Svg";
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
 import LocalPrintshopIcon from '@mui/icons-material/LocalPrintshop';
 import LabelIcon from '@mui/icons-material/Label';
@@ -8,7 +8,8 @@ import { useState } from "react";
 import SearchTable from "../../../../../../components/inputs/SearchTable";
 import { ordersService } from "../ordersService";
 import { baseService } from "../../../../utils/baseService";
-import { IOrder, IOrderStatus } from "../../../../../../api/src/interfaces";
+import { IOrder, IOrderStatus, IPaymentStatus, IPaginateOrders } from "../../../../../../api/src/interfaces";
+import OrdersFilterPopover from "./OrdersFilterPopover";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -25,7 +26,8 @@ export default function TableOrderList(
         totalItems,
         totalPages,
         onDoubleClickRow,
-        onOrdersUpdated
+        onOrdersUpdated,
+        currentFilter
     }
         :
         {
@@ -37,6 +39,7 @@ export default function TableOrderList(
             setFilers: Function
             onDoubleClickRow: Function
             onOrdersUpdated?: Function
+            currentFilter?: { paymentStatus?: IPaymentStatus; status?: IOrderStatus }
         }
 ) {
     const [checked, setChecked] = useState<number[]>([]);
@@ -46,9 +49,16 @@ export default function TableOrderList(
     const handleMarkAsDelivered = async () => {
         if (checked.length === 0) return;
         
+        const validOrderIds = checked.filter(orderId => {
+            const order = rows.find(row => row._id === orderId);
+            return order && order.status !== IOrderStatus.CANCELLED;
+        });
+        
+        if (validOrderIds.length === 0) return;
+        
         try {
             await ordersService.bulkUpdateOrderStatus({ 
-                orderIds: checked, 
+                orderIds: validOrderIds, 
                 status: IOrderStatus.DELIVERED 
             });
             setChecked([]);
@@ -62,9 +72,16 @@ export default function TableOrderList(
     const handleMarkAsSent = async () => {
         if (checked.length === 0) return;
         
+        const validOrderIds = checked.filter(orderId => {
+            const order = rows.find(row => row._id === orderId);
+            return order && order.status !== IOrderStatus.CANCELLED;
+        });
+        
+        if (validOrderIds.length === 0) return;
+        
         try {
             await ordersService.bulkUpdateOrderStatus({ 
-                orderIds: checked, 
+                orderIds: validOrderIds, 
                 status: IOrderStatus.SENT 
             });
             setChecked([]);
@@ -103,49 +120,47 @@ export default function TableOrderList(
 
 
 
+
+
     return (
         <Box padding={"22px 21px"} bgcolor={"#FFFFFF"} borderRadius={"12px"} >
 
-            <Grid container item xs={12} justifyContent={"space-between"} alignItems={"center"} spacing={1}>
+            <Grid container spacing={2} alignItems="center">
 
-                <Grid item xs={12} md={5} lg={5} >
-                    <Typography fontFamily={"Inter"}>Órdenes De Clientes</Typography>
+                <Grid item xs={12} md={4}>
+                    <Typography fontFamily={"Inter"} fontSize={{ xs: "16px", md: "18px" }} fontWeight={"600"}>Órdenes De Clientes</Typography>
                 </Grid>
 
-                <Grid container item display={"flex"} alignItems={"center"}  xs={12} md={12} lg={7} spacing={1}>
+                <Grid item xs={12} md={8}>
+                    <Grid container spacing={1} justifyContent={{ xs: "flex-start", md: "flex-end" }}>
+                        
+                        <Grid item xs={12} sm={6} md={4}>
+                            <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                setFilers((prev: any) => ({ ...prev, fullClient: e.target.value, page: 1 }))
+                            }} />
+                        </Grid>
 
-                    <Grid item width={"250px"} m={1}>
-                        <SearchTable onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                            setFilers((prev: any) => ({ ...prev, fullClient: e.target.value, page: 1 }))
-                        }} />
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button variant="outlined" sx={{ ...styles.btnAdd }}
-                            startIcon={<FilterDateIcon filled />}
-                        >
-                            Filtrar
-                        </Button>
-                    </Grid>
-
-                    <Grid item m={1}>
-                        <Button 
-                            variant="outlined" 
-                            sx={{ ...styles.btnAdd }}
-                            endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
-                            onClick={(e) => setAnchorEl(e.currentTarget)}
-                            disabled={checked.length === 0}
-                        >
-                            Acciones
-                        </Button>
+                        <Grid item xs={6} sm={3} md={2}>
+                            <OrdersFilterPopover 
+                                onFilterChange={(filters) => {
+                                    setFilers((prev: any) => ({ ...prev, ...filters, page: 1 }))
+                                }}
+                                currentFilters={{ paymentStatus: currentFilter?.paymentStatus, status: currentFilter?.status }}
+                            />
+                        </Grid>
+                        
+                        <Grid item xs={6} sm={3} md={2}>
+                            <Button 
+                                variant="outlined" 
+                                sx={{ ...styles.btnAdd, width: '100%' }}
+                                endIcon={<KeyboardArrowDownIcon fontSize="medium" />}
+                                onClick={(e) => setAnchorEl(e.currentTarget)}
+                                disabled={checked.length === 0}
+                            >
+                                <Box sx={{ display: { xs: "none", sm: "block" } }}>Acciones</Box>
+                            </Button>
+                        </Grid>
+                        
                     </Grid>
                 </Grid>
 
@@ -205,7 +220,7 @@ export default function TableOrderList(
                                 <TableCell >
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
-                                            Tipo de pago
+                                            Estado de Pago
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -224,6 +239,15 @@ export default function TableOrderList(
                                     <Box display={"flex"} alignItems={"center"}>
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
                                             Estado
+                                        </Typography>
+                                        <SortTableIcon filled />
+                                    </Box>
+                                </TableCell>
+
+                                <TableCell >
+                                    <Box display={"flex"} alignItems={"center"}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#2C2D33"} mr={1}>
+                                            Pagos
                                         </Typography>
                                         <SortTableIcon filled />
                                     </Box>
@@ -269,45 +293,79 @@ export default function TableOrderList(
                                             target="_blank"
                                             sx={{ textDecoration: 'none', color: '#5570F1', '&:hover': { textDecoration: 'underline' } }}
                                         >
-                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#5570F1"} fontSize={"14px"}>
+                                            <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#5570F1"} fontSize={"12px"}>
                                                 {row._id}
                                             </Typography>
                                         </Link>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
                                             {row.client.fullName}
                                         </Typography>
                                     </TableCell>
 
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
                                             {ordersService.formatAmPmLetters(row.createdDate)}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
-                                            {row.paymentType}
+                                        <Typography 
+                                            fontFamily={"Inter"} 
+                                            fontWeight={"500"} 
+                                            fontSize={"12px"}
+                                            color={
+                                                row.paymentStatus === IPaymentStatus.PAID ? "#519C66" :
+                                                row.paymentStatus === IPaymentStatus.PARTIALLY_PAID ? "#FF9800" : "#CC5F5F"
+                                            }
+                                        >
+                                            {row.paymentStatus || 'No Pagado'}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
                                             {row.articles.length}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}>
                                             {row.status}
                                         </Typography>
                                     </TableCell>
 
                                     <TableCell align="left" sx={styles.tableCellBody}>
-                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"14px"}
+                                        <Box>
+                                            <Typography 
+                                                fontFamily={"Inter"} 
+                                                fontWeight={"500"} 
+                                                fontSize={"12px"}
+                                                color={
+                                                    row.paymentStatus === IPaymentStatus.PAID ? "#519C66" :
+                                                    row.paymentStatus === IPaymentStatus.PARTIALLY_PAID ? "#FF9800" : "#CC5F5F"
+                                                }
+                                                mb={0.5}
+                                            >
+                                                {row.paymentStatus}
+                                            </Typography>
+                                            {row.payments && row.payments.length > 0 && (
+                                                <Box component="ul" sx={{ margin: 0, paddingLeft: 2, fontSize: "11px" }}>
+                                                    {row.payments.map((payment, index) => (
+                                                        <Box component="li" key={index} sx={{ color: "#8B8D97", fontSize: "10px" }}>
+                                                            {payment.method}: {baseService.dominicanNumberFormat(payment.amount)}
+                                                        </Box>
+                                                    ))}
+                                                </Box>
+                                            )}
+                                        </Box>
+                                    </TableCell>
+
+                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                        <Typography fontFamily={"Inter"} fontWeight={"400"} color={"#6E7079"} fontSize={"12px"}
                                         >
                                             {baseService.dominicanNumberFormat(row.total.total)}
                                         </Typography>
@@ -324,12 +382,22 @@ export default function TableOrderList(
                 {/* Mobile Cards */}
                 <Box sx={{ display: { xs: 'block', md: 'none' } }}>
                     {rows.map((row: IOrder) => (
-                        <Card key={row._id} sx={styles.mobileCard}>
+                        <Card key={row._id} sx={styles.mobileCard} onClick={() => onDoubleClickRow(row)}>
                             <CardContent sx={styles.mobileCardContent}>
-                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                                    <Typography variant="h6" sx={styles.mobileCardTitle}>
-                                        {row.client.fullName}
-                                    </Typography>
+                                <Box display="flex" justifyContent="space-between" alignItems="flex-start" mb={2}>
+                                    <Box flex={1}>
+                                        <Typography variant="h6" sx={styles.mobileCardTitle}>
+                                            {row.client.fullName}
+                                        </Typography>
+                                        <Link 
+                                            href={`/admin/dashboard/orders/${row._id}`}
+                                            target="_blank"
+                                            sx={{ textDecoration: 'none', color: '#5570F1', '&:hover': { textDecoration: 'underline' } }}
+                                            onClick={(e) => e.stopPropagation()}
+                                        >
+                                            <Typography sx={{ ...styles.mobileCardValue, color: "#5570F1", fontSize: "12px" }}>#{row._id}</Typography>
+                                        </Link>
+                                    </Box>
                                     <Checkbox
                                         checked={checked.some(item => row._id === item)}
                                         onClick={(e) => {
@@ -339,32 +407,55 @@ export default function TableOrderList(
                                         sx={{ '&.Mui-checked': { color: "#5570F1" } }}
                                     />
                                 </Box>
-                                <Box display="flex" justifyContent="space-between" mb={1}>
-                                    <Typography sx={styles.mobileCardLabel}>Nº:</Typography>
-                                    <Link 
-                                        href={`/admin/dashboard/orders/${row._id}`}
-                                        target="_blank"
-                                        sx={{ textDecoration: 'none', color: '#5570F1', '&:hover': { textDecoration: 'underline' } }}
-                                    >
-                                        <Typography sx={styles.mobileCardValue} color="#5570F1">{row._id}</Typography>
-                                    </Link>
-                                </Box>
+
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Fecha:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{ordersService.formatAmPmLetters(row.createdDate)}</Typography>
                                 </Box>
-                                <Box display="flex" justifyContent="space-between" mb={1}>
-                                    <Typography sx={styles.mobileCardLabel}>Tipo de pago:</Typography>
-                                    <Typography sx={styles.mobileCardValue}>{row.paymentType}</Typography>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                                    <Typography sx={styles.mobileCardLabel}>Estado de Pago:</Typography>
+                                    <Chip 
+                                        label={row.paymentStatus || 'No Pagado'}
+                                        size="small"
+                                        sx={{
+                                            backgroundColor: row.paymentStatus === IPaymentStatus.PAID ? "#E8F5E8" :
+                                                           row.paymentStatus === IPaymentStatus.PARTIALLY_PAID ? "#FFF3E0" : "#FFEBEE",
+                                            color: row.paymentStatus === IPaymentStatus.PAID ? "#519C66" :
+                                                   row.paymentStatus === IPaymentStatus.PARTIALLY_PAID ? "#FF9800" : "#CC5F5F",
+                                            fontWeight: "500",
+                                            fontSize: "11px"
+                                        }}
+                                    />
                                 </Box>
                                 <Box display="flex" justifyContent="space-between" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Artículos:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{row.articles.length}</Typography>
                                 </Box>
-                                <Box display="flex" justifyContent="space-between" mb={1}>
+                                <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
                                     <Typography sx={styles.mobileCardLabel}>Estado:</Typography>
-                                    <Typography sx={styles.mobileCardValue}>{row.status}</Typography>
+                                    <Chip 
+                                        label={row.status}
+                                        size="small"
+                                        variant="outlined"
+                                        sx={{
+                                            fontSize: "11px",
+                                            height: "24px"
+                                        }}
+                                    />
                                 </Box>
+
+                                {row.payments && row.payments.length > 0 && (
+                                    <Box mb={1}>
+                                        <Typography sx={styles.mobileCardLabel}>Pagos:</Typography>
+                                        <Box component="ul" sx={{ margin: 0, paddingLeft: 2, fontSize: "11px" }}>
+                                            {row.payments.map((payment, index) => (
+                                                <Box component="li" key={index} sx={{ color: "#8B8D97", fontSize: "10px" }}>
+                                                    {payment.method}: {baseService.dominicanNumberFormat(payment.amount)}
+                                                </Box>
+                                            ))}
+                                        </Box>
+                                    </Box>
+                                )}
                                 <Box display="flex" justifyContent="space-between">
                                     <Typography sx={styles.mobileCardLabel}>Total:</Typography>
                                     <Typography sx={styles.mobileCardValue}>{baseService.dominicanNumberFormat(row.total.total)}</Typography>
@@ -374,9 +465,9 @@ export default function TableOrderList(
                     ))}
                 </Box>
 
-                <Box display={"flex"} justifyContent={"space-between"} alignItems={"center"}>
+                <Box display={"flex"} flexDirection={{ xs: "column", sm: "row" }} justifyContent={"space-between"} alignItems={{ xs: "stretch", sm: "center" }} gap={{ xs: 2, sm: 0 }}>
 
-                    <Box display={"flex"} alignItems={"center"}>
+                    <Box display={"flex"} alignItems={"center"} justifyContent={{ xs: "center", sm: "flex-start" }}>
 
                         <Box sx={{ backgroundColor: "#5E636614" }}
                             padding="0px 11px"
@@ -416,14 +507,14 @@ export default function TableOrderList(
 
                         </Box>
 
-                        <Typography variant="h6" fontFamily={"Inter"} fontSize={"14px"} fontWeight={"400"} color={"#8B8D97"} ml={3}>
+                        <Typography variant="h6" fontFamily={"Inter"} fontSize={{ xs: "12px", sm: "14px" }} fontWeight={"400"} color={"#8B8D97"} ml={{ xs: 2, sm: 3 }}>
                             Items por página
                         </Typography>
 
 
                     </Box>
 
-                    <Box display={"flex"}>
+                    <Box display={"flex"} justifyContent={{ xs: "center", sm: "flex-end" }}>
 
                         <TablePagination
                             component="div"
@@ -435,7 +526,7 @@ export default function TableOrderList(
                                 <Typography
                                     component="span"
                                     fontFamily={"Inter"}
-                                    fontSize={"14px"}
+                                    fontSize={{ xs: "12px", sm: "14px" }}
                                     fontWeight={"400"}
                                     color={"#666666"}
                                     ml={2}
@@ -452,6 +543,11 @@ export default function TableOrderList(
                                 '& .MuiTablePagination-actions button': {
                                     color: '#8B8D97',
                                 },
+                                '& .MuiTablePagination-toolbar': {
+                                    minHeight: { xs: '40px', sm: '52px' },
+                                    paddingLeft: { xs: '8px', sm: '16px' },
+                                    paddingRight: { xs: '8px', sm: '16px' }
+                                }
                             }}
                         />
 
@@ -462,6 +558,7 @@ export default function TableOrderList(
 
             </Grid>
 
+            {/* Actions Popover */}
             <Popover
                 open={Boolean(anchorEl)}
                 anchorEl={anchorEl}
@@ -504,13 +601,13 @@ export default function TableOrderList(
 
                     {(() => {
                         const selectedOrders = rows.filter(order => checked.includes(order._id));
-                        const allCancelled = selectedOrders.every(order => order.status === IOrderStatus.CANCELLED);
+                        const nonCancelledOrders = selectedOrders.filter(order => order.status !== IOrderStatus.CANCELLED);
                         
-                        if (!allCancelled) {
+                        if (nonCancelledOrders.length > 0) {
                             return (
                                 <>
                                     {(() => {
-                                        const canMarkAsDelivered = selectedOrders.some(order => order.status !== IOrderStatus.DELIVERED);
+                                        const canMarkAsDelivered = nonCancelledOrders.some(order => order.status !== IOrderStatus.DELIVERED);
                                         
                                         if (canMarkAsDelivered) {
                                             return (
@@ -518,7 +615,7 @@ export default function TableOrderList(
                                                     onClick={handleMarkAsDelivered}
                                                 >
                                                     <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                                        Marcar como entregado ({checked.length})
+                                                        Marcar como entregado ({nonCancelledOrders.length})
                                                     </Typography>
                                                 </Box>
                                             );
@@ -527,8 +624,8 @@ export default function TableOrderList(
                                     })()}
 
                                     {(() => {
-                                        const canMarkAsSent = selectedOrders.every(order => 
-                                            [IOrderStatus.PAID, IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order.status)
+                                        const canMarkAsSent = nonCancelledOrders.some(order => 
+                                            [IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order.status)
                                         );
                                         
                                         if (canMarkAsSent) {
@@ -537,7 +634,7 @@ export default function TableOrderList(
                                                     onClick={handleMarkAsSent}
                                                 >
                                                     <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                                        Marcar como enviado ({checked.length})
+                                                        Marcar como enviado ({nonCancelledOrders.filter(order => [IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].includes(order.status)).length})
                                                     </Typography>
                                                 </Box>
                                             );
@@ -589,12 +686,13 @@ const styles = {
         }
     },
     btnAdd: {
-        fontSize: "14px",
+        fontSize: { xs: "12px", sm: "14px" },
         fontFamily: inter.style.fontFamily,
-        height: "33px",
+        height: { xs: "30px", sm: "33px" },
         textTransform: "none",
         borderRadius: "4px",
-        padding: "8px",
+        padding: { xs: "4px 8px", sm: "8px" },
+        minWidth: { xs: "auto", sm: "80px" },
         "&:hover": {
             backgroundColor: "transparent",
         },
@@ -606,28 +704,34 @@ const styles = {
         borderRadius: "12px",
         boxShadow: "0px 1px 3px rgba(0, 0, 0, 0.1)",
         cursor: "pointer",
+        border: "1px solid #F0F0F0",
         "&:hover": {
-            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)"
+            boxShadow: "0px 2px 8px rgba(0, 0, 0, 0.15)",
+            borderColor: "#5570F1"
         }
     },
     mobileCardContent: {
-        padding: "16px !important"
+        padding: "16px !important",
+        "&:last-child": {
+            paddingBottom: "16px !important"
+        }
     },
     mobileCardTitle: {
         fontFamily: inter.style.fontFamily,
         fontSize: "16px",
         fontWeight: "600",
-        color: "#2C2D33"
+        color: "#2C2D33",
+        marginBottom: "4px"
     },
     mobileCardLabel: {
         fontFamily: inter.style.fontFamily,
-        fontSize: "14px",
+        fontSize: "13px",
         fontWeight: "500",
         color: "#8B8D97"
     },
     mobileCardValue: {
         fontFamily: inter.style.fontFamily,
-        fontSize: "14px",
+        fontSize: "13px",
         fontWeight: "400",
         color: "#6E7079"
     }

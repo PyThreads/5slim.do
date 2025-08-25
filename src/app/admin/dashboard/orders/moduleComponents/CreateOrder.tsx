@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { IArticle, IArticleCart, IArticlesVariants, IClient, IOrder, IOrderStatus, IPaginationResult, IPaymentType } from "../../../../../../api/src/interfaces";
+import { IArticle, IArticleCart, IArticlesVariants, IClient, IOrder, IOrderStatus, IOrderType, IPaymentStatus, IPaginationResult } from "../../../../../../api/src/interfaces";
 import { ordersService } from "../ordersService";
 import { userService } from "../../users/userService";
 import { articleService } from "../../inventory/articleService";
@@ -37,6 +37,9 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
     const [order, setOrder] = useState<Partial<IOrder>>({
         total: { total: 0, discount: 0, subTotal: 0 },
         status: IOrderStatus.PENDING,
+        orderType: IOrderType.CASH,
+        paymentStatus: IPaymentStatus.NOT_PAID,
+        payments: [],
         articles: []
     })
 
@@ -68,6 +71,9 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
             setOrder({
                 total: { total: 0, discount: 0, subTotal: 0 },
                 status: IOrderStatus.PENDING,
+                orderType: IOrderType.CASH,
+                paymentStatus: IPaymentStatus.NOT_PAID,
+                payments: [],
                 articles: []
             })
             router.push(`/admin/dashboard/orders/${result._id}`);
@@ -153,24 +159,7 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                             />
                         </Grid>
 
-                        <Grid item xs={12} mt={2} >
 
-                            <CustomField noValidate name="paymentType" size="small" fullWidth select label="Tipo De Pago" value={order?.paymentType || ""}
-                                onChange={(e: any) => {
-                                    setOrder({ ...order, paymentType: e.target.value as IPaymentType })
-                                }}
-                            >
-                                {
-                                    Object.entries(IPaymentType).map(([key, value]) =>
-                                    (
-                                        <MenuItem key={value} value={value}>
-                                            {value}
-                                        </MenuItem>
-                                    ))
-                                }
-                            </CustomField>
-
-                        </Grid>
 
 
                         <Grid item xs={12} mt={2}>
@@ -193,9 +182,26 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                                     setOrder({ ...order, status: e.target.value })
                                 }}
                             >
-
                                 {
-                                    [IOrderStatus.PENDING, IOrderStatus.PAID, IOrderStatus.PREPARING_FOR_DELIVERY].map((value) =>
+                                    [IOrderStatus.PENDING, IOrderStatus.PREPARING_FOR_DELIVERY].map((value) =>
+                                    (
+                                        <MenuItem key={value} value={value}>
+                                            {value}
+                                        </MenuItem>
+                                    ))
+                                }
+                            </CustomField>
+                        </Grid>
+
+                        <Grid item xs={12} mt={2} >
+                            <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#53545C"} fontWeight={400} mb={"8px"}>Tipo de Orden</Typography>
+                            <CustomField noValidate name="orderType" size="small" fullWidth select value={order.orderType}
+                                onChange={(e: any) => {
+                                    setOrder({ ...order, orderType: e.target.value })
+                                }}
+                            >
+                                {
+                                    Object.entries(IOrderType).map(([key, value]) =>
                                     (
                                         <MenuItem key={value} value={value}>
                                             {value}

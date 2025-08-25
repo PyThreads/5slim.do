@@ -38,6 +38,7 @@ class AdminRouter {
         router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));
         router.put("/orders/bulk-status", this.adminController.bulkUpdateOrderStatus.bind(this.adminController));
         router.put("/orders/:orderId/comment", this.adminController.updateOrderComment.bind(this.adminController));
+        router.post("/orders/:orderId/payments", adminRoutesValidations.addPaymentValidation(), this.adminController.addPayment.bind(this.adminController));
 
         router.post("/client/register", adminRoutesValidations.clientRegister(), this.adminController.clientRegister.bind(this.adminController));
         router.put("/client/:_id", adminRoutesValidations.clientRegister(), this.adminController.updateClient.bind(this.adminController));

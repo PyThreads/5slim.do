@@ -1,7 +1,9 @@
 import { IArticleCart, IOrder } from "../../interfaces"
 import { utils } from "../../utils"
+import QRCode from "qrcode";
 
-export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string }) => {
+export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: string }) => {
+    const qrResult = order.client.address?.map?.url ? await QRCode.toDataURL(order.client.address.map.url, { errorCorrectionLevel: 'H' }) : null;
     return `
     
         <!DOCTYPE html>
@@ -120,11 +122,19 @@ export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string })
 
         <!-- Información del Cliente -->
         <div class="section-title">Información del Cliente</div>
-        <div class="cliente-info">
-            <p><strong>Nombre: </strong> ${order.client.fullName}</p>
-            <p><strong>Dirección: </strong>${order.client.address ? utils.fullAddress(order.client.address) : 'N/A'}.</p>
-            <p><strong>Teléfono: </strong>${order.client.address?.phone || order.client.phone || 'N/A'}</p>
-            <p><strong>Email: </strong>${order.client.email}</p>
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div class="cliente-info" style="flex: 1;">
+                <p><strong>Nombre: </strong> ${order.client.fullName}</p>
+                <p><strong>Dirección: </strong>${order.client.address ? utils.fullAddress(order.client.address) : 'N/A'}.</p>
+                <p><strong>Teléfono: </strong>${order.client.address?.phone || order.client.phone || 'N/A'}</p>
+                <p><strong>Email: </strong>${order.client.email}</p>
+            </div>
+            ${order.client.address?.map?.url ? `
+                <div style="text-align: center;">
+                    <p style="font-size: 10px; margin-bottom: 5px;">Waze</p>
+                    <img src="${qrResult}" alt="QR Waze" style="width: 80px; height: 80px;"/>
+                </div>
+            ` : ''}
         </div>
 
         <!-- Información del Pedido -->
@@ -133,6 +143,7 @@ export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string })
             <thead>
             <tr>
                 <th>#</th>
+                <th>Imagen</th>
                 <th>Artículo</th>
                 <th>Cantidad</th>
                 <th>Precio Unitario</th>
@@ -142,9 +153,15 @@ export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string })
             <tbody>
             
             ${order.articles.map((article: IArticleCart, index) => {
+                const imageUrl = article.variant.images?.find(img => img.primary)?.url || 
+                               article.variant.images?.[0]?.url || 
+                               article.images?.find(img => img.primary)?.url || 
+                               article.images?.[0]?.url || 
+                               '/Image.svg';
                 return `
                   <tr>
                     <td>${index + 1}</td>
+                    <td style="text-align: center;"><img src="${imageUrl}" alt="${article.description}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;"/></td>
                     <td>${article.description}</td>
                     <td>${article.variant.stock}</td>
                     <td>${utils.dominicanNumberFormat(article.variant.sellingPrice)}</td>
@@ -156,9 +173,42 @@ export const invoiceCreated = ({ order, logo }: { order: IOrder, logo: string })
             </tbody>
         </table>
 
-        <!-- Total -->
-        <div class="total">
-            Total a pagar: <strong>${utils.dominicanNumberFormat(order.total.total)}</strong>
+        <!-- Total y Pagos -->
+        <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+            <div style="width: 48%;">
+                ${order.payments && order.payments.length > 0 ? `
+                    <div class="section-title">Historial de Pagos</div>
+                    <table style="margin-top: 5px;">
+                        <thead>
+                            <tr>
+                                <th>Fecha</th>
+                                <th>Método</th>
+                                <th>Monto</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${order.payments.map(payment => `
+                                <tr>
+                                    <td>${utils.formatAmPmLetters(payment.paymentDate)}</td>
+                                    <td>${payment.method}</td>
+                                    <td>${utils.dominicanNumberFormat(payment.amount)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                ` : ''}
+            </div>
+            <div style="width: 48%; text-align: right;">
+                <div class="total">
+                    <p>Subtotal: <strong>${utils.dominicanNumberFormat(order.total.subTotal)}</strong></p>
+                    <p>Descuento: <strong>${utils.dominicanNumberFormat(order.total.discount)}</strong></p>
+                    <p style="font-size: 14px; margin-top: 10px;">Total: <strong>${utils.dominicanNumberFormat(order.total.total)}</strong></p>
+                    ${order.payments && order.payments.length > 0 ? `
+                        <p style="color: #28a745; margin-top: 5px;">Total Pagado: <strong>${utils.dominicanNumberFormat(order.payments.reduce((sum, p) => sum + p.amount, 0))}</strong></p>
+                        <p style="color: #dc3545;">Pendiente: <strong>${utils.dominicanNumberFormat(order.total.total - order.payments.reduce((sum, p) => sum + p.amount, 0))}</strong></p>
+                    ` : ''}
+                </div>
+            </div>
         </div>
 
         <!-- Footer -->

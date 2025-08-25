@@ -13,7 +13,9 @@ import SaveIcon from '@mui/icons-material/Save';
 import CustomModal from "../../../../../../../../components/modals/CustomModal";
 import TableArticleVariants from "../../TableArticleVariants";
 import CloseIcon from '@mui/icons-material/Close';
+import AddIcon from '@mui/icons-material/Add';
 import { articleService } from "../../../articleService";
+import CreateCategoryForm from "../../../../categories/moduleComponents/forms/CreateCategoryForm";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -28,6 +30,7 @@ export const CreateArticleForm = () => {
     const [variants, setVariants] = React.useState<IArticlesVariants[]>([]);
     const [_loadingVariants, setLoadingVariants] = React.useState(false);
     const [categories, setCategories] = React.useState<ICategory[]>([]);
+    const [openCategoryModal, setOpenCategoryModal] = React.useState(false);
 
     const loadVariants = async () => {
         if (!values._id) return;
@@ -71,17 +74,23 @@ export const CreateArticleForm = () => {
                     <Box display={"flex"}>
 
                         <Button variant="contained" type="button" sx={{ ...style.addButton }}
-                            startIcon={<BackupTableIcon />}
                             onClick={handleOpenVariantsModal}
                             disabled={!values._id}
                         >
-                            Variantes
+                            <BackupTableIcon sx={{ display: { xs: 'block', sm: 'none' } }} />
+                            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
+                                <BackupTableIcon />
+                                Variantes
+                            </Box>
                         </Button>
 
                         <Button variant="contained" type="submit" sx={{ ...style.addButton, ml: 1 }}
-                            startIcon={<SaveIcon />}
                         >
-                            Guardar y Publicar
+                            <SaveIcon sx={{ display: { xs: 'block', sm: 'none' } }} />
+                            <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center', gap: 1 }}>
+                                <SaveIcon />
+                                Guardar y Publicar
+                            </Box>
                         </Button>
                     </Box>
 
@@ -98,18 +107,41 @@ export const CreateArticleForm = () => {
                                         <CustomField name="description" label="Descripción" placeholder="Nombre del articulo" fullWidth value={values.description} />
                                     </Grid>
 
-                                    <Grid item xs={12} >
-                                        <MultipleSelectChip name="categories" label="Categorías" fullWidth
-                                            items={categories}
-                                            getLabel={(item: ICategory) => item?.description}
-                                            selected={values?.categories.map((category: ICategory) => category?._id)}
-                                            setSelected={(selected: number[]) => {
-                                                const lists = selected.map((itemSelected: number) => {
-                                                    return categories.find((category: ICategory) => category._id === itemSelected)
-                                                }).filter(Boolean)
-                                                setFieldValue("categories", lists)
-                                            }}
-                                        />
+                                    <Grid item xs={12}>
+                                        <Box display="flex"  gap={1} alignItems={"center"}>
+                                            <Box flex={1}>
+                                                <MultipleSelectChip name="categories" label="Categorías" fullWidth
+                                                    items={categories}
+                                                    getLabel={(item: ICategory) => item?.description}
+                                                    selected={values?.categories.map((category: ICategory) => category?._id)}
+                                                    setSelected={(selected: number[]) => {
+                                                        const lists = selected.map((itemSelected: number) => {
+                                                            return categories.find((category: ICategory) => category._id === itemSelected)
+                                                        }).filter(Boolean)
+                                                        setFieldValue("categories", lists)
+                                                    }}
+                                                />
+                                            </Box>
+                                            <Button
+                                                variant="outlined"
+                                                size="small"
+                                                onClick={() => setOpenCategoryModal(true)}
+                                                sx={{
+                                                    minWidth: 'auto',
+                                                    width: 40,
+                                                    height: 40,
+                                                    borderRadius: '8px',
+                                                    borderColor: '#5570F1',
+                                                    color: '#5570F1',
+                                                    '&:hover': {
+                                                        borderColor: '#5570F1',
+                                                        backgroundColor: 'rgba(85, 112, 241, 0.04)'
+                                                    }
+                                                }}
+                                            >
+                                                <AddIcon fontSize="small" />
+                                            </Button>
+                                        </Box>
                                     </Grid>
 
                                     <Grid item xs={12} >
@@ -231,9 +263,12 @@ export const CreateArticleForm = () => {
                                     <Grid item xs={12} mt={2} >
                                         <Grid container item xs={12} spacing={2} >
                                             <Grid item xs={6} >
-                                                <CustomField select name="advertisement.type" label="Publicidad tipo" placeholder="Publicidad tipo" fullWidth value={values?.advertisement?.type}
+                                                <CustomField select name="advertisement.type" label="Publicidad tipo" placeholder="Publicidad tipo" fullWidth value={values?.advertisement?.type || ""} noValidate
 
                                                 >
+                                                    <MenuItem value="">
+                                                        <em>Ninguno</em>
+                                                    </MenuItem>
                                                     {Object.entries(IDiscountType).map((option) => (
                                                         <MenuItem key={option[1]} value={option[1]}>
                                                             {option[1]}
@@ -243,7 +278,7 @@ export const CreateArticleForm = () => {
                                             </Grid>
 
                                             <Grid item xs={6} >
-                                                <CustomField name="advertisement.value" label="Valor de Publicidad" placeholder="Valor de la publicidad" fullWidth value={values?.advertisement?.value} />
+                                                <CustomField name="advertisement.value" label="Valor de Publicidad" placeholder="Valor de la publicidad" fullWidth value={values?.advertisement?.value || ""} noValidate />
                                             </Grid>
                                         </Grid>
                                     </Grid>
@@ -324,6 +359,15 @@ export const CreateArticleForm = () => {
                     </Grid>
 
                 </Grid>
+            </CustomModal>
+
+            <CustomModal open={openCategoryModal} borderRadius={"16px"}>
+                <CreateCategoryForm 
+                    onClose={() => {
+                        setOpenCategoryModal(false);
+                        loadCategories(); // Reload categories after creating a new one
+                    }} 
+                />
             </CustomModal>
         </React.Fragment>
     );

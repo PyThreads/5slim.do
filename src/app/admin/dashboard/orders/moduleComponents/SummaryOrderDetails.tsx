@@ -120,16 +120,33 @@ export default function SummaryOrderDetails({ order }: { order: IOrder }) {
 
                         <Grid item container spacing={1} mt={"32px"}>
 
-                            <Grid item xs={12}>
-                                <Box padding={0} margin={0}>
-                                    <Typography fontFamily={"Inter"} color={"#8B8D97"} fontSize={"12px"} fontWeight={300} >Tipo de Pago</Typography>
-                                    <Box >
-                                        <Grid item container alignItems={"center"} >
-                                            <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >{order.paymentType}</Typography>
-                                        </Grid>
+                            {order.payments && order.payments.length > 0 ? (
+                                <Grid item xs={12}>
+                                    <Box padding={0} margin={0}>
+                                        <Typography fontFamily={"Inter"} color={"#8B8D97"} fontSize={"12px"} fontWeight={300} >Métodos Usados</Typography>
+                                        <Box >
+                                            <Grid item container alignItems={"center"} >
+                                                <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >
+                                                    {[...new Set(order.payments.map(p => p.method))].join(', ')}
+                                                </Typography>
+                                            </Grid>
+                                        </Box>
                                     </Box>
-                                </Box>
-                            </Grid>
+                                </Grid>
+                            ) : (
+                                <Grid item xs={12}>
+                                    <Box padding={0} margin={0}>
+                                        <Typography fontFamily={"Inter"} color={"#8B8D97"} fontSize={"12px"} fontWeight={300} >Estado</Typography>
+                                        <Box >
+                                            <Grid item container alignItems={"center"} >
+                                                <Typography fontFamily={"Inter"} color={"#dc3545"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >
+                                                    Sin pagos registrados
+                                                </Typography>
+                                            </Grid>
+                                        </Box>
+                                    </Box>
+                                </Grid>
+                            )}
 
 
                         </Grid>

@@ -91,6 +91,29 @@ class Admin {
         }
     }
 
+    async addPayment(req: Request, res: Response) {
+        try {
+            const admin: IAdmin = res.locals.admin;
+            const orderId = Number(req.params.orderId);
+            const payment = req.body;
+
+            const result = await this.orderService.addPayment({ orderId, payment, user: admin });
+
+            return res.status(200).json({
+                success: true,
+                data: result,
+                message: "Pago registrado exitosamente."
+            });
+
+        } catch (error: any) {
+            return res.status(512).json({
+                success: false,
+                data: null,
+                message: error.message || "Error al registrar el pago."
+            });
+        }
+    }
+
     async articlesSummary (req: Request, res: Response) {
         try {
             const admin: IAdmin = res.locals.admin;

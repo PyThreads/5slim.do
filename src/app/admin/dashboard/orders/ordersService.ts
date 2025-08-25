@@ -1,5 +1,5 @@
 import { BaseService } from "../../../utils/baseService";
-import { CancelOrderType, IArticleCart, ICartTotals, IOrder, IOrderStatus, IOrdersSummary, IPaginationResult, IPaymentType } from "../../../../../api/src/interfaces";
+import { CancelOrderType, IArticleCart, ICartTotals, IOrder, IOrderStatus, IOrdersSummary, IPaginationResult } from "../../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 import adminAxios from "../../../../../context/adminAxiosInstance";
 
@@ -135,9 +135,7 @@ class OrdersService extends BaseService {
             throw new Error("La orden debe tener un cliente.")
         }
 
-        if (!order.paymentType) {
-            throw new Error("La orden debe tener un tipo de pago.")
-        }
+
 
         if (!order.articles || order?.articles?.length === 0) {
             throw new Error("La orden debe tener al menos un artículo.")
@@ -188,6 +186,18 @@ class OrdersService extends BaseService {
             return data.data as IOrder
         } catch (error: any) {
             const message = error?.response?.data?.message || error?.message || "Error al actualizar comentario"
+            eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
+            throw error
+        }
+    }
+
+    async addPayment({ orderId, payment }: { orderId: number, payment: any }): Promise<IOrder> {
+        try {
+            const { data } = await this.axiosAdmin.post(`/admin/private/orders/${orderId}/payments`, payment);
+            eventBus.emit("notify", { message: "Pago registrado exitosamente", open: true, type: "success", title: "Éxito!" })
+            return data.data as IOrder
+        } catch (error: any) {
+            const message = error?.response?.data?.message || error?.message || "Error al registrar pago"
             eventBus.emit("notify", { message, open: true, type: "error", title: "Error!" })
             throw error
         }

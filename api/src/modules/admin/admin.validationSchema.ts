@@ -19,8 +19,9 @@ const creatOrderValidation = () => {
         body("client.email").isEmail().withMessage("Por favor incluir el correo del cliente en la orden."),
         body("client.phone").isString().withMessage("Por favor incluir el teléfono del cliente en la orden."),
         body("client.address").optional().isObject().withMessage("La dirección del cliente debe ser un objeto válido."),
-        body("paymentType").matches(/^Efectivo|Tarjeta|Transferencia$/).withMessage("Por favor incluir un tipo de pago en la orden."),
-        body("status").matches(/^Pendiente|Entregado|Cancelada|Pagado|Preparando para entrega$/).withMessage("Por favor enviar un estado de la orden válido."),
+        body("orderType").matches(/^Contado|Crédito$/).withMessage("Por favor incluir un tipo de orden válido (Contado o Crédito)."),
+        body("paymentType").optional().matches(/^Efectivo|Tarjeta|Transferencia$/).withMessage("Tipo de pago debe ser Efectivo, Tarjeta o Transferencia."),
+        body("status").matches(/^Pendiente|Entregado|Cancelada|Preparando para entrega|Enviado$/).withMessage("Por favor enviar un estado de la orden válido."),
         body("comment").optional().isString().withMessage("Por favor incluir un comentario en la orden."),
         validation
     ]
@@ -218,6 +219,18 @@ const getAllCategoriesValidation = () => {
     ]
 }
 
+const addPaymentValidation = () => {
+    return [
+        param("orderId").isInt().toInt().withMessage("El ID de la orden es requerido."),
+        body("amount").isFloat({ min: 0.01 }).withMessage("El monto debe ser mayor a 0."),
+        body("method").matches(/^Efectivo|Tarjeta|Transferencia$/).withMessage("El método de pago debe ser Efectivo, Tarjeta o Transferencia."),
+        body("paymentDate").isISO8601().withMessage("La fecha de pago debe ser válida."),
+        body("reference").optional().isString().withMessage("La referencia debe ser texto."),
+        body("notes").optional().isString().withMessage("Las notas deben ser texto."),
+        validation
+    ]
+}
+
 export const adminRoutesValidations = {
     validateLogin,
     validateOrdersDetails,
@@ -233,5 +246,6 @@ export const adminRoutesValidations = {
     summaryOrders,
     createCategoryValidation,
     updateCategoryValidation,
-    getAllCategoriesValidation
+    getAllCategoriesValidation,
+    addPaymentValidation
 }

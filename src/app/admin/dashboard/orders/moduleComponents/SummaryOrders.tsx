@@ -29,6 +29,7 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
         delivered: 0,
         cancelled: 0,
         paid: 0,
+        partiallyPaid: 0,
         preparingForDelivery: 0,
         earnings: 0,
         totalSold: 0
@@ -156,6 +157,17 @@ export default function SummaryOrders({reloadSummary}:{reloadSummary:boolean}) {
                                                 <Box sx={{ cursor: "pointer" }}>
                                                     <Grid item container alignItems={"center"} >
                                                         <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >{ordersService.decimalNumber(orderSummary.paid)}</Typography>
+                                                    </Grid>
+                                                </Box>
+                                            </Box>
+                                        </Grid>
+
+                                        <Grid item xs={12} sm={12} >
+                                            <Box padding={0} margin={0}>
+                                                <Typography fontFamily={"Inter"} color={"#BEC0CA"} sx={{ fontSize: { xs: "12px", sm: "10px", md: "12px", lg: "14px" } }} fontWeight={500} noWrap>Pagos Incompletos</Typography>
+                                                <Box sx={{ cursor: "pointer" }}>
+                                                    <Grid item container alignItems={"center"} >
+                                                        <Typography fontFamily={"Inter"} color={"#45464E"} sx={{ xs: "17px", md: "20px" }} fontWeight={500} >{ordersService.decimalNumber(orderSummary.partiallyPaid)}</Typography>
                                                     </Grid>
                                                 </Box>
                                             </Box>

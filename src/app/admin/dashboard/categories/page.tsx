@@ -56,21 +56,13 @@ export default function AdminCategories() {
     return (
         <React.Fragment>
             <Grid>
-                <Grid container justifyContent={"space-between"} alignItems={{ xs: "flex-start", sm: "center" }} spacing={{ xs: 2, sm: 0 }}>
+                <Grid container justifyContent={"flex-start"} alignItems={{ xs: "flex-start", sm: "center" }} spacing={{ xs: 2, sm: 0 }}>
                     <Grid item xs={12} sm="auto">
                         <Typography fontFamily={"Inter"} color={"#45464E"}
                             sx={{ fontSize: { xs: "20px", sm: "24px" }, fontWeight: 600 }}
                         >
                             Categorías
                         </Typography>
-                    </Grid>
-
-                    <Grid item xs={12} sm="auto">
-                        <Button variant="contained" sx={{ ...style.accionButton }}
-                            onClick={() => setOpenModal(true)}
-                        >
-                            Agregar Nueva Categoría
-                        </Button>
                     </Grid>
                 </Grid>
 

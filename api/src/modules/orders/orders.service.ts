@@ -1,4 +1,4 @@
-import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IOrdersSummary, IPaginateOrders, IPaginationResult } from "../../interfaces";
+import { COLLNAMES, CancelOrderType, IAdmin, IArticleCart, ICartTotals, IClient, IOrder, IOrderStatus, IOrdersSummary, IPaginateOrders, IPaginationResult, IOrderType, IPaymentStatus, IOrderPayment } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
@@ -131,6 +131,24 @@ export class OrderService extends BaseService {
                                     totalSold: 1
                                 }
                             }
+                        ],
+                        paymentStatus: [
+                            {
+                                $match: filter
+                            },
+                            {
+                                $group: {
+                                    _id: "$paymentStatus",
+                                    count: { $sum: 1 }
+                                }
+                            },
+                            {
+                                $project: {
+                                    _id: 0,
+                                    paymentStatus: "$_id",
+                                    count: 1
+                                }
+                            }
                         ]
                     }
                 }
@@ -142,6 +160,7 @@ export class OrderService extends BaseService {
                 delivered: 0,
                 cancelled: 0,
                 paid: 0,
+                partiallyPaid: 0,
                 preparingForDelivery: 0,
                 earnings: 0,
                 totalSold: 0
@@ -156,7 +175,8 @@ export class OrderService extends BaseService {
                 baseResult.cancelled = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.CANCELLED)?.count || 0 : 0;
                 baseResult.delivered = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.DELIVERED)?.count || 0 : 0;
                 baseResult.preparingForDelivery = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PREPARING_FOR_DELIVERY)?.count || 0 : 0;
-                baseResult.paid = resulted.total.length > 0 ? resulted.total.find((item: any) => item.status === IOrderStatus.PAID)?.count || 0 : 0;
+                baseResult.paid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === 'Pagado')?.count || 0 : 0;
+                baseResult.partiallyPaid = resulted.paymentStatus.length > 0 ? resulted.paymentStatus.find((item: any) => item.paymentStatus === 'Pagado Parcialmente')?.count || 0 : 0;
                 baseResult.earnings = resulted.earnings.length > 0 ? resulted.earnings[0]?.totalEarnings || 0 : 0
                 baseResult.totalSold = resulted.totalSold.length > 0 ? resulted.totalSold[0]?.totalSold || 0 : 0
             }
@@ -196,7 +216,7 @@ export class OrderService extends BaseService {
             // Obtener el logo del owner
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
-            const html = invoiceCreated({ order, logo });
+            const html = await invoiceCreated({ order, logo });
             return await generarFacturaPDF({ html });
         } catch (error: any) {
             throw error;
@@ -222,6 +242,28 @@ export class OrderService extends BaseService {
             await this.articleService.unsetToOrder({ articles: body.articles, ownerId: user.ownerId });
 
             body.total = this.getTotalOrder(body.articles);
+
+            // Set default values for new payment system
+            if (!body.orderType) {
+                body.orderType = body.paymentType ? IOrderType.CASH : IOrderType.CREDIT;
+            }
+            
+            if (body.orderType === IOrderType.CASH) {
+                // Órdenes de contado se consideran pagadas al momento de creación
+                body.paymentStatus = IPaymentStatus.PAID;
+                body.payments = [{
+                    paymentDate: new Date(),
+                    amount: body.total.total,
+                    method: body.paymentType === 'Efectivo' ? 'Efectivo' : 
+                           body.paymentType === 'Tarjeta' ? 'Tarjeta' : 'Transferencia',
+                    reference: null,
+                    notes: 'Pago registrado al crear la orden',
+                    createdBy: { _id: user._id, fullName: user.fullName }
+                }];
+            } else {
+                body.paymentStatus = IPaymentStatus.NOT_PAID;
+                body.payments = [];
+            }
 
             const result = await this.insertOne({ body, user });
             return result as unknown as IOrder;
@@ -260,6 +302,10 @@ export class OrderService extends BaseService {
                 match["status"] = query.status;
             }
 
+            if (query.paymentStatus) {
+                match["paymentStatus"] = query.paymentStatus;
+            }
+
             if (query._id) {
                 match["_id"] = query._id;
             }
@@ -292,6 +338,45 @@ export class OrderService extends BaseService {
         try {
             const filter = { _id: orderId, ownerId: user.ownerId };
             const body = { comment };
+            const result = await this.updateOne({ filter, body, user });
+            return result;
+        } catch (error: any) {
+            throw error;
+        }
+    }
+
+    async addPayment({ orderId, payment, user }: { orderId: number, payment: Omit<IOrderPayment, 'createdBy'>, user: IAdmin }): Promise<IOrder> {
+        try {
+            const order = await this.collection.findOne({ _id: orderId, ownerId: user.ownerId });
+            if (!order) {
+                throw new Error("Orden no encontrada");
+            }
+
+            const newPayment: IOrderPayment = {
+                ...payment,
+                paymentDate: this.utils.newDate(),
+                createdBy: { _id: user._id, fullName: user.fullName }
+            };
+
+            const updatedPayments = [...(order.payments || []), newPayment];
+            const totalPaid = updatedPayments.reduce((sum, p) => sum + p.amount, 0);
+            const orderTotal = order.total.total;
+
+            let paymentStatus: IPaymentStatus;
+            if (totalPaid >= orderTotal) {
+                paymentStatus = IPaymentStatus.PAID;
+            } else if (totalPaid > 0) {
+                paymentStatus = IPaymentStatus.PARTIALLY_PAID;
+            } else {
+                paymentStatus = IPaymentStatus.NOT_PAID;
+            }
+
+            const filter = { _id: orderId, ownerId: user.ownerId };
+            const body = { 
+                payments: updatedPayments,
+                paymentStatus
+            };
+            
             const result = await this.updateOne({ filter, body, user });
             return result;
         } catch (error: any) {

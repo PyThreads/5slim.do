@@ -7,9 +7,24 @@ export class ArticlesIndex {
 
     constructor({ mongoDatabase, tableName }: { mongoDatabase: Db, tableName: COLLNAMES }) {
         this.mongoDatabase = mongoDatabase;
-        this.mongoDatabase.collection(tableName).createIndex({ slug: 1 }, { unique: true, name: "slug" });
-        this.mongoDatabase.collection(tableName).createIndex({ description: 1 }, { unique: false, name: "description" });
-        this.mongoDatabase.collection(tableName).createIndex({ categories: 1 }, {  name: "categories" });
-        this.mongoDatabase.collection(tableName).createIndex({ "variant._id": 1,"_id": 1 }, { unique: false, name: "variant_id_filter" });
+        
+        // Create indexes with error handling
+        this.createIndexSafely(tableName, { ownerId: 1, description: 1 }, "articles_owner_description");
+        this.createIndexSafely(tableName, { ownerId: 1, published: 1 }, "articles_owner_published");
+        this.createIndexSafely(tableName, { ownerId: 1, categories: 1 }, "articles_owner_categories");
+        this.createIndexSafely(tableName, { ownerId: 1, _id: 1 }, "articles_owner_id");
+        this.createIndexSafely(tableName, { ownerId: 1, slug: 1 }, "articles_owner_slug");
+        this.createIndexSafely(tableName, { published: 1 }, "articles_published");
+        this.createIndexSafely(tableName, { "variants._id": 1, "_id": 1 }, "articles_variant_id_filter");
+    }
+
+    private async createIndexSafely(tableName: string, indexSpec: any, indexName: string) {
+        try {
+            await this.mongoDatabase.collection(tableName).createIndex(indexSpec, { name: indexName });
+        } catch (error: any) {
+            if (error.code !== 85) { // Only ignore IndexOptionsConflict errors
+                console.error(`Error creating index ${indexName}:`, error.message);
+            }
+        }
     }
 }

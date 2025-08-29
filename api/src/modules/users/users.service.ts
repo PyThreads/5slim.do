@@ -29,7 +29,7 @@ class UsersService extends BaseService {
     async register({ body, user }: { body: IClient, user: IClient | IAdmin }): Promise<IClient> {
         try {
 
-            if (body.email) {
+            if (body.email && body.email.trim() !== '') {
                 const exists = await this.collection.countDocuments({ email: { $regex: this.diacriticSensitive(body.email), $options: "i" }, ownerId: user.ownerId });
 
                 if (exists) {
@@ -37,7 +37,7 @@ class UsersService extends BaseService {
                 }
             }
 
-            body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
+            body.fullClient = `${body.fullName} ${body.email || ''} ${body.phone}`.trim();
 
             await this.insertOne({ body, user });
             return body
@@ -50,7 +50,7 @@ class UsersService extends BaseService {
     async updateClient({ _id, user, body }: { _id: number, body: IClient, user: IClient | IAdmin }) {
         try {
 
-            body.fullClient = `${body.fullName} ${body.email} ${body.phone}`.trim();
+            body.fullClient = `${body.fullName} ${body.email || ''} ${body.phone}`.trim();
             const filter = { _id, ownerId: user.ownerId }
             await this.updateOne({ filter, body, user });
             return body

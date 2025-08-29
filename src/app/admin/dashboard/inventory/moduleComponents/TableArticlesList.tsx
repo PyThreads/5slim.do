@@ -207,7 +207,7 @@ export default function TableArticlesList(
                                     </TableCell>
 
 
-                                    <TableCell align="left" sx={styles.tableCellBody}>
+                                    <TableCell align="left" sx={{ ...styles.tableCellBody, verticalAlign: 'middle', height: 'auto', minHeight: '48px' }}>
                                         <Link href={`/admin/dashboard/inventory/newArticle/${row._id}`} target="_blank" style={{ textDecoration: 'none' }}>
                                             <Typography 
                                                 fontFamily={"Inter"} 
@@ -220,10 +220,10 @@ export default function TableArticlesList(
                                                     '&:hover': {
                                                         textDecoration: 'underline'
                                                     },
-                                                    overflow: 'hidden',
-                                                    textOverflow: 'ellipsis',
-                                                    whiteSpace: 'nowrap',
-                                                    maxWidth: '150px'
+                                                    wordWrap: 'break-word',
+                                                    whiteSpace: 'normal',
+                                                    width: '100%',
+                                                    lineHeight: 1.2
                                                 }}
                                             >
                                                 {row.description}

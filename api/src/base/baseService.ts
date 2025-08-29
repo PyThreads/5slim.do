@@ -215,7 +215,7 @@ class BaseService {
 
     async verifyTokenAdmin(req: Request, res: Response, next: NextFunction) {
         try {
-            const token = req.headers.authorization?.split(' ')[1];
+            const token = req.headers.authorization?.split(' ')[1] || req.query.token as string;
 
             if (!token) {
                 throw new Error("El usuario no se ha autenticado de forma correcta.");

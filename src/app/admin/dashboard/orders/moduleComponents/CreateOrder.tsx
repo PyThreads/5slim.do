@@ -48,7 +48,8 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
         orderType: IOrderType.CASH,
         paymentStatus: IPaymentStatus.NOT_PAID,
         payments: [],
-        articles: []
+        articles: [],
+        shipment: 0
     })
 
     const totals = ordersService.getTotalOrder(order.articles as IArticleCart[])
@@ -87,7 +88,8 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                 orderType: IOrderType.CASH,
                 paymentStatus: IPaymentStatus.NOT_PAID,
                 payments: [],
-                articles: []
+                articles: [],
+                shipment: 0
             })
             router.push(`/admin/dashboard/orders/${result._id}`);
         } catch (error: any) {
@@ -240,6 +242,16 @@ export default function CreateOrder({ setOpenModal }: { setOpenModal: Function }
                             <CustomField noValidate name="comment" size="small" fullWidth value={order.comment} placeholder="Nota" multiline rows={3}
                                 onChange={(e: any) => {
                                     setOrder({ ...order, comment: e.target.value })
+                                }}
+                            />
+                        </Grid>
+
+                        <Grid item xs={12} mt={2}>
+                            <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#53545C"} fontWeight={400} mb={"8px"}>Envío</Typography>
+                            <CustomField noValidate name="shipment" size="small" fullWidth type="number" value={order.shipment || 0}
+                                onChange={(e: any) => {
+                                    const value = parseFloat(e.target.value) || 0;
+                                    setOrder({ ...order, shipment: value })
                                 }}
                             />
                         </Grid>

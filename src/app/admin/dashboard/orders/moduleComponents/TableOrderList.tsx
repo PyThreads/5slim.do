@@ -118,6 +118,19 @@ export default function TableOrderList(
         }
     };
 
+    const handlePrint4x3 = async () => {
+        if (checked.length === 0) return;
+        
+        try {
+            for (const orderId of checked) {
+                await ordersService.printOrder4x3(orderId);
+            }
+            setAnchorEl(null);
+        } catch (error) {
+            // Error is handled in the service
+        }
+    };
+
 
 
 
@@ -581,6 +594,16 @@ export default function TableOrderList(
                 }}
             >
                 <Box p={1}>
+                    {checked.length > 0 && (
+                        <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
+                            <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={600} color={"#45464E"}>
+                                Total envío: {baseService.dominicanNumberFormat(
+                                    rows.filter(order => checked.includes(order._id))
+                                        .reduce((sum, order) => sum + (order.shipment || 0), 0)
+                                )}
+                            </Typography>
+                        </Box>
+                    )}
                     <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
                         onClick={handlePrintOrders}
                     >
@@ -597,6 +620,15 @@ export default function TableOrderList(
                             Imprimir labels ({checked.length})
                         </Typography>
                         <LabelIcon fontSize="small" />
+                    </Box>
+
+                    <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
+                        onClick={handlePrint4x3}
+                    >
+                        <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
+                            Imprimir 4x3 ({checked.length})
+                        </Typography>
+                        <LocalPrintshopIcon fontSize="small" />
                     </Box>
 
                     {(() => {

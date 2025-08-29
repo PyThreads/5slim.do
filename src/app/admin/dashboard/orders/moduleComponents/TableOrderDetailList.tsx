@@ -100,7 +100,17 @@ export default function TableOrderDetailList(
                                 >
                                     <TableCell align="left" sx={styles.tableCellBody}>
                                         <Box display={"flex"} alignItems={"center"}>
-                                            <Box height={49} width={49} minWidth={49} borderRadius={"8px"} border={"1px solid #00000007"} boxShadow={"0px 0px 4px #F1F3F9"} position={"relative"} >
+                                            <Box 
+                                                height={49} 
+                                                width={49} 
+                                                minWidth={49} 
+                                                borderRadius={"8px"} 
+                                                border={"1px solid #00000007"} 
+                                                boxShadow={"0px 0px 4px #F1F3F9"} 
+                                                position={"relative"}
+                                                sx={{ cursor: "pointer" }}
+                                                onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                            >
                                                 <Image
                                                     src={row.variant.images.find(item => item.primary)?.url! || row.images.find(item => item.primary)?.url!}
                                                     fill
@@ -111,14 +121,17 @@ export default function TableOrderDetailList(
                                             </Box>
 
 
-                                            <Box ml={1}>
+                                            <Box 
+                                                ml={1}
+                                                sx={{ cursor: "pointer" }}
+                                                onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                            >
                                                 <Typography 
                                                     fontFamily={"Inter"} 
-                                                    fontWeight={"400"} 
-                                                    color={"#6E7079"} 
+                                                    fontWeight={"500"} 
+                                                    color={"#5570F1"} 
                                                     fontSize={"12px"}
-                                                    sx={{ cursor: "pointer", "&:hover": { color: "#5570F1", textDecoration: "underline" } }}
-                                                    onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                                    sx={{ "&:hover": { textDecoration: "underline" } }}
                                                 >
                                                     {row.description}
                                                 </Typography>
@@ -235,7 +248,18 @@ export default function TableOrderDetailList(
                         <Card key={`mobile-${row.variant._id}-${index}`} sx={styles.mobileCard}>
                             <CardContent sx={styles.mobileCardContent}>
                                 <Box display="flex" alignItems="center" mb={2}>
-                                    <Box height={49} width={49} minWidth={49} borderRadius="8px" border="1px solid #00000007" boxShadow="0px 0px 4px #F1F3F9" position="relative" mr={2}>
+                                    <Box 
+                                        height={49} 
+                                        width={49} 
+                                        minWidth={49} 
+                                        borderRadius="8px" 
+                                        border="1px solid #00000007" 
+                                        boxShadow="0px 0px 4px #F1F3F9" 
+                                        position="relative" 
+                                        mr={2}
+                                        sx={{ cursor: "pointer" }}
+                                        onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                    >
                                         <Image
                                             src={row.variant.images.find(item => item.primary)?.url! || row.images.find(item => item.primary)?.url!}
                                             fill
@@ -244,14 +268,17 @@ export default function TableOrderDetailList(
                                             style={{ borderRadius: "8px" }}
                                         />
                                     </Box>
-                                    <Box flex={1}>
+                                    <Box 
+                                        flex={1}
+                                        sx={{ cursor: "pointer" }}
+                                        onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
+                                    >
                                         <Typography 
                                             sx={{
                                                 ...styles.mobileCardTitle,
-                                                cursor: "pointer",
-                                                "&:hover": { color: "#5570F1", textDecoration: "underline" }
+                                                color: "#5570F1",
+                                                "&:hover": { textDecoration: "underline" }
                                             }}
-                                            onClick={() => window.open(`/admin/dashboard/inventory/newArticle/${row._id}`, '_blank')}
                                         >
                                             {row.description}
                                         </Typography>

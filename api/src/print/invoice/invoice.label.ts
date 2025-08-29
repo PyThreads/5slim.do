@@ -199,7 +199,7 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
         
         .icon-location { background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>') no-repeat center; background-size: contain; }
         
-        .icon-payment { background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="%23333"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>') no-repeat center; background-size: contain; }
+
     </style>
 </head>
 <body style="position:relative">
@@ -237,11 +237,7 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
                     <span class="info-label">Dirección:</span>
                     <span class="info-value">${order.client.address ? utils.fullAddress(order.client.address) : 'N/A'}</span>
                 </div>
-                <div class="info-row">
-                    <span class="icon icon-payment"></span>
-                    <span class="info-label">Pago:</span>
-                    <span class="info-value">${order.paymentType}${order.paymentType === 'Efectivo' ? ` <strong>${utils.dominicanNumberFormat(order.total.total)}</strong>` : ''}</span>
-                </div>
+
             </div>
             
             <div class="location-section">
@@ -272,6 +268,13 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
             </div>
         </div>
     </div>
+    <script>
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500);
+        };
+    </script>
 </body>
 </html>
     

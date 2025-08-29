@@ -44,26 +44,20 @@ class OrdersService extends BaseService {
         }
     }
 
-    private downloadPDF(data: any, filename: string, errorMessage: string): void {
-        const base64Data = typeof data === 'object' && data.base64 ? data.base64 : data;
-        if (!base64Data || typeof base64Data !== 'string') throw new Error('Datos de PDF inválidos');
-        
-        const blob = new Blob([new Uint8Array(atob(base64Data).split('').map(c => c.charCodeAt(0)))], { type: 'application/pdf' });
-        const link = Object.assign(document.createElement('a'), {
-            href: URL.createObjectURL(blob),
-            download: filename
-        });
-        
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-        URL.revokeObjectURL(link.href);
+    private openPrintWindow(url: string): void {
+        const token = localStorage.getItem('TKN-5SL-M0');
+        if (!token) {
+            eventBus.emit("notify", { message: "No se encontró token de autenticación", open: true, type: "error", title: "Error!" });
+            return;
+        }
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
+        const fullUrl = `${apiUrl}${url}?token=${encodeURIComponent(token)}`;
+        window.open(fullUrl, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes');
     }
 
     async printOrder(_id: number): Promise<void> {
         try {
-            const { data: { data } } = await adminAxios.get(`/admin/private/orders/print/${_id}`);
-            this.downloadPDF(data, `Factura-${_id}.pdf`, "Ha ocurrido un error al imprimir la orden.");
+            this.openPrintWindow(`/admin/orders/print/${_id}`);
         } catch (error: any) {
             eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la orden.", open: true, type: "error", title: "Upss!" });
         }
@@ -71,10 +65,17 @@ class OrdersService extends BaseService {
 
     async printOrderLabel(_id: number): Promise<void> {
         try {
-            const { data: { data } } = await adminAxios.get(`/admin/private/orders/print-label/${_id}`);
-            this.downloadPDF(data, `Label-${_id}.pdf`, "Ha ocurrido un error al imprimir la etiqueta.");
+            this.openPrintWindow(`/admin/orders/print-label/${_id}`);
         } catch (error: any) {
             eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la etiqueta.", open: true, type: "error", title: "Upss!" });
+        }
+    }
+
+    async printOrder4x3(_id: number): Promise<void> {
+        try {
+            this.openPrintWindow(`/admin/orders/print-4x3/${_id}`);
+        } catch (error: any) {
+            eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la factura 4x3.", open: true, type: "error", title: "Upss!" });
         }
     }
 

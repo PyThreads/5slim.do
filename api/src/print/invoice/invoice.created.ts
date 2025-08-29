@@ -2,7 +2,7 @@ import { IArticleCart, IOrder, IOrderDiscountType } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
-export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: string }) => {
+export const invoiceCreated = async ({ order, logo, businessName }: { order: IOrder, logo: string, businessName?: string }) => {
     const qrResult = order.client.address?.map?.url ? await QRCode.toDataURL(order.client.address.map.url, { errorCorrectionLevel: 'H' }) : null;
     return `
     
@@ -111,7 +111,10 @@ export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: str
 
         <!-- Encabezado -->
         <div class="header">
-            <img class="logo" src="${logo}" alt="Logo" />
+            <div style="display: flex; flex-direction: column; align-items: flex-start;">
+                <img class="logo" src="${logo}" alt="Logo" />
+                ${businessName ? `<p style="font-size: 14px; font-weight: bold; margin-top: 5px; color: #333;">${businessName}</p>` : ''}
+            </div>
             <div class="info">
             <h1>FACTURA</h1>
             <p>Número: <strong>#${order._id}</strong></p>
@@ -166,11 +169,13 @@ export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: str
                         : article.orderDiscount.value)
                     : 0;
                 const itemTotal = itemSubTotal - itemDiscount;
+                const articleCode = article.externalCode ? `${article._id}-${article.externalCode}` : `${article._id}`;
+                const articleName = `${articleCode} ${article.description}`;
                 return `
                   <tr>
                     <td>${index + 1}</td>
                     <td style="text-align: center;"><img src="${imageUrl}" alt="${article.description}" style="width: 30px; height: 30px; object-fit: cover; border-radius: 4px;"/></td>
-                    <td>${article.description}${article.externalCode ? ` (${article.externalCode})` : ''}</td>
+                    <td>${articleName}</td>
                     <td>${article.variant.stock}</td>
                     <td>${utils.dominicanNumberFormat(article.variant.sellingPrice)}</td>
                     <td>${itemDiscount > 0 ? utils.dominicanNumberFormat(itemDiscount) : '-'}</td>
@@ -222,9 +227,16 @@ export const invoiceCreated = async ({ order, logo }: { order: IOrder, logo: str
 
         <!-- Footer -->
         <div class="footer">
-            Gracias por su compra. 5slim.do - Santo Domingo, República Dominicana.
+            Gracias por su compra. ${businessName || '5SLIM.DO'} - Santo Domingo, República Dominicana.
         </div>
 
+        <script>
+            window.onload = function() {
+                setTimeout(function() {
+                    window.print();
+                }, 500);
+            };
+        </script>
         </body>
         </html>
     

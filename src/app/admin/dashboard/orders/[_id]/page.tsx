@@ -17,16 +17,15 @@ import CustomModal from "../../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import ReceiptIcon from '@mui/icons-material/Receipt';
 import CheckIcon from '@mui/icons-material/Check';
-import CommentIcon from '@mui/icons-material/Comment';
+
 import PendingIcon from '@mui/icons-material/Pending';
-import PaidIcon from '@mui/icons-material/Paid';
 import LocalShippingOutlinedIcon from '@mui/icons-material/LocalShippingOutlined';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import { eventBus } from "../../../../utils/broadcaster";
 import CustomField from "../../../../../../components/inputs/CustomField";
 import { baseService } from "../../../../utils/baseService";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from "@mui/material";
+import {  Paper } from "@mui/material";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -44,13 +43,12 @@ export default function AdminClientes() {
     const [cancelType, setCancelType] = useState<CancelOrderType>(CancelOrderType.RETURN_ITEMS)
     const [canceled, setCanceled] = useState(false);
     const [loadingCancel, setLoadingCancel] = useState(false);
-    const [commentModal, setCommentModal] = useState(false);
-    const [comment, setComment] = useState('');
+
     const [paymentModal, setPaymentModal] = useState(false);
     const [paymentData, setPaymentData] = useState({
         amount: '',
         method: 'Efectivo',
-        paymentDate: '',
+        paymentDate: baseService.dateToDateTimeLocal(baseService.newDate()),
         reference: '',
         notes: ''
     });
@@ -74,6 +72,13 @@ export default function AdminClientes() {
         setaction("Imprimiendo")
         setAnchorEl(null);
         label ? await ordersService.printOrderLabel(order!._id) : await ordersService.printOrder(order!._id);
+        setaction("")
+    };
+
+    const handlePrint4x3 = async () => {
+        setaction("Imprimiendo")
+        setAnchorEl(null);
+        await ordersService.printOrder4x3(order!._id);
         setaction("")
     };
 
@@ -117,22 +122,7 @@ export default function AdminClientes() {
         }
     }
 
-    const handleOpenCommentModal = () => {
-        setComment(order?.comment || '');
-        setCommentModal(true);
-        setAnchorEl(null);
-    };
 
-    const handleSaveComment = async () => {
-        try {
-            await ordersService.updateComment({ orderId: order!._id, comment });
-            setOrder(prev => prev ? {...prev, comment} : null);
-            setCommentModal(false);
-            setComment('');
-        } catch (error) {
-            // Error is handled in the service
-        }
-    };
 
     const handleOpenPaymentModal = () => {
         setPaymentModal(true);
@@ -158,7 +148,7 @@ export default function AdminClientes() {
             const payment = {
                 ...paymentData,
                 amount: currentAmount,
-                paymentDate: baseService.newDate(paymentData.paymentDate)
+                paymentDate: new Date(paymentData.paymentDate)
             };
             const updatedOrder = await ordersService.addPayment({ orderId: order!._id, payment });
             setOrder(updatedOrder);
@@ -166,7 +156,7 @@ export default function AdminClientes() {
             setPaymentData({
                 amount: '',
                 method: 'Efectivo',
-                paymentDate: '',
+                paymentDate: baseService.dateToDateTimeLocal(new Date()),
                 reference: '',
                 notes: ''
             });
@@ -276,7 +266,7 @@ export default function AdminClientes() {
                             </Grid>
 
                             <Box mt={"23px"}>
-                                <SummaryOrderDetails order={order!} />
+                                <SummaryOrderDetails order={order!} onOrderUpdate={setOrder} />
                             </Box>
 
                             {order?.payments && order.payments.length > 0 && (
@@ -367,6 +357,11 @@ export default function AdminClientes() {
                                 }}
                             >
                                 <Box p={1}>
+                                    <Box sx={{ borderBottom: '1px solid #e0e0e0', pb: 1, mb: 1 }}>
+                                        <Typography fontFamily={"Inter"} fontSize={"14px"} fontWeight={600} color={"#45464E"}>
+                                            Total envío: {baseService.dominicanNumberFormat(order?.shipment || 0)}
+                                        </Typography>
+                                    </Box>
                                     <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
                                     
                                         onClick={()=>handlePrint()}
@@ -388,13 +383,15 @@ export default function AdminClientes() {
                                     </Box>
 
                                     <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
-                                        onClick={handleOpenCommentModal}
+                                        onClick={()=>handlePrint4x3()}
                                     >
                                         <Typography fontFamily={"Inter"} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                            Agregar comentario
+                                            Imprimir 4x3
                                         </Typography>
-                                        <CommentIcon fontSize="small" />
+                                        <LocalPrintshopIcon fontSize="small" />
                                     </Box>
+
+
 
                                     {order!.status !== IOrderStatus.CANCELLED && (
                                         <>
@@ -515,72 +512,7 @@ export default function AdminClientes() {
                 </Grid>
             </CustomModal>
 
-            <Dialog 
-                open={commentModal} 
-                onClose={() => setCommentModal(false)}
-                maxWidth="sm"
-                fullWidth
-                PaperProps={{
-                    sx: {
-                        borderRadius: '12px',
-                        p: 0
-                    }
-                }}
-            >
-                <Box sx={{ position: 'relative', p: 3 }}>
-                    <CloseIcon 
-                        sx={{ 
-                            position: 'absolute',
-                            top: 16,
-                            right: 16,
-                            cursor: 'pointer',
-                            color: '#6E7079',
-                            '&:hover': {
-                                color: '#45464E'
-                            }
-                        }}
-                        onClick={() => {
-                            setCommentModal(false);
-                            setComment('');
-                        }}
-                    />
-                    <Typography sx={{ 
-                        fontFamily: 'Inter', 
-                        fontSize: '18px', 
-                        fontWeight: 600, 
-                        color: '#45464E',
-                        mb: 2,
-                        pr: 4
-                    }}>
-                        {order?.comment ? 'Editar comentario' : 'Agregar comentario'}
-                    </Typography>
-                    <CustomField
-                        fullWidth
-                        multiline
-                        rows={4}
-                        label="Comentario"
-                        placeholder="Escribe un comentario..."
-                        value={comment}
-                        onChange={(e: any) => setComment(e.target.value)}
-                    />
-                    <Button 
-                        onClick={handleSaveComment}
-                        variant="contained"
-                        fullWidth
-                        sx={{
-                            fontFamily: 'Inter',
-                            fontSize: '14px',
-                            textTransform: 'none',
-                            borderRadius: '8px',
-                            backgroundColor: '#5570F1',
-                            mt: 2,
-                            py: 1.5
-                        }}
-                    >
-                        Guardar
-                    </Button>
-                </Box>
-            </Dialog>
+
 
             <Dialog 
                 open={paymentModal} 
@@ -661,7 +593,7 @@ export default function AdminClientes() {
                                 fullWidth
                                 type="datetime-local"
                                 label="Fecha de Pago"
-                                value={baseService.dateToDateTimeLocal(paymentData.paymentDate || new Date())}
+                                value={paymentData.paymentDate}
                                 onChange={(e: any) => setPaymentData({...paymentData, paymentDate: e.target.value})}
                             />
                         </Grid>

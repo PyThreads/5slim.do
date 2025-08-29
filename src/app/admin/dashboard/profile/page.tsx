@@ -31,7 +31,8 @@ export default function ProfilePage() {
         lastName: "",
         email: "",
         profilePicture: "",
-        logo: ""
+        logo: "",
+        businessName: ""
     });
 
     // Update form data when currentAdmin changes
@@ -46,7 +47,8 @@ export default function ProfilePage() {
                 lastName: lastName,
                 email: currentAdmin.email || "",
                 profilePicture: currentAdmin.profilePicture || "",
-                logo: currentAdmin.logo || ""
+                logo: currentAdmin.logo || "",
+                businessName: currentAdmin.businessName || ""
             });
         }
     }, [currentAdmin]);
@@ -311,6 +313,18 @@ export default function ProfilePage() {
                                     onChange={(e: any) => handleInputChange('email', e.target.value)}
                                 />
                             </Grid>
+                            {canManageLogo && (
+                                <Grid item xs={12}>
+                                    <CustomField
+                                        label="Nombre del Negocio"
+                                        fullWidth
+                                        size="small"
+                                        value={formData.businessName}
+                                        onChange={(e: any) => handleInputChange('businessName', e.target.value)}
+                                        placeholder="Ej: Mi Tienda, Empresa ABC, etc."
+                                    />
+                                </Grid>
+                            )}
                         </Grid>
 
                         <Box mt={3} display="flex" justifyContent="flex-end">

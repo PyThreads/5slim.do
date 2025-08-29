@@ -154,7 +154,7 @@ class AdminService extends BaseService {
     }
 
 
-    async updateProfile({ adminId, firstName, lastName, email, profilePicture, logo, user }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, user: IAdmin }) {
+    async updateProfile({ adminId, firstName, lastName, email, profilePicture, logo, businessName, user }: { adminId: number, firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, businessName?: string, user: IAdmin }) {
         try {
             const updateData: any = {
                 firstName: firstName,
@@ -167,6 +167,11 @@ class AdminService extends BaseService {
             // Solo owners y clientes pueden actualizar el logo
             if ((user.userType === 'Cliente' || user._id === user.ownerId) && logo !== undefined) {
                 updateData.logo = logo;
+            }
+
+            // Solo owners pueden actualizar el nombre comercial
+            if ((user.userType === 'Cliente' || user._id === user.ownerId) && businessName !== undefined) {
+                updateData.businessName = businessName;
             }
 
             const result = await this.collection.findOneAndUpdate(

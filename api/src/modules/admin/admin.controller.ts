@@ -197,38 +197,34 @@ class Admin {
 
     async printOrder(req: Request, res: Response) {
         try {
-
             const result = await this.orderService.printOrder({_id: Number(req.params._id),ownerId: res.locals.admin.ownerId});
-            return res.status(200).json({
-                success: true,
-                data: result,
-                message: "Se ha imprimido de forma exitosa la orden."
-            })
-
-        } catch (_) {
-            return res.status(512).json({
-                success: false,
-                data: null,
-                message: "Ha ocurrido un error al imprimir la orden."
-            })
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(result);
+        } catch (error: any) {
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(`<html><body><h1>Error</h1><p>${error.message || 'Ha ocurrido un error al imprimir la orden.'}</p></body></html>`);
         }
     }
 
     async printOrderLabel(req: Request, res: Response) {
         try {
             const result = await this.orderService.printOrderLabel({_id: Number(req.params._id), ownerId: res.locals.admin.ownerId});
-            return res.status(200).json({
-                success: true,
-                data: result,
-                message: "Se ha imprimido de forma exitosa la etiqueta de la orden."
-            })
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(result);
+        } catch (error: any) {
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(`<html><body><h1>Error</h1><p>${error.message || 'Ha ocurrido un error al imprimir la etiqueta.'}</p></body></html>`);
+        }
+    }
 
-        } catch (_) {
-            return res.status(512).json({
-                success: false,
-                data: null,
-                message: "Ha ocurrido un error al imprimir la etiqueta de la orden."
-            })
+    async printOrder4x3(req: Request, res: Response) {
+        try {
+            const result = await this.orderService.printOrder4x3({_id: Number(req.params._id), ownerId: res.locals.admin.ownerId});
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(result);
+        } catch (error: any) {
+            res.setHeader('Content-Type', 'text/html');
+            return res.send(`<html><body><h1>Error</h1><p>${error.message || 'Ha ocurrido un error al imprimir la factura 4x3.'}</p></body></html>`);
         }
     }
 
@@ -665,7 +661,7 @@ class Admin {
 
     async updateProfile(req: Request, res: Response) {
         try {
-            const { firstName, lastName, email, profilePicture, logo }: { firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string } = req.body;
+            const { firstName, lastName, email, profilePicture, logo, businessName }: { firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, businessName?: string } = req.body;
             const adminId = res.locals.admin._id;
 
             const updatedAdmin = await this.adminService.updateProfile({ 
@@ -675,6 +671,7 @@ class Admin {
                 email, 
                 profilePicture,
                 logo,
+                businessName,
                 user: res.locals.admin
             });
 

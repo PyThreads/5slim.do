@@ -32,8 +32,6 @@ class AdminRouter {
 
         router.post("/orders/create", adminRoutesValidations.creatOrderValidation(), this.adminController.createOrder.bind(this.adminController));
         router.get("/orders", adminRoutesValidations.paginatOrdersValidation(), this.adminController.getAllOrders.bind(this.adminController));
-        router.get("/orders/print/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
-        router.get("/orders/print-label/:_id", adminRoutesValidations.printOrder(), this.adminController.printOrderLabel.bind(this.adminController));
         router.put("/orders/cancel/:_id", adminRoutesValidations.printOrder(), this.adminController.cancelOrder.bind(this.adminController));
         router.get("/orders/summary", adminRoutesValidations.summaryOrders(), this.adminController.ordersSummary.bind(this.adminController));
         router.put("/orders/status/:_id", this.adminController.updateOrderStatus.bind(this.adminController));
@@ -60,6 +58,11 @@ class AdminRouter {
         router.delete("/articles/:articleId/variants/:variantId", this.adminController.deleteVariant.bind(this.adminController));
         router.get("/articles/:articleId/variants", this.adminController.getVariants.bind(this.adminController));
 
+        // Print routes (with authentication but outside /private)
+        router.get("/orders/print/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
+        router.get("/orders/print-label/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrderLabel.bind(this.adminController));
+        router.get("/orders/print-4x3/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrder4x3.bind(this.adminController));
+        
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         
         // User management routes (for Support role) - AFTER authentication middleware

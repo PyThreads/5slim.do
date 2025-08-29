@@ -61,3 +61,25 @@ export async function generarLabelPDF({ html, filename = 'label' }: { html: stri
   const base64PDF = Buffer.from(pdfBuffer).toString("base64");
   return { base64: base64PDF, filename: `${filename}.pdf` };
 }
+
+export async function generar4x3PDF({ html, filename = 'factura-4x3' }: { html: string; filename?: string }): Promise<string> {
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+  });
+
+  const page = await browser.newPage();
+  await page.setContent(html, { waitUntil: 'load' });
+
+  const pdfBuffer = await page.pdf({
+    width: '4in',
+    height: '3in',
+    printBackground: true,
+    margin: { top: '0.1in', bottom: '0.1in', left: '0.1in', right: '0.1in' },
+  });
+
+  await browser.close();
+
+  const base64PDF = Buffer.from(pdfBuffer).toString("base64");
+  return base64PDF;
+}

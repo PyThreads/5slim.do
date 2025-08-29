@@ -182,6 +182,7 @@ export interface IOrder {
     createdBy: ICreatedBy
     updatedBy?: ICreatedBy
     comment?: string
+    shipment: number
     ownerId: number
 }
 
@@ -401,6 +402,7 @@ export interface IAdmin {
     profilePicture?: string
     logo?: string
     ownerLogo?: string
+    businessName?: string
     userType: IUserType
     ownerId: number
     createdDate?: Date

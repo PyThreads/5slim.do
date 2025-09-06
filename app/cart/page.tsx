@@ -22,7 +22,7 @@ function CartPageContent() {
     setTimeout(() => setMessage(''), 3000);
   };
 
-  const handleUpdateQuantity = (productId: string, newQuantity: number, maxStock: number) => {
+  const handleUpdateQuantity = (productId: any, newQuantity: any, maxStock: any) => {
     if (newQuantity > maxStock) {
       showMessage(`Stock insuficiente. Solo hay ${maxStock} unidades disponibles.`);
       return;
@@ -184,7 +184,7 @@ function CartPageContent() {
                       <div className="flex items-center justify-between sm:justify-start sm:space-x-4">
                         <div className="flex items-center space-x-2 sm:space-x-3 bg-gray-50 dark:bg-gray-700 rounded-lg p-1">
                           <button
-                            onClick={() => handleUpdateQuantity(item.article._id, item.article.stock - 1, item.article.originalStock || 10)}
+                            onClick={() => handleUpdateQuantity(item.article._id, item.article.stock - 1, item.article.stock || 10)}
                             className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors"
                           >
                             <Minus className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -193,7 +193,7 @@ function CartPageContent() {
                             {item.article.stock}
                           </span>
                           <button
-                            onClick={() => handleUpdateQuantity(item.article._id, item.article.stock + 1, item.article.originalStock || 10)}
+                            onClick={() => handleUpdateQuantity(item.article._id, item.article.stock + 1, item.article.stock || 10)}
                             className="w-7 h-7 sm:w-8 sm:h-8 flex items-center justify-center text-gray-600 dark:text-gray-400 hover:bg-white dark:hover:bg-gray-600 rounded-md transition-colors"
                           >
                             <Plus className="w-3 h-3 sm:w-4 sm:h-4" />

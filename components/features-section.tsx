@@ -7,7 +7,7 @@ import ProductCard from './product-card';
 export default function FeaturesSection() {
   // Get the latest 6 products (assuming higher IDs are newer)
   const latestProducts = products
-    .sort((a, b) => b.id.localeCompare(a.id))
+    .sort((a:any, b:any) => b.id.localeCompare(a.id))
     .slice(0, 6);
 
   return (
@@ -23,7 +23,7 @@ export default function FeaturesSection() {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {latestProducts.map((product) => (
+          {latestProducts.map((product:any) => (
             <ProductCard key={product.id} product={product} />
           ))}
         </div>

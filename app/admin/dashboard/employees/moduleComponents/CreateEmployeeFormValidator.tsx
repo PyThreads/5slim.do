@@ -1,6 +1,6 @@
 import { Formik } from "formik";
 import * as Yup from "yup";
-import { IAdmin } from "../../../../../../api/src/interfaces";
+import { IAdmin } from "../../../../../api/src/interfaces";
 import CreateEmployeeForm from "./CreateEmployeeForm";
 import { employeeService } from "../employeeService";
 import { eventBus } from "../../../../utils/broadcaster";

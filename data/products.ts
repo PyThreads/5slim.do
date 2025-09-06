@@ -1,4 +1,4 @@
-import { Product } from '@/types/product';
+
 
 export const categories = [
   { id: 'laptops', name: 'Laptops', icon: '💻' },
@@ -14,7 +14,7 @@ export const brands = [
   'Apple', 'Samsung', 'Sony', 'Dell', 'HP', 'Lenovo', 'Microsoft', 'Google', 'OnePlus', 'Xiaomi'
 ];
 
-export const products: Product[] = [
+export const products: any = [
   {
     id: '1',
     name: 'MacBook Pro 14" M3',

@@ -18,7 +18,7 @@ export default function ProductCarousel() {
         </div>
 
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4 max-w-none">
-          {latestProducts.slice(0, 12).map((product) => (
+          {latestProducts.slice(0, 12).map((product:any) => (
             <div key={product.id} className="scale-90">
               <ProductCard product={product} />
             </div>

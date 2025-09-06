@@ -3,11 +3,11 @@ import React, { useCallback, useEffect, useState } from "react";
 import { Box, Button, Grid, Typography } from "@mui/material"
 import { Inter } from "next/font/google"
 import TableCategoriesList from "./moduleComponents/TableCategoriesList";
-import { ICategory, IPaginationResult, IUserType } from "../../../../../api/src/interfaces";
+import { ICategory, IPaginationResult, IUserType } from "../../../../api/src/interfaces";
 import { categoriesService } from "./categoriesService";
-import CustomModal from "../../../../../components/modals/CustomModal";
+import CustomModal from "../../../../components/modals/CustomModal";
 import CreateCategoryForm from "./moduleComponents/forms/CreateCategoryForm";
-import { useAdminAuth } from "../../../../../context/AdminContext";
+import { useAdminAuth } from "../../../../context/AdminContext";
 
 const inter = Inter({
     subsets: ['latin'],

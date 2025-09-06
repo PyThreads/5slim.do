@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense } from 'react';
 import { useSearchParams } from 'next/navigation';
 import { products } from '@/data/products';
 import { FilterState } from '@/types/product';
@@ -8,7 +8,7 @@ import ProductCard from '@/components/product-card';
 import ProductFilters from '@/components/product-filters';
 import { Grid, List, Search } from 'lucide-react';
 
-export default function ProductsPage() {
+function ProductsContent() {
   const searchParams = useSearchParams();
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
   const [filters, setFilters] = useState<FilterState>({
@@ -20,7 +20,7 @@ export default function ProductsPage() {
     sortBy: 'name',
   });
 
-  let filteredProducts = products.filter(product => {
+  let filteredProducts = products.filter((product: any) => {
     const matchesCategory = !filters.category || product.category === filters.category;
     const matchesBrand = !filters.brand || product.brand === filters.brand;
     const matchesPrice = product.price >= filters.minPrice && product.price <= filters.maxPrice;
@@ -136,7 +136,7 @@ export default function ProductsPage() {
                   ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
                   : 'space-y-4'
               }>
-                {filteredProducts.map((product) => (
+                {filteredProducts.map((product:any) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
@@ -145,5 +145,13 @@ export default function ProductsPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ProductsPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20 flex items-center justify-center"><div className="text-gray-600">Cargando...</div></div>}>
+      <ProductsContent />
+    </Suspense>
   );
 }

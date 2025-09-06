@@ -10,7 +10,7 @@ async function getPublicCategories() {
     const response = await axios.get(`${API_BASE_URL}/categories/public`);
     return response.data.data;
   } catch (error) {
-    console.error('Error loading categories:', error);
+    console.warn('API not available during build, using fallback data');
     return [];
   }
 }

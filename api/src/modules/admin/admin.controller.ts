@@ -217,14 +217,14 @@ class Admin {
         }
     }
 
-    async printOrder4x3(req: Request, res: Response) {
+    async printOrder72mm(req: Request, res: Response) {
         try {
-            const result = await this.orderService.printOrder4x3({_id: Number(req.params._id), ownerId: res.locals.admin.ownerId});
+            const result = await this.orderService.printOrder72mm({_id: Number(req.params._id), ownerId: res.locals.admin.ownerId});
             res.setHeader('Content-Type', 'text/html');
             return res.send(result);
         } catch (error: any) {
             res.setHeader('Content-Type', 'text/html');
-            return res.send(`<html><body><h1>Error</h1><p>${error.message || 'Ha ocurrido un error al imprimir la factura 4x3.'}</p></body></html>`);
+            return res.send(`<html><body><h1>Error</h1><p>${error.message || 'Ha ocurrido un error al imprimir la factura 72mm.'}</p></body></html>`);
         }
     }
 

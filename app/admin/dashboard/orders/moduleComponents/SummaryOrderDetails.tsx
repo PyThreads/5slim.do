@@ -1,6 +1,6 @@
 import { Box, Grid, Typography, TextField, IconButton } from "@mui/material";
 import { UserIconOrder, LocationPinIcon, CreditCardIcon } from "../../../../../components/icons/Svg";
-import { IOrder } from "../../../../../../api/src/interfaces";
+import { IOrder } from "../../../../../api/src/interfaces";
 import { baseService } from "../../../../utils/baseService";
 import SaveIcon from '@mui/icons-material/Save';
 import EditIcon from '@mui/icons-material/Edit';
@@ -162,7 +162,7 @@ export default function SummaryOrderDetails({ order, onOrderUpdate }: { order: I
                                         <Box >
                                             <Grid item container alignItems={"center"} >
                                                 <Typography fontFamily={inter.style.fontFamily} color={"#45464E"} sx={{ fontSize: { xs: "11px", sm: "12px",width:"90%"}}} fontWeight={500} >
-                                                    {[...new Set(order.payments.map(p => p.method))].join(', ')}
+                                                    {order.payments.map((p:any) => p.method).join(', ')}
                                                 </Typography>
                                             </Grid>
                                         </Box>

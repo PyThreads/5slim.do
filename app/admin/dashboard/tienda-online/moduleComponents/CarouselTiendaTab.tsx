@@ -6,7 +6,7 @@ import AddIcon from '@mui/icons-material/Add';
 import CustomModal from "../../../../../components/modals/CustomModal";
 import CloseIcon from '@mui/icons-material/Close';
 import { useAdminAuth } from "../../../../../context/AdminContext";
-import { eventBus } from "../../../../utils/EventBus";
+import { eventBus } from "../../../../utils/broadcaster";
 import SimpleSnackbar from "../../../../../components/notifications/SimpleSnackbar";
 import CarouselForm from "./CarouselForm";
 import CarouselTable from "./CarouselTable";

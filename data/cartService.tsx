@@ -47,7 +47,7 @@ class CartService extends BaseService {
         }
     }
 
-    async removeFromCart({ productId }: { productId: string }): Promise<ICart[]> {
+    async removeFromCart({ productId }: { productId: any }): Promise<ICart[]> {
         try {
             const products = await this.getCart();
             const filteredProducts = products.filter(item => item.article._id !== productId);
@@ -58,7 +58,7 @@ class CartService extends BaseService {
         }
     }
 
-    async updateQuantity({ productId, quantity }: { productId: string, quantity: number }): Promise<ICart[]> {
+    async updateQuantity({ productId, quantity }: { productId: any, quantity: number }): Promise<ICart[]> {
         try {
             const products = await this.getCart();
             const index = products.findIndex(item => item.article._id === productId);

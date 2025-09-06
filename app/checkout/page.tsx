@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { CartProvider, useCart } from '@/context/cart-context';
 import { CreditCard, Lock, CheckCircle } from 'lucide-react';
+import { baseService } from '../utils/baseService';
 
 interface FormData {
   email: string;
@@ -22,7 +23,7 @@ interface FormData {
 
 function CheckoutPageContent() {
   const router = useRouter();
-  const { items, getTotalPrice, clearCart } = useCart();
+  const { cart, getTotalPrice, clearCart } = useCart();
   const [isProcessing, setIsProcessing] = useState(false);
   const [formData, setFormData] = useState<FormData>({
     email: '',
@@ -61,7 +62,7 @@ function CheckoutPageContent() {
     router.push('/');
   };
 
-  if (items.length === 0) {
+  if (cart.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50 dark:bg-gray-900 pt-20">
         <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16 text-center">
@@ -174,7 +175,7 @@ function CheckoutPageContent() {
 
               {/* Payment Information */}
               <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
-                <div className="flex items-center space-x-2 mb-4">
+                <div className="flex cart-center space-x-2 mb-4">
                   <Lock className="w-5 h-5 text-green-600 dark:text-green-400" />
                   <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
                     Información de pago
@@ -225,7 +226,7 @@ function CheckoutPageContent() {
               <button
                 type="submit"
                 disabled={isProcessing}
-                className="w-full flex items-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-4 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
+                className="w-full flex cart-center justify-center space-x-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-6 py-4 rounded-lg font-medium transition-colors duration-200 disabled:cursor-not-allowed"
               >
                 {isProcessing ? (
                   <>
@@ -249,12 +250,12 @@ function CheckoutPageContent() {
             </h2>
             
             <div className="space-y-4 mb-6">
-              {items.map((item) => (
-                <div key={item.id} className="flex items-center space-x-3">
+              {cart.map((item) => (
+                <div key={item._id} className="flex cart-center space-x-3">
                   <div className="w-12 h-12 bg-gray-100 dark:bg-gray-700 rounded-lg overflow-hidden">
                     <Image
-                      src={item.image}
-                      alt={item.name}
+                      src={item.article.images.find(item=>item.primary)?.url!}
+                      alt={item.article.description}
                       width={48}
                       height={48}
                       className="w-full h-full object-cover"
@@ -262,14 +263,14 @@ function CheckoutPageContent() {
                   </div>
                   <div className="flex-1 min-w-0">
                     <p className="font-medium text-gray-900 dark:text-white text-sm truncate">
-                      {item.name}
+                      {item.article.description}
                     </p>
                     <p className="text-gray-600 dark:text-gray-400 text-sm">
-                      Cantidad: {item.quantity}
+                      Cantidad: {item.article.stock}
                     </p>
                   </div>
                   <p className="font-medium text-gray-900 dark:text-white">
-                    ${(item.price * item.quantity).toFixed(2)}
+                    {baseService.dominicanNumberFormat(item.article.price * item.article.stock)}
                   </p>
                 </div>
               ))}
@@ -294,7 +295,7 @@ function CheckoutPageContent() {
               </div>
             </div>
 
-            <div className="mt-6 flex items-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
+            <div className="mt-6 flex cart-center space-x-2 text-sm text-gray-600 dark:text-gray-400">
               <Lock className="w-4 h-4" />
               <span>Pago seguro y encriptado</span>
             </div>

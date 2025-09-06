@@ -7,7 +7,7 @@ import CategoryIcon from '@mui/icons-material/Category';
 import SummaryInventory from "./moduleComponents/SummaryInventory";
 import TableArticleList from "./moduleComponents/TableArticlesList";
 import CategoriesModal from "./moduleComponents/CategoriesModal";
-import { IArticle, IPaginateClients, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IArticle, IPaginateClients, IPaginationResult } from "../../../../api/src/interfaces";
 import { articleService } from "./articleService";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';

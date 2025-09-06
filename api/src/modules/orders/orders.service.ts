@@ -3,10 +3,10 @@ import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { OrdersIndex } from "./ordersIndex";
 import { ArticleService } from "../articles/articles.service";
-import { generarFacturaPDF, generarLabelPDF, generar4x3PDF } from "../../print";
+import { generarFacturaPDF, generarLabelPDF, } from "../../print";
 import { invoiceCreated } from "../../print/invoice/invoice.created";
 import { invoiceLabel } from "../../print/invoice/invoice.label";
-import { invoice4x3 } from "../../print/invoice/invoice.4x3";
+import { invoice72mm } from "../../print/invoice/invoice.72mm";
 
 export class OrderService extends BaseService {
 
@@ -278,13 +278,13 @@ export class OrderService extends BaseService {
         }
     }
 
-    async printOrder4x3({ _id, ownerId }: { _id: number, ownerId: number }): Promise<any> {
+    async printOrder72mm({ _id, ownerId }: { _id: number, ownerId: number }): Promise<any> {
         try {
             const order = await this.collection.findOne({ _id, ownerId });
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
             const businessName = owner?.businessName;
-            const html = await invoice4x3({ order, logo, businessName });
+            const html = await invoice72mm({ order, logo, businessName });
             return html;
         } catch (error: any) {
             throw error;

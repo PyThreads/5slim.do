@@ -10,7 +10,8 @@ async function getFeaturedProducts(): Promise<IArticlePublic[]> {
     const response = await axios.get(`${API_BASE_URL}/articles/featured`);
     const articles = response.data.data || [];
     return articles;
-  } catch (_) {
+  } catch (error) {
+    console.warn('API not available during build, using fallback data');
     return [];
   }
 }

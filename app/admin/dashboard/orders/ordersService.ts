@@ -71,11 +71,11 @@ class OrdersService extends BaseService {
         }
     }
 
-    async printOrder4x3(_id: number): Promise<void> {
+    async printOrder72mm(_id: number): Promise<void> {
         try {
-            this.openPrintWindow(`/admin/orders/print-4x3/${_id}`);
+            this.openPrintWindow(`/admin/orders/print-72mm/${_id}`);
         } catch (error: any) {
-            eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la factura 4x3.", open: true, type: "error", title: "Upss!" });
+            eventBus.emit("notify", { message: "Ha ocurrido un error al imprimir la factura 72mm.", open: true, type: "error", title: "Upss!" });
         }
     }
 

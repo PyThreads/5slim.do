@@ -6,6 +6,9 @@ import { baseService } from '@/app/utils/baseService';
 import CarouselControls from './carousel-controls';
 import axios from 'axios';
 
+export const dynamic = 'force-dynamic';
+
+
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api';
 
 async function getSlides() {
@@ -17,7 +20,7 @@ async function getSlides() {
       id: slide._id.toString()
     }));
   } catch (error) {
-    console.error('Error fetching slides:', error);
+    console.warn('API not available during build, using fallback data');
     return [];
   }
 }

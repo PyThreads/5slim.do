@@ -1,14 +1,14 @@
 import { IArticleCart, IOrder, IOrderDiscountType } from "../../interfaces"
 import { utils } from "../../utils"
 
-export const invoice4x3 = async ({ order, logo, businessName }: { order: IOrder, logo: string, businessName?: string }) => {
+export const invoice72mm = async ({ order, logo, businessName }: { order: IOrder, logo: string, businessName?: string }) => {
     return `
         <!DOCTYPE html>
         <html lang="es">
         <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Factura 4x3</title>
+        <title>Factura 72mm</title>
         <style>
             * {
             margin: 0;
@@ -20,98 +20,102 @@ export const invoice4x3 = async ({ order, logo, businessName }: { order: IOrder,
             }
 
             @page {
-            size: 4in 3in;
-            margin: 0.1in;
+                size: 72mm auto;
             }
 
             html, body {
-            width: 100%;
-            height: 100%;
+            width: 72mm;
             background: #fff;
-            font-size: 9px;
-            line-height: 1.2;
+            font-size: 11px;
+            line-height: 1.3;
+            font-weight: 900;
             }
 
             .center { text-align: center; }
-            .bold { font-weight: bold; }
-            .line { border-bottom: 1px dashed #000; margin: 3px 0; }
+            .bold { font-weight: 900; }
+            .line { border-bottom: 2px dashed #000; margin: 4px 0; }
             
             .header {
             text-align: center;
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             }
             
             .logo {
-            width: 25px;
+            width: 30px;
             height: auto;
-            margin-bottom: 3px;
+            margin-bottom: 4px;
             }
             
             .store-name {
-            font-size: 12px;
-            font-weight: bold;
-            margin-bottom: 2px;
+            font-size: 16px;
+            font-weight: 900;
+            margin-bottom: 3px;
             }
             
             .invoice-info {
-            font-size: 8px;
-            margin-bottom: 5px;
+            font-size: 10px;
+            font-weight: 900;
+            margin-bottom: 6px;
             }
             
             .customer {
-            margin-bottom: 8px;
-            font-size: 8px;
+            margin-bottom: 10px;
+            font-size: 10px;
+            font-weight: 900;
             }
             
             .items {
-            margin-bottom: 8px;
+            margin-bottom: 10px;
             }
             
             .item-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 2px;
-            font-size: 7px;
+            margin-bottom: 3px;
+            font-size: 9px;
+            font-weight: 900;
             }
             
             .item-name {
             flex: 1;
-            margin-right: 5px;
+            margin-right: 6px;
             }
             
             .item-qty {
-            width: 20px;
+            width: 25px;
             text-align: center;
             }
             
             .item-price {
-            width: 50px;
+            width: 60px;
             text-align: right;
             }
             
             .totals {
-            margin-top: 5px;
-            font-size: 8px;
+            margin-top: 6px;
+            font-size: 10px;
+            font-weight: 900;
             }
             
             .total-row {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 1px;
+            margin-bottom: 2px;
             }
             
             .final-total {
-            font-weight: bold;
-            font-size: 10px;
-            border-top: 1px solid #000;
-            padding-top: 2px;
-            margin-top: 3px;
+            font-weight: 900;
+            font-size: 12px;
+            border-top: 2px solid #000;
+            padding-top: 3px;
+            margin-top: 4px;
             }
             
             .footer {
             text-align: center;
-            margin-top: 8px;
-            font-size: 6px;
+            margin-top: 10px;
+            font-size: 8px;
+            font-weight: 900;
             }
         </style>
         </head>
@@ -143,7 +147,7 @@ export const invoice4x3 = async ({ order, logo, businessName }: { order: IOrder,
                 <div class="item-qty">QTY</div>
                 <div class="item-price">TOTAL</div>
             </div>
-            <div style="border-bottom: 1px solid #000; margin: 2px 0;"></div>
+            <div style="border-bottom: 2px solid #000; margin: 3px 0;"></div>
             ${order.articles.map((article: IArticleCart) => {
                 const itemSubTotal = article.variant.sellingPrice * article.variant.stock;
                 const itemDiscount = article.orderDiscount 
@@ -156,7 +160,7 @@ export const invoice4x3 = async ({ order, logo, businessName }: { order: IOrder,
                 const articleName = `${articleCode} ${article.description}`;
                 return `
                   <div class="item-row">
-                    <div class="item-name">${articleName.substring(0, 35)}${articleName.length > 35 ? '...' : ''}</div>
+                    <div class="item-name">${articleName.substring(0, 30)}${articleName.length > 30 ? '...' : ''}</div>
                     <div class="item-qty">${article.variant.stock}</div>
                     <div class="item-price">${utils.dominicanNumberFormat(itemTotal)}</div>
                   </div>

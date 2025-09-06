@@ -61,7 +61,7 @@ class AdminRouter {
         // Print routes (with authentication but outside /private)
         router.get("/orders/print/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrder.bind(this.adminController));
         router.get("/orders/print-label/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrderLabel.bind(this.adminController));
-        router.get("/orders/print-4x3/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrder4x3.bind(this.adminController));
+        router.get("/orders/print-72mm/:_id", this.baseService.verifyTokenAdmin.bind(this.baseService), adminRoutesValidations.printOrder(), this.adminController.printOrder72mm.bind(this.adminController));
         
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         

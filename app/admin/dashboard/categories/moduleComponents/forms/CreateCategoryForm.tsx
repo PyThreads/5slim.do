@@ -67,9 +67,9 @@ export default function CreateCategoryForm({ categoryToEdit, onClose }: { catego
             };
 
             if (categoryToEdit) {
-                await categoriesService.updateCategory(categoryToEdit._id, data);
+                await categoriesService.updateCategory(categoryToEdit._id, data as unknown as ICategory);
             } else {
-                await categoriesService.createCategory(data);
+                await categoriesService.createCategory(data as unknown as ICategory);
             }
 
             onClose();

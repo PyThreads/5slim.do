@@ -75,10 +75,10 @@ export default function AdminClientes() {
         setaction("")
     };
 
-    const handlePrint4x3 = async () => {
+    const handlePrint72mm = async () => {
         setaction("Imprimiendo")
         setAnchorEl(null);
-        await ordersService.printOrder4x3(order!._id);
+        await ordersService.printOrder72mm(order!._id);
         setaction("")
     };
 
@@ -394,10 +394,10 @@ export default function AdminClientes() {
                                     </Box>
 
                                     <Box display="flex" alignItems={"center"} justifyContent={"space-between"} sx={{ cursor: "pointer",":hover":{backgroundColor:"#F1F1F1"}} } mb={1}
-                                        onClick={()=>handlePrint4x3()}
+                                        onClick={()=>handlePrint72mm()}
                                     >
                                         <Typography fontFamily={inter.style.fontFamily} fontSize={"14px"} color={"#45464E"} alignItems={"center"} width={"100%"} justifyContent={"space-between"}>
-                                            Imprimir 4x3
+                                            Imprimir 72mm
                                         </Typography>
                                         <LocalPrintshopIcon fontSize="small" />
                                     </Box>

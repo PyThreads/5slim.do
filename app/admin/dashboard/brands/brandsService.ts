@@ -1,5 +1,5 @@
 import { BaseService } from "../../../utils/baseService";
-import { IBrand, IPaginationResult } from "../../../../../api/src/interfaces";
+import { IBrand, IPaginationResult } from "../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 
 class BrandsService extends BaseService {
@@ -37,7 +37,7 @@ class BrandsService extends BaseService {
         }
     }
 
-    async updateBrand(_id: number, brand: IBrand): Promise<IBrand> {
+    async updateBrand(_id: number, brand: any): Promise<IBrand> {
         try {
             const { data } = await this.axiosAdmin.put(`/admin/private/brands/${_id}`, brand);
             eventBus.emit("notify", { message: "Marca actualizada exitosamente.", open: true, type: "success", title: "Guardado!" })

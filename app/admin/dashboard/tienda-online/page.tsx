@@ -9,7 +9,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import CreateUserForm from "./moduleComponents/CreateUserForm";
 import { userManagementService } from "./userManagementService";
 import { useAdminAuth } from "../../../../context/AdminContext";
-import { eventBus, notify } from "../../../utils/EventBus";
+import { eventBus } from "../../../utils/broadcaster";
 import SimpleSnackbar from "../../../../components/notifications/SimpleSnackbar";
 import CarouselTiendaTab from "./moduleComponents/CarouselTiendaTab";
 

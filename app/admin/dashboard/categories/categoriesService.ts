@@ -1,5 +1,5 @@
 import { BaseService } from "../../../utils/baseService";
-import { ICategory, IPaginationResult } from "../../../../../api/src/interfaces";
+import { ICategory, IPaginationResult } from "../../../../api/src/interfaces";
 import { eventBus } from "../../../utils/broadcaster";
 
 class CategoriesService extends BaseService {

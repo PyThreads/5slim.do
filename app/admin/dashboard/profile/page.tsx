@@ -93,10 +93,8 @@ export default function ProfilePage() {
                 await axios.put('/admin/private/profile', updatedFormData);
                 await refreshAdmin();
                 
-                notify.success('Éxito!', 'Imagen subida y guardada exitosamente.');
             }
         } catch (error) {
-            notify.error('Error!', 'Error al subir la imagen.');
         } finally {
             setUploadingImage(false);
             if (refInput.current) refInput.current.value = '';
@@ -128,10 +126,8 @@ export default function ProfilePage() {
                     setCurrentAdmin({ ...currentAdmin, logo: logoUrl });
                 }
                 
-                notify.success('Éxito!', 'Logo subido y guardado exitosamente.');
             }
         } catch (error) {
-            notify.error('Error!', 'Error al subir el logo.');
         } finally {
             setUploadingLogo(false);
             if (refLogoInput.current) refLogoInput.current.value = '';
@@ -148,10 +144,8 @@ export default function ProfilePage() {
             
             // Refresh admin data from server to get latest info
             await refreshAdmin();
-            
-            notify.success('Guardado!', 'Perfil actualizado exitosamente.');
+        
         } catch (error) {
-            notify.error('Error!', 'Error al actualizar el perfil.');
         } finally {
             setLoading(false);
         }

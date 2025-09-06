@@ -10,13 +10,13 @@ import NewsletterSection from '@/components/newsletter-section';
 export default function HomePage() {
   return (
     <main className="min-h-screen bg-gray-50 dark:bg-gray-900">
-      <ImageCarousel />
+      {/* <ImageCarousel />
       <FeaturedProducts />
       <CategoriesGrid />
       <FeaturedProducts />
-      <BrandsSection />
+      <BrandsSection /> */}
       {/* <TestimonialsSection /> */}
-      <NewsletterSection />
+      {/* <NewsletterSection /> */}
     </main>
   );
 }

@@ -9,7 +9,7 @@ async function getPublicBrands() {
     const response = await axios.get(`${API_BASE_URL}/brands/public`);
     return response.data.data;
   } catch (error) {
-    console.error('Error loading brands:', error);
+    console.warn('API not available during build, using fallback data');
     return [];
   }
 }

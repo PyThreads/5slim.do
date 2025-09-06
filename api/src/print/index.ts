@@ -62,7 +62,7 @@ export async function generarLabelPDF({ html, filename = 'label' }: { html: stri
   return { base64: base64PDF, filename: `${filename}.pdf` };
 }
 
-export async function generar4x3PDF({ html, filename = 'factura-4x3' }: { html: string; filename?: string }): Promise<string> {
+export async function generar72mmPDF({ html, filename = 'factura-72mm' }: { html: string; filename?: string }): Promise<string> {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
@@ -72,8 +72,8 @@ export async function generar4x3PDF({ html, filename = 'factura-4x3' }: { html: 
   await page.setContent(html, { waitUntil: 'load' });
 
   const pdfBuffer = await page.pdf({
-    width: '4in',
-    height: '3in',
+    width: '72mm',
+    height: 'auto',
     printBackground: true,
     margin: { top: '0.1in', bottom: '0.1in', left: '0.1in', right: '0.1in' },
   });

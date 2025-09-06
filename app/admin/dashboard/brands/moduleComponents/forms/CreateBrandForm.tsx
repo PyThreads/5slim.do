@@ -67,7 +67,7 @@ export default function CreateBrandForm({ brandToEdit, onClose }: { brandToEdit?
             if (brandToEdit) {
                 await brandsService.updateBrand(brandToEdit._id, data);
             } else {
-                await brandsService.createBrand(data);
+                await brandsService.createBrand(data as unknown as IBrand);
             }
 
             onClose();

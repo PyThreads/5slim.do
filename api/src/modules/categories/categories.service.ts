@@ -11,9 +11,34 @@ class CategoriesService extends BaseService {
         new CategoriesIndex({ mongoDatabase, tableName: COLLNAMES.CATEGORIES });
     }
 
+    async getPublicCategories(): Promise<ICategory[]> {
+        try {
+            const pipeline = [
+                {
+                     $match: { ownerId: this.environmentConfig.storeOwner }
+                },
+                { $sample: { size: 8 } },
+                {
+                    $project: {
+                        _id: 1,
+                        description: 1,
+                        slug: 1,
+                        icon: 1
+                    }
+                }
+            ];
+
+            const result = await this.collection.aggregate(pipeline).toArray();
+            return result as ICategory[];
+           
+        } catch (error: any) {
+            return [];
+        }
+    }
+
     async createCategory({ body, user }: { body: ICategory, user: IAdmin }): Promise<ICategory> {
         try {
-            body.slug = this.generateSlug(body.description);
+
             await this.insertOne({ body, user });
             return body;
         } catch (error: any) {
@@ -23,7 +48,7 @@ class CategoriesService extends BaseService {
 
     async updateCategory({ _id, user, body }: { _id: number, body: ICategory, user: IAdmin }): Promise<ICategory> {
         try {
-            body.slug = this.generateSlug(body.description);
+
             const filter = { _id, ownerId: user.ownerId };
             await this.updateOne({ filter, body, user });
             return body;
@@ -35,7 +60,7 @@ class CategoriesService extends BaseService {
     async getAllCategories({ query, ownerId }: { query: IPaginateCategories, ownerId: number }): Promise<IPaginationResult> {
         try {
             const { page, limit, description, _id } = query;
-            const match: Record<string, any> = { ownerId }; 
+            const match: Record<string, any> = { ownerId };
 
             if (_id) {
                 match["_id"] = _id;
@@ -53,7 +78,8 @@ class CategoriesService extends BaseService {
                         description: 1,
                         slug: 1,
                         createdDate: 1,
-                        updatedDate: 1
+                        updatedDate: 1,
+                        icon: 1
                     }
                 }
             ];

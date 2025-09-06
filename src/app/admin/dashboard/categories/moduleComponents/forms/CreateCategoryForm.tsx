@@ -34,8 +34,7 @@ export default function CreateCategoryForm({ categoryToEdit, onClose, isBrand = 
             const data = {
                 _id: categoryToEdit?._id || 0,
                 description: description.trim(),
-                slug: "",
-                ownerId: 0
+                slug: ""
             };
 
             if (isBrand) {

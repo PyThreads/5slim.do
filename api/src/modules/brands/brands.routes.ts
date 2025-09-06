@@ -6,6 +6,7 @@ import { Db } from "mongodb";
 import BaseService from "../../base/baseService";
 
 const router = express.Router();
+const publicRouter = express.Router();
 
 class BrandsRouter {
     public readonly routes: typeof router;
@@ -17,29 +18,37 @@ class BrandsRouter {
         this.brandController = new BrandController(brandService);
         this.baseService = new BaseService({ mongoDatabase, tableName: "BRANDS" });
 
-        router.use("/", this.baseService.verifyTokenAdmin.bind(this.baseService));
-        router.use("/", (req: Request, res: Response, next) => {
-            req.body.user = res.locals.admin;
-            next();
-        });
+        // PUBLIC ROUTES
+        publicRouter.get("/", (req: Request, res: Response) => this.brandController.getPublicBrands(req, res));
 
+        // PRIVATE ROUTES
         router.post(
             "/create",
-            adminRoutesValidations.createCategoryValidation(),
+            adminRoutesValidations.createBrandValidation(),
             (req: Request, res: Response) => this.brandController.createBrand(req, res)
         );
 
         router.put(
             "/:id",
-            adminRoutesValidations.updateCategoryValidation(),
+            adminRoutesValidations.updateBrandValidation(),
             (req: Request, res: Response) => this.brandController.updateBrand(req, res)
         );
 
         router.get(
             "/",
-            adminRoutesValidations.getAllCategoriesValidation(),
+            adminRoutesValidations.getAllBrandsValidation(),
             (req: Request, res: Response) => this.brandController.getBrands(req, res)
         );
+
+        // Apply authentication middleware to private routes
+        router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
+        router.use("/private", (req: Request, res: Response, next) => {
+            req.body.user = res.locals.admin;
+            next();
+        });
+        
+        router.use("/private", router);
+        router.use("/public", publicRouter);
 
         this.routes = router;
     }

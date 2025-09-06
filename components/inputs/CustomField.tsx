@@ -26,7 +26,7 @@ export const CustomError = ({ name, customErrorText }: any) => (
           <Typography >{customErrorText}</Typography>
         )}
         {formikError && (
-          <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>{formikError}</Typography>
+          <Typography fontFamily={inter.style.fontFamily} fontSize={"12px"} color={"#f74343"}>{formikError}</Typography>
         )}
       </>
     )}
@@ -85,7 +85,7 @@ export const AutocompleteCustom = ({
 
         )}
       />
-      {customErrorText && <Typography fontFamily={"Inter"} fontSize={"12px"} color={"#f74343"}>{customErrorText}</Typography>}
+      {customErrorText && <Typography fontFamily={inter.style.fontFamily} fontSize={"12px"} color={"#f74343"}>{customErrorText}</Typography>}
     </React.Fragment>
   );
 };
@@ -151,7 +151,7 @@ export const CustomField = ({
       {!noValidate && isInsideFormik ? (
         <CustomError name={name} customErrorText={customErrorText} inert />
       ) : customErrorText ? (
-        <Typography fontFamily="Inter" fontSize="12px" color="#f74343">
+        <Typography fontFamily={inter.style.fontFamily} fontSize="12px" color="#f74343">
           {customErrorText}
         </Typography>
       ) : null}

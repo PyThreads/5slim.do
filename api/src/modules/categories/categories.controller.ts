@@ -54,7 +54,7 @@ class CategoriesController {
 
     async getAllCategories(req: Request, res: Response) {
         try {
-            const user: IAdmin = req.body.user;
+            const user: IAdmin = res.locals.admin;
             const query = req.query;
             
             const categories = await this.categoriesService.getAllCategories({ 
@@ -66,6 +66,24 @@ class CategoriesController {
                 success: true,
                 data: categories,
                 message: "Categorías obtenidas exitosamente"
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                data: null,
+                message: error.message
+            });
+        }
+    }
+
+    async getPublicCategories(req: Request, res: Response) {
+        try {
+            const categories = await this.categoriesService.getPublicCategories();
+            
+            res.status(200).json({
+                success: true,
+                data: categories,
+                message: "Categorías públicas obtenidas exitosamente"
             });
         } catch (error: any) {
             res.status(500).json({

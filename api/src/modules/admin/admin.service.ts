@@ -210,8 +210,7 @@ class AdminService extends BaseService {
                 userType: "Cliente",
                 role: [],
                 profilePicture: profilePicture || "",
-                active: active !== undefined ? active : true,
-                ownerId: 0, // Se actualizará después de la inserción
+                active: active !== undefined ? active : true
             };
 
             // Insertar el usuario

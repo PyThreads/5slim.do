@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { IconButton, Popover, Box, Typography, Autocomplete, TextField, Button, MenuItem } from "@mui/material";
 import FilterListIcon from '@mui/icons-material/FilterList';
 import { Inter } from "next/font/google";
-import { categoriesService } from "../../src/app/admin/dashboard/categories/categoriesService";
-import { brandsService } from "../../src/app/admin/dashboard/brands/brandsService";
 import { ICategory, IBrand } from "../../api/src/interfaces";
+import { categoriesService } from "@/app/admin/dashboard/categories/categoriesService";
+import { brandsService } from "@/app/admin/dashboard/brands/brandsService";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -92,7 +92,7 @@ const SearchFilterPopover: React.FC<SearchFilterPopoverProps> = ({ onFilterChang
                 }}
             >
                 <Box>
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Filtros de búsqueda
                     </Typography>
                     

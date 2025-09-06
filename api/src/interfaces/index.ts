@@ -1,3 +1,44 @@
+
+export enum EVENTBUS {
+    UPDATE_CART = "UPDATE_CART",
+    NOTIFICATION = "NOTIFICATION"
+}
+
+export interface ICart {
+    client: ICreatedBy
+    _id: number
+    article: IArticlePublic
+    createdDate: Date,
+    createdBy: ICreatedBy
+}
+
+export interface IArticlePublic {
+    _id: number,
+    slug: string
+    brand: string
+    price: number
+    images: IArticleImages[]
+    description: string
+    shortDescription: string
+    variantId: string
+    stock: number
+}
+
+export interface ICarouselSlide {
+  _id: string;
+  image: string;
+  title: string;
+  price: number;
+  originalPrice?: number;
+  description: string;
+  buttonText: string;
+  buttonLink: string;
+  createdDate?: Date;
+  createdBy?: ICreatedBy;
+  updatedBy?: ICreatedBy;
+  updatedDate?: Date;
+}
+
 export interface IArticlesSummary {
     total: number;
     outOfStock: number;
@@ -69,6 +110,7 @@ export interface ICategory {
     _id: number;
     description: string;
     slug: string;
+    icon?: string;
     createdDate?: Date;
     createdBy?: ICreatedBy;
     updatedBy?: ICreatedBy;
@@ -80,6 +122,7 @@ export interface IBrand {
     _id: number;
     description: string;
     slug: string;
+    icon?: string;
     createdDate?: Date;
     createdBy?: ICreatedBy;
     updatedBy?: ICreatedBy;
@@ -156,6 +199,7 @@ export interface IArticle {
     categories: ICategory[];
     brand?: IBrand;
     published: boolean;
+    featured?: boolean;
     shortDescription: string;
     tipTap: string;
     advertisement?: IAdvertisementArticle
@@ -256,7 +300,8 @@ export enum COLLNAMES {
     ARTICLES = "ARTICLES",
     ORDER = "0RDER",
     CATEGORIES = "CATEGORIES",
-    BRANDS = "BRANDS"
+    BRANDS = "BRANDS",
+    CAROUSEL_STORE = "CAROUSEL_STORE"
 }
 
 export interface ICartTotals {

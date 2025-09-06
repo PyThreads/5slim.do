@@ -693,3 +693,42 @@ export const UserManagementIcon: FC<MiIconoProps> = ({ filled }) => {
         </svg>
     );
 };
+
+export const TiendaOnlineIcon: FC<MiIconoProps> = ({ filled, strokeBold, color }) => {
+    return (
+        <svg width="56" height="56" viewBox="0 0 56 56" fill={filled ? "#FFFFFF" : "none"} xmlns="http://www.w3.org/2000/svg" cursor={"pointer"}>
+            <path
+                fillRule="evenodd"
+                clipRule="evenodd"
+                d="M32.5134 37.4998H24.1655C21.0992 37.4998 18.7468 36.3922 19.415 31.9346L20.193 25.8934C20.6049 23.6691 22.0237 22.8179 23.2685 22.8179H33.447C34.7102 22.8179 36.0466 23.7332 36.5225 25.8934L37.3006 31.9346C37.8681 35.8888 35.5797 37.4998 32.5134 37.4998Z"
+                stroke={filled ? "#FFFFFF" : color ? color : "#53545C"}
+                strokeWidth={strokeBold ? "2.5" : "1.5"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M32.6502 22.5982C32.6502 20.2122 30.716 18.2779 28.3299 18.2779V18.2779C27.1809 18.273 26.0773 18.726 25.2631 19.5368C24.4489 20.3475 23.9912 21.4492 23.9912 22.5982V22.5982"
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
+                strokeWidth={strokeBold ? "2.5" : "1.5"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M31.296 27.1017H31.2502"
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
+                strokeWidth={strokeBold ? "2.5" : "1.5"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <path
+                d="M25.4649 27.1017H25.4192"
+                stroke={filled ? "#99A9F7" : color ? color : "#53545C"}
+                strokeWidth={strokeBold ? "2.5" : "1.5"}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+            />
+            <circle cx="40" cy="18" r="6" fill={filled ? "#5570F1" : "#E3F2FD"} stroke={filled ? "#FFFFFF" : "#5570F1"} strokeWidth="1.5"/>
+            <path d="M37.5 18L39 19.5L42.5 16" stroke={filled ? "#FFFFFF" : "#5570F1"} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+    );
+};

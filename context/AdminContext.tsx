@@ -1,9 +1,11 @@
 import { createContext, useContext, useState, useEffect } from "react";
 import axios from "axios";
 import SimpleSnackbar from "../components/notifications/SimpleSnackbar";
-import { eventBus } from "../src/app/utils/broadcaster";
-import SplashScreen from "../src/app/providers/SplashScreen";
+
+
 import { IAdmin } from "../api/src/interfaces";
+import { eventBus } from "@/app/utils/broadcaster";
+import SplashScreen from "@/app/providers/SplashScreen";
 
 const AdminContext = createContext({});
 

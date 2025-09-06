@@ -1,0 +1,450 @@
+"use client";
+import * as React from 'react';
+import Box from '@mui/material/Box';
+import { Poppins, Inter } from 'next/font/google';
+import { Container, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, Popover } from '@mui/material';
+import MenuIcon from '@mui/icons-material/Menu';
+import { useRouter, usePathname } from 'next/navigation';
+import Image from "next/image";
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, Notification, HomeSecondTopBar, ProfileIcon, UserManagementIcon, TiendaOnlineIcon } from '../../../components/icons/Svg';
+import CategoryIcon from '@mui/icons-material/Category';
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown';
+import { AdminProvider, useAdminAuth } from '../../../context/AdminContext';
+import Link from 'next/link';
+import { IAdmin, IUserType } from '../../../api/src/interfaces';
+import LogoutIcon from '@mui/icons-material/Logout';
+import PersonIcon from '@mui/icons-material/Person';
+
+const poppins = Poppins({ subsets: ['latin'], display: 'swap', weight: "400" });
+const inter = Inter({ subsets: ['latin'], display: 'swap', weight: "500" });
+
+interface MenuItem {
+  name: string;
+  icon: (filled: boolean) => React.ReactNode;
+  href: string;
+  child: Array<{
+    path: string;
+    title: string;
+    order: number;
+    isDynamic?: boolean;
+    match?: (pathname: string) => boolean;
+  }>;
+  userTypeRestriction?: IUserType;
+}
+
+const getItems = (currentAdmin: IAdmin | null): MenuItem[] => {
+  const baseItems: MenuItem[] = [
+    {
+      name: "Dashboard",
+      icon: (filled: boolean) => <DashboardIcon filled={filled} />,
+      href: "/admin/dashboard",
+      child: [
+        { path: "/admin/dashboard", title: "Dashboard", order: 1 }
+      ]
+    },
+    {
+      name: "Ordenes",
+      icon: (filled: boolean) => <ShoppingBagIcon filled={filled} />,
+      href: "/admin/dashboard/orders",
+      child: [
+        { path: "/admin/dashboard/orders", title: "Ordenes", order: 1 },
+        {
+          isDynamic: true,
+          path: "/admin/dashboard/orders/",
+          match: (pathname: string) => pathname.startsWith("/admin/dashboard/orders/"),
+          title: "Detalles orden",
+          order: 3
+        }
+      ]
+    },
+    {
+      name: "Clientes",
+      icon: (filled: boolean) => <CustomersIcon filled={filled} />,
+      href: "/admin/dashboard/users",
+      child: [
+        { path: "/admin/dashboard/users", title: "Clientes", order: 1 }
+      ]
+    },
+    {
+      name: "Empleados",
+      icon: (filled: boolean) => <EmployeesIcon filled={filled} />,
+      href: "/admin/dashboard/employees",
+      child: [
+        { path: "/admin/dashboard/employees", title: "Empleados", order: 1 }
+      ]
+    },
+    {
+      name: "Artículos",
+      icon: (filled: boolean) => <ArticlesIcons filled={filled} />,
+      href: "/admin/dashboard/inventory",
+      child: [
+        { path: "/admin/dashboard/inventory", title: "Artículos", order: 1 },
+        { path: "/admin/dashboard/inventory/newArticle", title: "Nuevo Artículo", order: 2 },
+        {
+          isDynamic: true,
+          path: "/admin/dashboard/inventory/newArticle/",
+          match: (pathname: string) => pathname.startsWith("/admin/dashboard/inventory/newArticle/"),
+          title: "Editando Artículo",
+          order: 3
+        }
+      ]
+    }
+  ];
+
+  if (currentAdmin?.role?.some((item: string) => item === "Support")) {
+    baseItems.push({
+      name: "Gestión Usuarios",
+      icon: (filled: boolean) => <UserManagementIcon filled={filled} />,
+      href: "/admin/dashboard/gestion-usuarios",
+      child: [
+        { path: "/admin/dashboard/gestion-usuarios", title: "Gestión Usuarios", order: 1 }
+      ]
+    });
+    baseItems.push({
+      name: "Tienda Online",
+      icon: (filled: boolean) => <TiendaOnlineIcon filled={filled} />,
+      href: "/admin/dashboard/tienda-online",
+      child: [
+        { path: "/admin/dashboard/tienda-online", title: "Tienda Online", order: 1 }
+      ]
+    });
+  }
+
+  return baseItems;
+};
+
+export default function ProtectedAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
+  return (
+    <AdminProvider>
+      <LayoutAdminDashboard>{children}</LayoutAdminDashboard>
+    </AdminProvider>
+  );
+}
+
+function LayoutAdminDashboard({ children }: Readonly<{ children: React.ReactNode; }>) {
+  const pathName = usePathname();
+  const { currentAdmin,signOut } = useAdminAuth() as { currentAdmin: IAdmin | null, signOut: () => void };
+  const [mobileOpen, setMobileOpen] = React.useState(false);
+  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+  const [hideMenuNames, setHideMenuNames] = React.useState(false);
+  const router = useRouter();
+  
+  const items = getItems(currentAdmin);
+
+  const mainPath = items.find((main) =>
+    main.child.some((child) =>
+      child.isDynamic ? child.match?.(pathName) : child.path === pathName
+    )
+  );
+
+  const currentItem: any = mainPath?.child.find((child) =>
+    child.isDynamic ? child.match?.(pathName) : child.path === pathName
+  ) || (pathName === '/admin/dashboard/profile' ? { title: 'Mi Perfil', order: 1, path: '/admin/dashboard/profile' } : null);
+
+  return (
+    <Box sx={style.boxLayout}>
+
+      <Box sx={style.sidebar}>
+        <Image 
+          key={currentAdmin?.logo || currentAdmin?.ownerLogo || '/flash-lines.png'}
+          alt="Logo" 
+          width={38} 
+          height={38} 
+          src={(() => {
+            // Si es cliente, usar el logo del owner
+            if (currentAdmin?.userType === 'Cliente' && currentAdmin?.ownerLogo) {
+              return currentAdmin.ownerLogo;
+            }
+            // Si es owner o cliente con logo propio
+            if (currentAdmin?.logo) {
+              return currentAdmin.logo;
+            }
+            // Logo por defecto
+            return "/flash-lines.png";
+          })()} 
+          style={{ marginLeft: "auto", marginRight: "auto", objectFit: 'contain' }} 
+        />
+        <Box sx={style.boxLi} >
+          {items.map((item, key) => {
+            // Check user type restriction
+            if (item.userTypeRestriction && currentAdmin?.userType !== item.userTypeRestriction && currentAdmin?.userType !== 'Cliente') {
+              return null;
+            }
+            
+            const isActive = item.child.some((child) =>
+              child.isDynamic ? child.match?.(pathName) : child.path === pathName
+            );
+            return (
+              <Box
+                key={key}
+                sx={{
+                  ...style.li,
+                  backgroundColor: isActive ? "#5570F1" : "transparent"
+                }}
+                onClick={() => item.href && router.push(item.href)}
+              >
+                {item.icon(isActive)}
+                {!hideMenuNames && <Typography sx={{ ...style.menuText, pr: 1.70, color: isActive ? "#FFFFFF" : "#45464E" }}>{item.name}</Typography>}
+              </Box>
+            );
+          })}
+        </Box>
+        
+        <Box sx={{ mt: 'auto', mb: 2 }}>
+          <Box
+            sx={{
+              ...style.li,
+              backgroundColor: pathName === '/admin/dashboard/profile' ? "#5570F1" : "transparent"
+            }}
+            onClick={() => router.push('/admin/dashboard/profile')}
+          >
+            <ProfileIcon filled={pathName === '/admin/dashboard/profile'} />
+            {!hideMenuNames && <Typography sx={{ ...style.menuText, pr: 1.70, color: pathName === '/admin/dashboard/profile' ? "#FFFFFF" : "#45464E" }}>Perfil</Typography>}
+          </Box>
+        </Box>
+      </Box>
+
+      <Drawer
+        variant="temporary"
+        open={mobileOpen}
+        onClose={() => setMobileOpen(false)}
+        ModalProps={{ keepMounted: true }}
+        sx={{ display: { xs: 'block', sm: 'block', md: 'block' } }}
+      >
+        <List>
+          {items.map((item, index) => {
+            // Check user type restriction for mobile
+            if (item.userTypeRestriction && currentAdmin?.userType !== item.userTypeRestriction && currentAdmin?.userType !== 'Cliente') {
+              return null;
+            }
+            
+            return (
+              <ListItem key={index} onClick={() => { router.push(item.href); setMobileOpen(false); }}>
+                <ListItemIcon>{item.icon(false)}</ListItemIcon>
+                <ListItemText primary={item.name} />
+              </ListItem>
+            );
+          })}
+          <ListItem onClick={() => { router.push('/admin/dashboard/profile'); setMobileOpen(false); }}>
+            <ListItemIcon><ProfileIcon filled={false} /></ListItemIcon>
+            <ListItemText primary="Perfil" />
+          </ListItem>
+        </List>
+      </Drawer>
+
+      <Box width="100%" height="100%">
+        <Box sx={style.topBar}>
+          <Container sx={style.topBarMain}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+
+              <MenuIcon sx={{ display: { xs: 'none', md: 'block' }, mr: 2, color: "#5570F1", cursor: "pointer" }} onClick={() => setHideMenuNames(!hideMenuNames)} />
+              <MenuIcon sx={{ display: { xs: 'block', md: 'none' }, mr: 2, color: "#5570F1", cursor: "pointer" }} onClick={() => setMobileOpen(true)} />
+              <Typography variant='h3' sx={style.titleTopBar}>{currentItem?.title}</Typography>
+
+            </Box>
+
+            <Box sx={{ ...style.boxRightUser, width: { xs: "100px", md: "auto" } }}>
+              <Box sx={{ ...style.boxRight, ml: { xs: 6, md: 0 }, mr: 1 }}
+                onClick={(e: any) => setAnchorEl(e.currentTarget)}
+              >
+                <Typography variant='h2' sx={{ ...style.tyUser, fontSize: { xs: 10, md: 14 } }}>{currentAdmin?.fullName}</Typography>
+                <KeyboardArrowDownIcon sx={{ color: "#000" }} />
+              </Box>
+              <Box ml={0} mr={1}>
+                <Notification filled={true} />
+              </Box>
+              <Box width={32} height={32} position="relative" borderRadius="50%" overflow="hidden">
+                <Image 
+                  alt="Profile" 
+                  fill 
+                  src={currentAdmin?.profilePicture || "/profile.png"} 
+                  style={{ objectFit: "cover" }} 
+                />
+              </Box>
+            </Box>
+          </Container>
+        </Box>
+
+        <Container sx={style.topBarSecondBar}>
+          <HomeSecondTopBar filled={true} />
+          {(mainPath && currentItem && (() => {
+            const breadcrumbItems = mainPath.child
+              .filter((child: any) => child.order <= currentItem.order!)
+              .sort((a: any, b: any) => a.order - b.order);
+            return breadcrumbItems.map((item, key) => (
+              <React.Fragment key={key}>
+                <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
+                <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
+                  <Link href={item.path}>{item.title}</Link>
+                </Typography>
+              </React.Fragment>
+            ));
+          })()) || (pathName === '/admin/dashboard/profile' && (
+            <React.Fragment>
+              <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
+              <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
+                <Link href="/admin/dashboard/profile">Mi Perfil</Link>
+              </Typography>
+            </React.Fragment>
+          )) || (pathName === '/admin/dashboard/categories' && (
+            <React.Fragment>
+              <Typography sx={{ ...style.tyUser, ...style.slash }}>/</Typography>
+              <Typography sx={{ ...style.tyUser, ...style.slash, color: "#5570F1" }}>
+                <Link href="/admin/dashboard/categories">Categorías</Link>
+              </Typography>
+            </React.Fragment>
+          ))}
+        </Container>
+
+        <Box sx={style.mainLayoutContainer}>{children}</Box>
+      </Box>
+
+      <Popover
+        id={Boolean(anchorEl) ? 'simple-popover' : undefined}
+        open={Boolean(anchorEl)}
+        anchorEl={anchorEl}
+        onClose={() => setAnchorEl(null)}
+        disableScrollLock
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        disableAutoFocus
+        disableEnforceFocus
+        PaperProps={{
+          sx: {
+            width: anchorEl && (anchorEl?.clientWidth || 0),
+            display: anchorEl ? "block" : "none",
+
+          }
+        }}
+      >
+        <Box p={1} sx={{ paddingLeft: 2, paddingRight: 2 }} width={"100%"}>
+          <Typography variant="h6" gutterBottom component="div" fontFamily={inter.style.fontFamily} color={"#767989"} fontWeight={500}
+            display={"flex"} justifyContent={"space-between"} alignItems={"center"}
+            sx={{ cursor: "pointer", fontSize: { xs: 10, sm: 10, md: 13 }, mb: 1 }}
+            onClick={() => {
+              router.push('/admin/dashboard/profile');
+              setAnchorEl(null);
+            }}
+          >
+            Perfil
+            <PersonIcon sx={{fontSize: { xs: 12, sm: 12, md: 15} }} />
+          </Typography>
+
+          <Typography variant="h6" gutterBottom component="div" fontFamily={inter.style.fontFamily} color={"#767989"} fontWeight={500}
+            display={"flex"} justifyContent={"space-between"} alignItems={"center"}
+            sx={{ cursor: "pointer",fontSize: { xs: 10, sm: 10, md: 13 } }}
+            onClick={() => {
+              signOut();
+            }}
+          >
+            Cerrar sesión
+            <LogoutIcon sx={{fontSize: { xs: 12, sm: 12, md: 15} }} />
+          </Typography>
+        </Box>
+      </Popover>
+
+    </Box>
+  );
+}
+
+const style = {
+  sidebar: {
+    display: { xs: 'none', md: 'flex' },
+    flexDirection: 'column',
+    backgroundColor: '#FFFFFF',
+    minHeight: '100vh',
+    p: 2,
+    borderRight: '1px solid #F1F3F9'
+  },
+  boxRightUser: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    minWidth: "240px"
+  },
+  slash: {
+    color: "#8B8D97",
+    marginLeft: "11px"
+  },
+  boxRight: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: "154px",
+    height: "32px",
+    backgroundColor: "#FEF5EA",
+    borderRadius: "8px",
+    padding: "5px 12px"
+  },
+  tyUser: {
+    fontSize: { xs: 12, sm: 14 },
+    fontFamily: inter.style.fontFamily,
+    fontWeight: 500,
+    color: "#7f7f86ff"
+  },
+  topBarSecondBar: {
+    display: "flex",
+    alignItems: "center",
+    minWidth: "100% !important",
+    height: 24,
+    borderTop: "1px solid #F1F3F9",
+    backgroundColor: "#FFFFFF",
+    padding: "4px 21px"
+  },
+  titleTopBar: {
+    fontSize: { xs: 12, sm: 20 },
+    fontFamily: poppins.style.fontFamily,
+    letterSpacing: "2%",
+    color: "#45464E"
+  },
+  topBarMain: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    height: "60px",
+    minWidth: "100% !important",
+    padding: "14px 21px"
+  },
+  mainLayoutContainer: {
+    padding: "23px 21px 0px 21px",
+    margin: 0,
+    width: "100% !important",
+    minHeight: "100% !important",
+    backgroundColor: "#F4F5FA"
+  },
+  boxLayout: {
+    width: "100% !important",
+    display: "flex",
+    minHeight: "100% !important"
+  },
+  topBar: {
+    width: "100%",
+    minWidth: "100% !important",
+    height: "66px",
+    backgroundColor: "#FFFFFF"
+  },
+  boxLi: {
+    marginTop: "40px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px"
+  },
+  li: {
+    borderRadius: "12px",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center"
+  },
+  menuText: {
+    display: { xs: "none", md: "block" },
+    fontSize: "14px",
+    fontFamily: poppins.style.fontFamily,
+    color: "#1C1D22"
+  }
+};

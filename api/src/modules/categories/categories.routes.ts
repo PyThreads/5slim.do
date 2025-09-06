@@ -6,6 +6,7 @@ import { Db } from "mongodb";
 import BaseService from "../../base/baseService";
 
 const router = express.Router();
+const publicRouter = express.Router();
 
 class CategoriesRouter {
     public readonly routes: typeof router;
@@ -17,13 +18,10 @@ class CategoriesRouter {
         this.categoriesController = new CategoriesController({ categoriesService });
         this.baseService = new BaseService({ mongoDatabase, tableName: "CATEGORIES" });
 
-        // Apply middleware first
-        router.use("/", this.baseService.verifyTokenAdmin.bind(this.baseService));
-        router.use("/", (req: Request, res: Response, next) => {
-            req.body.user = res.locals.admin;
-            next();
-        });
+        // PUBLIC ROUTES
+        publicRouter.get("/", (req: Request, res: Response) => this.categoriesController.getPublicCategories(req, res));
 
+        // PRIVATE ROUTES
         router.post(
             "/create",
             adminRoutesValidations.createCategoryValidation(),
@@ -41,6 +39,16 @@ class CategoriesRouter {
             adminRoutesValidations.getAllCategoriesValidation(),
             (req: Request, res: Response) => this.categoriesController.getAllCategories(req, res)
         );
+
+        // Apply authentication middleware to private routes
+        router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
+        router.use("/private", (req: Request, res: Response, next) => {
+            req.body.user = res.locals.admin;
+            next();
+        });
+        
+        router.use("/private", router);
+        router.use("/public", publicRouter);
 
         this.routes = router;
     }

@@ -5,7 +5,7 @@ import { Poppins } from 'next/font/google';
 import { Typography } from '@mui/material';
 import { useRouter, usePathname } from 'next/navigation'
 import Image from "next/image";
-import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, UserManagementIcon } from '../icons/Svg';
+import { ArticlesIcons, CustomersIcon, DashboardIcon, EmployeesIcon, ShoppingBagIcon, UserManagementIcon, TiendaOnlineIcon } from '../icons/Svg';
 import { useAdminAuth } from '../../context/AdminContext';
 
 const poppins = Poppins({
@@ -49,6 +49,11 @@ const getItems = (hasSuportRole: boolean) => {
             name: "",
             icon: (filled: boolean) => <UserManagementIcon filled={filled} />,
             href: "/admin/dashboard/gestion-usuarios"
+        });
+        baseItems.push({
+            name: "",
+            icon: (filled: boolean) => <TiendaOnlineIcon filled={filled} />,
+            href: "/admin/dashboard/tienda-online"
         });
     }
 

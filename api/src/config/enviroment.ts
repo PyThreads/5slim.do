@@ -22,6 +22,7 @@ class EnvironmentConfig {
     public readonly microsoftSendEmail: string;
     public readonly CLOUDFLARE_ACCOUNT_ID : string;
     public readonly CLOUDFLARE_IMAGES_TOKEN : string;
+    public readonly storeOwner: number
 
     public readonly timeZone: string
 
@@ -51,6 +52,8 @@ class EnvironmentConfig {
 
         this.CLOUDFLARE_ACCOUNT_ID = '8e63ba5b543a5e7b99fe1fc8cb2543fb';
         this.CLOUDFLARE_IMAGES_TOKEN = '-9CsPFlsjbWYa5o1Q7flsQvdrs3NHkx1bq0c9w6P';
+
+        this.storeOwner = 1
     }
 }
 

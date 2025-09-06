@@ -5,6 +5,13 @@ import CloseIcon from '@mui/icons-material/Close';
 import { Box, Typography } from '@mui/material';
 import { DownImageSnack, ErrorIconSnack } from '../icons/Svg';
 import { INotify } from '../../api/src/interfaces';
+import { Inter } from 'next/font/google';
+
+const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    weight: "500"
+});
 
 export default function SimpleSnackbar({ type, message, title, open, setOpen, delay = 6000 }: INotify) {
   const handleClose = (
@@ -46,10 +53,10 @@ export default function SimpleSnackbar({ type, message, title, open, setOpen, de
 
 
         <Box flexGrow={1} pr={4} ml={6} mt={1}>
-          <Typography fontFamily="Inter" fontSize="18px" color="#FFFFFF" fontWeight={600} mb={0.5}>
+          <Typography fontFamily={ inter.style.fontFamily} fontSize="18px" color="#FFFFFF" fontWeight={400} mb={0.5}>
             {title}
           </Typography>
-          <Typography fontFamily="Inter" fontSize="13px" color="#FFFFFF">
+          <Typography fontFamily={ inter.style.fontFamily} fontSize="13px" color="#FFFFFF">
             {message}
           </Typography>
         </Box>

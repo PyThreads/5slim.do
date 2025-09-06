@@ -2,9 +2,9 @@ import React, { useState, useEffect } from "react";
 import { Button, Popover, Box, FormControlLabel, Checkbox, Typography, Divider, Select, MenuItem, FormControl, Autocomplete, TextField } from "@mui/material";
 import { FilterIcon } from "../icons/Svg";
 import { Inter } from "next/font/google";
-import { categoriesService } from "../../src/app/admin/dashboard/categories/categoriesService";
-import { brandsService } from "../../src/app/admin/dashboard/brands/brandsService";
 import { ICategory, IBrand } from "../../api/src/interfaces";
+import { categoriesService } from "@/app/admin/dashboard/categories/categoriesService";
+import { brandsService } from "@/app/admin/dashboard/brands/brandsService";
 
 const inter = Inter({
     subsets: ['latin'],
@@ -116,7 +116,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
             >
                 <Box>
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Disponibilidad
                     </Typography>
                     
@@ -164,7 +164,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Variantes encargadas
                     </Typography>
                     
@@ -184,7 +184,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Categorías
                     </Typography>
                     
@@ -222,7 +222,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Marcas
                     </Typography>
                     
@@ -253,7 +253,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Ordenar por ventas
                     </Typography>
                     
@@ -281,7 +281,7 @@ const FilterPopover: React.FC<FilterPopoverProps> = ({ onFilterChange, currentFi
 
                     <Divider sx={{ my: 2 }} />
 
-                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 600, mb: 2, color: '#2C2D33' }}>
+                    <Typography sx={{ fontFamily: inter.style.fontFamily, fontSize: '14px', fontWeight: 400, mb: 2, color: '#2C2D33' }}>
                         Talla
                     </Typography>
                     

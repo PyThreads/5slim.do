@@ -39,4 +39,22 @@ export class BrandController {
             res.status(400).json({ success: false, message: error.message });
         }
     }
+
+    async getPublicBrands(req: Request, res: Response) {
+        try {
+            const brands = await this.brandService.getPublicBrands();
+            
+            res.status(200).json({
+                success: true,
+                data: brands,
+                message: "Marcas públicas obtenidas exitosamente"
+            });
+        } catch (error: any) {
+            res.status(500).json({
+                success: false,
+                data: null,
+                message: error.message
+            });
+        }
+    }
 }

@@ -1,6 +1,13 @@
 import React from "react";
 import { TextField } from "@mui/material";
 import SearchIcon from "@mui/icons-material/Search";
+import { Inter } from "next/font/google";
+
+const inter = Inter({
+    subsets: ['latin'],
+    display: 'swap',
+    weight: "500"
+})
 
 interface SearchTableProps {
   onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
@@ -41,7 +48,7 @@ const SearchTable: React.FC<SearchTableProps> = ({ onChange, handleClick }) => {
           outline: "none",
           color: "#ABAFB1",
           fontSize: "14px",
-          fontFamily: "Inter"
+          fontFamily: inter.style.fontFamily
         }
       }}
     />

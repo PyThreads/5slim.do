@@ -1,4 +1,4 @@
-import { COLLNAMES, IAdmin, IArticle, IArticleCart, IArticlesSummary, IClient, IOrderStatus, IPaginateArticles, IPaginationResult, IArticlesVariants } from "../../interfaces";
+import { COLLNAMES, IAdmin, IArticle, IArticleCart, IArticlesSummary, IClient, IOrderStatus, IPaginateArticles, IPaginationResult, IArticlesVariants, IArticlePublic, IArticleAvailability } from "../../interfaces";
 import BaseService from "../../base/baseService";
 import { Db } from "mongodb";
 import { ArticlesIndex } from "./articlesIndex";
@@ -11,6 +11,58 @@ class ArticleService extends BaseService {
         new ArticlesIndex({ mongoDatabase, tableName: COLLNAMES.ARTICLES });
     }
 
+
+    async getArticlesFeatured(): Promise<IArticlePublic[]> {
+        try {
+
+            const pipeline = [
+                {
+                    $match: {
+                        featured: true,
+                        variants: { $elemMatch: { stock: { $gt: 0 }, available: "Disponible" } }
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$variants",
+                        preserveNullAndEmptyArrays: true
+                    }
+                },
+                {
+                    $sort: { updatedDate: -1 },
+                },
+                {
+                    $match: {
+                        "variants.stock": { $gt: 0 },
+                        "variants.available": IArticleAvailability.AVAILABLE
+                    }
+                },
+                { $sort: { _id: 1, "variants.sellingPrice": 1 } },
+                {
+                    $group: {
+                        _id: "$_id",
+                        slug: { $first: "$slug" },
+                        description: { $first: "$description" },
+                        shortDescription: { $first: "$shortDescription" },
+                        images: { $first: "$images" },
+                        brand: { $first: "$brand.description" },
+                        price: { $first: "$variants.sellingPrice" },
+                        createdDate: { $first: "$createdDate" },
+                        variantId: {$first: "$variants._id"},
+                        stock: {$first: "$variants.stock"},
+                    }
+                },
+                { $limit: 18 }
+            ]
+
+            const result = await this.collection.aggregate(pipeline).toArray()
+
+            return result as IArticlePublic[]
+
+        } catch (_) {
+            return []
+        }
+    }
 
     async articlesSummary(ownerId?: number): Promise<IArticlesSummary> {
 
@@ -90,8 +142,8 @@ class ArticleService extends BaseService {
 
             const orderMatch: any = {
                 createdDate: {
-                 $gte: this.utils.getDayBound("startDay", this.utils.newDate()),
-                 $lte: this.utils.getDayBound("endDay", this.utils.newDate())
+                    $gte: this.utils.getDayBound("startDay", this.utils.newDate()),
+                    $lte: this.utils.getDayBound("endDay", this.utils.newDate())
                 }
             };
             if (ownerId) orderMatch.ownerId = ownerId;
@@ -145,7 +197,7 @@ class ArticleService extends BaseService {
     }
 
 
-    async unsetToOrder({ articles,ownerId }: { articles: IArticleCart[],ownerId: number }): Promise<void> {
+    async unsetToOrder({ articles, ownerId }: { articles: IArticleCart[], ownerId: number }): Promise<void> {
         try {
 
             let message = "";
@@ -291,19 +343,19 @@ class ArticleService extends BaseService {
 
             body.slug = await this.getArticleSlug(body.description);
             const result = await this.insertOne({ body, user });
-            
+
             // Generate and update article search field
             const articleSearch = this.generateArticleSearch({
                 description: result.description,
                 _id: result._id,
                 externalCode: result.externalCode
             });
-            
+
             await this.collection.updateOne(
                 { _id: result._id, ownerId: user.ownerId },
                 { $set: { articleSearch } }
             );
-            
+
             result.articleSearch = articleSearch;
             return result;
 
@@ -358,12 +410,12 @@ class ArticleService extends BaseService {
                 _id: _id,
                 externalCode: body.externalCode
             });
-            
+
             body.articleSearch = articleSearch;
-            
+
             const filter = { _id, ownerId: user.ownerId };
             await this.updateOne({ filter, body, user });
-            
+
             return body;
         } catch (error: any) {
             throw error;
@@ -381,11 +433,11 @@ class ArticleService extends BaseService {
                 { _id: articleId, ownerId },
                 { $push: { variants: variant } }
             );
-            
+
             if (result.matchedCount === 0) {
                 throw new Error("Artículo no encontrado");
             }
-            
+
             return { success: true };
         } catch (error: any) {
             throw error;
@@ -395,12 +447,12 @@ class ArticleService extends BaseService {
     async updateVariant({ articleId, variantId, variant, ownerId }: { articleId: number, variantId: string, variant: any, ownerId: number }): Promise<any> {
         try {
             const result = await this.collection.updateOne(
-                { 
-                    _id: articleId, 
+                {
+                    _id: articleId,
                     ownerId,
-                    "variants._id": variantId 
+                    "variants._id": variantId
                 },
-                { 
+                {
                     $set: {
                         "variants.$[variant].costPrice": variant.costPrice,
                         "variants.$[variant].sellingPrice": variant.sellingPrice,
@@ -418,11 +470,11 @@ class ArticleService extends BaseService {
                     arrayFilters: [{ "variant._id": variantId }]
                 }
             );
-            
+
             if (result.matchedCount === 0) {
                 throw new Error("Artículo o variante no encontrado");
             }
-            
+
             return { success: true };
         } catch (error: any) {
             throw error;
@@ -435,7 +487,7 @@ class ArticleService extends BaseService {
                 { _id: articleId, ownerId },
                 { $pull: { variants: { _id: variantId } } }
             );
-            
+
             if (result.matchedCount === 0) {
                 throw new Error("Artículo no encontrado");
             }
@@ -450,11 +502,11 @@ class ArticleService extends BaseService {
                 { _id: articleId, ownerId },
                 { projection: { variants: 1 } }
             );
-            
+
             if (!result) {
                 throw new Error("Artículo no encontrado");
             }
-            
+
             return result.variants || [];
         } catch (error: any) {
             throw error;

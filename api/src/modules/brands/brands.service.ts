@@ -11,40 +11,41 @@ class BrandService extends BaseService {
         new BrandsIndex({ mongoDatabase, tableName: COLLNAMES.BRANDS });
     }
 
+    async getPublicBrands(): Promise<IBrand[]> {
+        try {
+            const pipeline = [
+                {
+                     $match: { ownerId: this.environmentConfig.storeOwner }
+                },
+                { $sample: { size: 8 } },
+                {
+                    $project: {
+                        _id: 1,
+                        description: 1,
+                        slug: 1,
+                        icon: 1
+                    }
+                }
+            ];
+
+            const result = await this.collection.aggregate(pipeline).toArray();
+            return result as IBrand[];
+           
+        } catch (error: any) {
+            return [];
+        }
+    }
+
     async register({ body, user }: { body: IBrand, user: IAdmin }): Promise<IBrand> {
         try {
-            body.slug = await this.getBrandSlug(body.description);
+
             const result = await this.insertOne({ body, user });
             return result;
         } catch (error: any) {
             throw error;
         }
     }
-
-    async getBrandSlug(description: string): Promise<string> {
-        try {
-            let count = 1;
-            let slugNumber = 0;
-            let slug = "";
-
-            const baseSlug = description.toLowerCase().trim().replace(/ +/g, '-');
-
-            while (count > 0) {
-                slug = slugNumber === 0 ? baseSlug : `${baseSlug}-${slugNumber}`;
-                count = await this.collection.countDocuments({ slug });
-
-                if (count > 0) {
-                    slugNumber += 1;
-                }
-            }
-
-            return slug;
-
-        } catch (error) {
-            throw new Error("No se pudo generar el slug");
-        }
-    }
-
+    
     async updateBrand({ _id, user, body }: { _id: number, body: IBrand, user: IAdmin }) {
         try {
             const filter = { _id, ownerId: user.ownerId };

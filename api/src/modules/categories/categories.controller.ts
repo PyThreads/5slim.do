@@ -32,7 +32,7 @@ class CategoriesController {
 
     async updateCategory(req: Request, res: Response) {
         try {
-            const user: IAdmin = req.body.user;
+            const user: IAdmin = res.locals.admin;
             const body: ICategory = req.body;
             const _id = parseInt(req.params._id);
             

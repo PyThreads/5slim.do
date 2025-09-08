@@ -46,9 +46,9 @@ export default function CarouselTiendaTab() {
         const handleNotification = (data: any) => {
             setNotification({ ...data, open: true });
         };
-        
+
         eventBus.on('notification', handleNotification);
-        
+
         return () => {
             eventBus.off('notification', handleNotification);
         };
@@ -59,8 +59,8 @@ export default function CarouselTiendaTab() {
             <Grid container justifyContent={"space-between"} alignItems={"center"} mb={3}>
                 <Typography sx={style.subtitle}>Carousel de la Tienda</Typography>
 
-                <Button 
-                    variant="contained" 
+                <Button
+                    variant="contained"
                     sx={style.addButton}
                     onClick={() => setOpen(true)}
                 >
@@ -85,7 +85,7 @@ export default function CarouselTiendaTab() {
             />
 
             <CustomModal open={open} borderRadius={"12px"}>
-                <Box padding={"28px 24px"} maxWidth={600} minWidth={500} maxHeight={"80vh"}
+                <Box padding={3} maxWidth={600} minWidth={500} maxHeight={"80vh"}
                     sx={style.hideScroll}
                 >
                     <Grid container p={0} m={0} justifyContent={"space-between"}>
@@ -93,13 +93,27 @@ export default function CarouselTiendaTab() {
                             {selectedCarousel?._id ? "Editar Slide" : "Agregar Nuevo Slide"}
                         </Typography>
 
-                        <CloseIcon 
-                            sx={style.closeIcon}
+                        <Box 
+                            sx={{
+                                backgroundColor: "#FFF2E2",
+                                width: 32,
+                                height: 32,
+                                borderRadius: "8px",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                justifyContent: "center",
+                                '&:hover': {
+                                    backgroundColor: "#FFE4C4"
+                                }
+                            }} 
                             onClick={() => {
                                 setOpen(false);
                                 setSelectedCarousel(null);
                             }}
-                        />
+                        >
+                            <CloseIcon sx={{ fontSize: 20, color: "#000" }} />
+                        </Box>
                     </Grid>
 
                     <CarouselForm
@@ -112,7 +126,7 @@ export default function CarouselTiendaTab() {
                     />
                 </Box>
             </CustomModal>
-            
+
             {notification && (
                 <SimpleSnackbar
                     type={notification.type}

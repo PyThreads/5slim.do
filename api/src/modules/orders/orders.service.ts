@@ -258,7 +258,8 @@ export class OrderService extends BaseService {
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
             const businessName = owner?.businessName;
-            const html = await invoiceCreated({ order, logo, businessName });
+            const logoDimensions = owner?.logoDimentions || { width: 55, height: 55 };
+            const html = await invoiceCreated({ order, logo, businessName, logoDimensions });
             return html;
         } catch (error: any) {
             throw error;
@@ -271,7 +272,8 @@ export class OrderService extends BaseService {
             // Obtener el logo del owner
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
-            const html = await invoiceLabel({ order, logo });
+            const logoDimensions = owner?.logoDimentions || { width: 55, height: 55 };
+            const html = await invoiceLabel({ order, logo, logoDimensions });
             return html;
         } catch (error: any) {
             throw error;
@@ -284,7 +286,8 @@ export class OrderService extends BaseService {
             const owner = await this.mongoDatabase.collection(COLLNAMES.ADMIN).findOne({ _id: ownerId });
             const logo = owner?.logo || 'https://5slim.do/_next/image?url=%2Fflash-lines.png&w=48&q=75';
             const businessName = owner?.businessName;
-            const html = await invoice72mm({ order, logo, businessName });
+            const logoDimensions = owner?.logoDimentions || { width: 55, height: 55 };
+            const html = await invoice72mm({ order, logo, businessName, logoDimensions });
             return html;
         } catch (error: any) {
             throw error;

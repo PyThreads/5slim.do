@@ -227,7 +227,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={12}>
                     <CustomField 
                         name="title" 
-                        placeholder="Título del slide" 
+                        label="Título del Slide"
+                        placeholder="Ingresa el título principal del slide" 
                         fullWidth 
                         value={formData.title}
                         onChange={(e: any) => setFormData(prev => ({ ...prev, title: e.target.value }))}
@@ -237,7 +238,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={6}>
                     <CustomField 
                         name="price" 
-                        placeholder="Precio" 
+                        label="Precio"
+                        placeholder="0.00" 
                         fullWidth 
                         type="number"
                         value={formData.price}
@@ -248,7 +250,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={6}>
                     <CustomField 
                         name="originalPrice" 
-                        placeholder="Precio original (opcional)" 
+                        label="Precio Original"
+                        placeholder="0.00 (opcional)" 
                         fullWidth 
                         type="number"
                         value={formData.originalPrice}
@@ -259,7 +262,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={12}>
                     <CustomField 
                         name="description" 
-                        placeholder="Descripción" 
+                        label="Descripción"
+                        placeholder="Describe el producto o promoción del slide" 
                         fullWidth 
                         multiline
                         rows={3}
@@ -271,7 +275,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={6}>
                     <CustomField 
                         name="buttonText" 
-                        placeholder="Texto del botón" 
+                        label="Texto del Botón"
+                        placeholder="Ej: Comprar Ahora, Ver Más" 
                         fullWidth 
                         value={formData.buttonText}
                         onChange={(e: any) => setFormData(prev => ({ ...prev, buttonText: e.target.value }))}
@@ -281,7 +286,8 @@ export default function CarouselForm({ valuesToEdit = {}, onClose }: CarouselFor
                 <Grid item xs={6}>
                     <CustomField 
                         name="buttonLink" 
-                        placeholder="Enlace del botón" 
+                        label="Enlace del Botón"
+                        placeholder="/productos/categoria o URL externa" 
                         fullWidth 
                         value={formData.buttonLink}
                         onChange={(e: any) => setFormData(prev => ({ ...prev, buttonLink: e.target.value }))}

@@ -661,7 +661,7 @@ class Admin {
 
     async updateProfile(req: Request, res: Response) {
         try {
-            const { firstName, lastName, email, profilePicture, logo, businessName }: { firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, businessName?: string } = req.body;
+            const { firstName, lastName, email, profilePicture, logo, businessName, logoDimentions }: { firstName: string, lastName: string, email: string, profilePicture?: string, logo?: string, businessName?: string, logoDimentions?: { width: number, height: number } } = req.body;
             const adminId = res.locals.admin._id;
 
             const updatedAdmin = await this.adminService.updateProfile({ 
@@ -672,6 +672,7 @@ class Admin {
                 profilePicture,
                 logo,
                 businessName,
+                logoDimentions,
                 user: res.locals.admin
             });
 

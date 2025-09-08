@@ -32,7 +32,11 @@ export default function ProfilePage() {
         email: "",
         profilePicture: "",
         logo: "",
-        businessName: ""
+        businessName: "",
+        logoDimentions: {
+            width: 55,
+            height: 55
+        }
     });
 
     // Update form data when currentAdmin changes
@@ -48,7 +52,11 @@ export default function ProfilePage() {
                 email: currentAdmin.email || "",
                 profilePicture: currentAdmin.profilePicture || "",
                 logo: currentAdmin.logo || "",
-                businessName: currentAdmin.businessName || ""
+                businessName: currentAdmin.businessName || "",
+                logoDimentions: currentAdmin.logoDimentions || {
+                    width: 55,
+                    height: 55
+                }
             });
         }
     }, [currentAdmin]);
@@ -59,9 +67,11 @@ export default function ProfilePage() {
         };
         
         eventBus.on(EVENTBUS.NOTIFICATION, handleNotification);
+        eventBus.on(EVENTBUS.NOTIFY, handleNotification);
         
         return () => {
             eventBus.off(EVENTBUS.NOTIFICATION, handleNotification);
+            eventBus.off(EVENTBUS.NOTIFY, handleNotification);
         };
     }, []);
 
@@ -144,6 +154,14 @@ export default function ProfilePage() {
             
             // Refresh admin data from server to get latest info
             await refreshAdmin();
+            
+            // Emit success notification
+            eventBus.emit(EVENTBUS.NOTIFY, {
+                message: "Perfil actualizado exitosamente",
+                type: "success",
+                title: "¡Éxito!",
+                open: true
+            });
         
         } catch (error) {
         } finally {
@@ -308,16 +326,57 @@ export default function ProfilePage() {
                                 />
                             </Grid>
                             {canManageLogo && (
-                                <Grid item xs={12}>
-                                    <CustomField
-                                        label="Nombre del Negocio"
-                                        fullWidth
-                                        size="small"
-                                        value={formData.businessName}
-                                        onChange={(e: any) => handleInputChange('businessName', e.target.value)}
-                                        placeholder="Ej: Mi Tienda, Empresa ABC, etc."
-                                    />
-                                </Grid>
+                                <>
+                                    <Grid item xs={12}>
+                                        <CustomField
+                                            label="Nombre del Negocio"
+                                            fullWidth
+                                            size="small"
+                                            value={formData.businessName}
+                                            onChange={(e: any) => handleInputChange('businessName', e.target.value)}
+                                            placeholder="Ej: Mi Tienda, Empresa ABC, etc."
+                                        />
+                                    </Grid>
+                                    <Grid item xs={12}>
+                                        <Typography fontSize="14px" fontWeight={400} color="#45464E" mb={1}>
+                                            Dimensiones del Logo (para impresiones)
+                                        </Typography>
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <CustomField
+                                            label="Ancho (px)"
+                                            fullWidth
+                                            size="small"
+                                            type="number"
+                                            value={formData.logoDimentions.width}
+                                            onChange={(e: any) => setFormData(prev => ({
+                                                ...prev,
+                                                logoDimentions: {
+                                                    ...prev.logoDimentions,
+                                                    width: parseInt(e.target.value) || 55
+                                                }
+                                            }))}
+                                            placeholder="55"
+                                        />
+                                    </Grid>
+                                    <Grid item xs={6}>
+                                        <CustomField
+                                            label="Alto (px)"
+                                            fullWidth
+                                            size="small"
+                                            type="number"
+                                            value={formData.logoDimentions.height}
+                                            onChange={(e: any) => setFormData(prev => ({
+                                                ...prev,
+                                                logoDimentions: {
+                                                    ...prev.logoDimentions,
+                                                    height: parseInt(e.target.value) || 55
+                                                }
+                                            }))}
+                                            placeholder="55"
+                                        />
+                                    </Grid>
+                                </>
                             )}
                         </Grid>
 

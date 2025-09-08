@@ -2,7 +2,7 @@ import { IArticleCart, IOrder, IOrderDiscountType } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
-export const invoiceCreated = async ({ order, logo, businessName }: { order: IOrder, logo: string, businessName?: string }) => {
+export const invoiceCreated = async ({ order, logo, businessName, logoDimensions }: { order: IOrder, logo: string, businessName?: string, logoDimensions?: { width: number, height: number } }) => {
     const qrResult = order.client.address?.map?.url ? await QRCode.toDataURL(order.client.address.map.url, { errorCorrectionLevel: 'H' }) : null;
     return `
     
@@ -46,9 +46,9 @@ export const invoiceCreated = async ({ order, logo, businessName }: { order: IOr
             }
 
             .logo {
-            width: 54px;
-            height: auto;
-            object-fit: cover;
+            width: ${logoDimensions?.width || 55}px;
+            height: ${logoDimensions?.height || 55}px;
+            object-fit: contain;
             }
 
             .info {

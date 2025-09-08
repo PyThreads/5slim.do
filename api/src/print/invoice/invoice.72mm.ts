@@ -1,7 +1,7 @@
 import { IArticleCart, IOrder, IOrderDiscountType } from "../../interfaces"
 import { utils } from "../../utils"
 
-export const invoice72mm = async ({ order, logo, businessName }: { order: IOrder, logo: string, businessName?: string }) => {
+export const invoice72mm = async ({ order, logo, businessName, logoDimensions = { width: 55, height: 55 }  }: { order: IOrder, logo: string, businessName?: string, logoDimensions?: { width: number, height: number } }) => {
     return `
         <!DOCTYPE html>
         <html lang="es">
@@ -41,9 +41,10 @@ export const invoice72mm = async ({ order, logo, businessName }: { order: IOrder
             }
             
             .logo {
-            width: 30px;
-            height: auto;
+            width: ${logoDimensions?.width || 55}px;
+            height: ${logoDimensions?.height || 55}px;
             margin-bottom: 4px;
+            object-fit: contain;
             }
             
             .store-name {

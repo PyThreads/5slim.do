@@ -2,7 +2,7 @@ import { IOrder } from "../../interfaces"
 import { utils } from "../../utils"
 import QRCode from "qrcode";
 
-export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: string }) => {
+export const invoiceLabel = async ({ order, logo, logoDimensions = { width: 55, height: 55 } }: { order: IOrder, logo: string, logoDimensions?: { width: number, height: number } }) => {
 
     const result = order.client.address ? await QRCode.toDataURL(`https://waze.com/ul?ll=${order.client.address?.map?.lat || '18.4861'},${order.client.address?.map?.lng || '-69.9312'}&navigate=yes`, { errorCorrectionLevel: 'H', }) : null
 
@@ -61,8 +61,8 @@ export const invoiceLabel = async ({ order, logo }: { order: IOrder, logo: strin
         }
 
         .center-logo {
-            width: 55px;
-            height: 55px;
+            width: ${logoDimensions?.width || 55}px;
+            height: ${logoDimensions?.height || 55}px;
             border-radius: 4px;
             overflow: hidden;
         }

@@ -1,7 +1,8 @@
 
 export enum EVENTBUS {
     UPDATE_CART = "UPDATE_CART",
-    NOTIFICATION = "NOTIFICATION"
+    NOTIFICATION = "NOTIFICATION",
+    NOTIFY = "NOTIFY"
 }
 
 export interface ICart {
@@ -25,18 +26,18 @@ export interface IArticlePublic {
 }
 
 export interface ICarouselSlide {
-  _id: string;
-  image: string;
-  title: string;
-  price: number;
-  originalPrice?: number;
-  description: string;
-  buttonText: string;
-  buttonLink: string;
-  createdDate?: Date;
-  createdBy?: ICreatedBy;
-  updatedBy?: ICreatedBy;
-  updatedDate?: Date;
+    _id: string;
+    image: string;
+    title: string;
+    price: number;
+    originalPrice?: number;
+    description: string;
+    buttonText: string;
+    buttonLink: string;
+    createdDate?: Date;
+    createdBy?: ICreatedBy;
+    updatedBy?: ICreatedBy;
+    updatedDate?: Date;
 }
 
 export interface IArticlesSummary {
@@ -455,6 +456,10 @@ export interface IAdmin {
     updatedDate?: Date
     updatedBy?: ICreatedBy
     role: string[]
+    logoDimentions?: {
+        height: number,
+        width: number
+    }
 }
 
 export interface IUserAddress {

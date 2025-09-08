@@ -14,9 +14,9 @@ export default function HomePage() {
       <FeaturedProducts />
       <CategoriesGrid />
       <FeaturedProducts />
-      <BrandsSection /> */}
-      {/* <TestimonialsSection /> */}
-      {/* <NewsletterSection /> */}
+      <BrandsSection /> 
+      <TestimonialsSection />
+      <NewsletterSection /> */}
     </main>
   );
 }

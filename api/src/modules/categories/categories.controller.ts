@@ -11,7 +11,7 @@ class CategoriesController {
 
     async createCategory(req: Request, res: Response) {
         try {
-            const user: IAdmin = req.body.user;
+            const user: IAdmin = res.locals.admin;
             const body: ICategory = req.body;
             
             const category = await this.categoriesService.createCategory({ body, user });

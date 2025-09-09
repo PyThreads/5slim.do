@@ -43,7 +43,7 @@ class CategoriesRouter {
         // Apply authentication middleware to private routes
         router.use("/private", this.baseService.verifyTokenAdmin.bind(this.baseService));
         router.use("/private", (req: Request, res: Response, next) => {
-            req.body.user = res.locals.admin;
+            res.locals.admin = res.locals.admin;
             next();
         });
         
